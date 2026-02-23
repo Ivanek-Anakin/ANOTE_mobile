@@ -33,8 +33,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final url = await _storage.read(key: AppConstants.secureStorageKeyUrl);
     final token = await _storage.read(key: AppConstants.secureStorageKeyToken);
     setState(() {
-      _urlController.text = url ?? AppConstants.defaultBackendUrl;
-      _tokenController.text = token ?? '';
+      _urlController.text =
+          (url?.isEmpty ?? true) ? AppConstants.defaultBackendUrl : url!;
+      _tokenController.text =
+          (token?.isEmpty ?? true) ? AppConstants.defaultToken : token!;
     });
   }
 

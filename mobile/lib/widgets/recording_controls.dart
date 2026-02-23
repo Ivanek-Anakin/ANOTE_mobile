@@ -32,11 +32,11 @@ class RecordingControls extends ConsumerWidget {
               Expanded(
                 child: FilledButton.icon(
                   onPressed: canStart ? () => notifier.startRecording() : null,
-                  icon: const Text('🔴'),
+                  icon: const Text('�'),
                   label: const Text('Nahrávat'),
                   style: FilledButton.styleFrom(
                     backgroundColor: canStart
-                        ? theme.colorScheme.error
+                        ? Colors.green.shade600
                         : theme.colorScheme.outline,
                   ),
                 ),

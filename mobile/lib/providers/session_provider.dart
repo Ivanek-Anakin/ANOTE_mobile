@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/session_state.dart';
 import '../services/report_service.dart';
@@ -56,12 +57,43 @@ class SessionNotifier extends StateNotifier<SessionState> {
     }
   }
 
-  /// Stub for demo playback — sets status to demoPlaying (wired in Phase 4).
-  void playDemo(String scenarioId) {
+  /// Load demo scenario from assets, display transcript, and generate report.
+  Future<void> playDemo(String scenarioId) async {
     state = state.copyWith(
       status: RecordingStatus.demoPlaying,
       clearError: true,
     );
+
+    String transcript;
+    try {
+      transcript = await rootBundle.loadString(
+        'assets/demo_scenarios/$scenarioId.txt',
+      );
+      transcript = transcript.trim();
+    } catch (e) {
+      state = state.copyWith(
+        status: RecordingStatus.idle,
+        errorMessage: 'Scénář nelze načíst: $e',
+      );
+      return;
+    }
+
+    // Show transcript immediately so the user sees it appear
+    state = state.copyWith(transcript: transcript);
+
+    // Now call the backend to generate the report
+    try {
+      final report = await _reportService.generateReport(transcript);
+      state = state.copyWith(
+        status: RecordingStatus.idle,
+        report: report,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        status: RecordingStatus.idle,
+        errorMessage: e.toString(),
+      );
+    }
   }
 
   /// Cancel demo playback — sets status to idle.

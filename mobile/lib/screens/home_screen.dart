@@ -276,10 +276,10 @@ class _StatusPillState extends State<_StatusPill>
           : ('Připraveno', Colors.green.shade600),
       RecordingStatus.recording => (
           'Nahrávání & generování...',
-          theme.colorScheme.error
+          Colors.green.shade600
         ),
-      RecordingStatus.processing => ('Dokončování...', theme.colorScheme.error),
-      RecordingStatus.demoPlaying => ('Simulace...', theme.colorScheme.error),
+      RecordingStatus.processing => ('Dokončování...', Colors.green.shade600),
+      RecordingStatus.demoPlaying => ('Simulace...', Colors.green.shade600),
     };
 
     return Padding(
