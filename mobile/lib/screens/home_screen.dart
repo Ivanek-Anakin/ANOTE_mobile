@@ -16,18 +16,10 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _showDemo = false;
-  final _manualTranscriptController = TextEditingController();
-
-  @override
-  void dispose() {
-    _manualTranscriptController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(sessionProvider);
-    final notifier = ref.read(sessionProvider.notifier);
     final theme = Theme.of(context);
     final width = MediaQuery.of(context).size.width;
     final isWide = width > 900;
@@ -65,16 +57,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           _StatusPill(status: session.status, errorMessage: session.errorMessage),
           Expanded(
             child: isWide
-                ? _buildWideLayout(session, notifier, theme)
-                : _buildNarrowLayout(session, notifier, theme),
+                ? _buildWideLayout(theme)
+                : _buildNarrowLayout(theme),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildNarrowLayout(
-      SessionState session, SessionNotifier notifier, ThemeData theme) {
+  Widget _buildNarrowLayout(ThemeData theme) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -89,16 +80,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           const SizedBox(height: 12),
           const RecordingControls(),
           const SizedBox(height: 12),
-          _buildTempGenerateSection(session, notifier, theme),
-          const SizedBox(height: 12),
           _buildDemoSection(theme),
         ],
       ),
     );
   }
 
-  Widget _buildWideLayout(
-      SessionState session, SessionNotifier notifier, ThemeData theme) {
+  Widget _buildWideLayout(ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -119,58 +107,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   const SizedBox(height: 12),
                   const RecordingControls(),
                   const SizedBox(height: 12),
-                  _buildTempGenerateSection(session, notifier, theme),
-                  const SizedBox(height: 12),
                   _buildDemoSection(theme),
                 ],
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildTempGenerateSection(
-      SessionState session, SessionNotifier notifier, ThemeData theme) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Testování backendu (dočasné — pro testování)',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _manualTranscriptController,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: 'Vložte přepis pro testování generování zprávy...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: session.status == RecordingStatus.processing
-                    ? null
-                    : () => notifier.generateReportFromText(
-                          _manualTranscriptController.text,
-                        ),
-                child: const Text('Generovat zprávu'),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
