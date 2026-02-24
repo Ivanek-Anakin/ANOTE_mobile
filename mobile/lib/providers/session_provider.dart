@@ -76,7 +76,9 @@ class SessionNotifier extends StateNotifier<SessionState> {
       }
 
       await _audioService.start();
-      if (!mounted) return;
+      // Abort if stopRecording() or resetSession() was called while we were
+      // waiting for loadModel() or audioService.start().
+      if (!mounted || state.status != RecordingStatus.recording) return;
 
       _audioSubscription = _audioService.audioStream.listen(
         (List<double> samples) => _whisperService.feedAudio(samples),
@@ -194,7 +196,9 @@ class SessionNotifier extends StateNotifier<SessionState> {
     state = const SessionState();
 
     if (wasRunning) {
-      unawaited(_audioService.stop());
+      // Fire-and-forget: we've already cleared state; we just want hardware to
+      // stop.  Errors here are non-critical.
+      _audioService.stop();
     }
   }
 

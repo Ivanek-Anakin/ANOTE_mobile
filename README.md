@@ -112,3 +112,34 @@ az containerapp up \
     AZURE_OPENAI_DEPLOYMENT=gpt-4o-mini \
     APP_API_TOKEN=secretref:app-api-token
 ```
+
+## Mobile App — Setup (Phase 3+)
+
+### Download the Whisper model
+
+The Whisper `small` model (~244 MB) is required for on-device transcription.
+It is excluded from git due to its size — download it before running the app:
+
+```bash
+# Download the Whisper small model
+cd mobile/assets/models/
+curl -L -o ggml-small.bin \
+  https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin
+```
+
+### Run the Flutter app
+
+```bash
+cd mobile
+flutter pub get
+flutter run
+```
+
+### Run Flutter tests
+
+```bash
+cd mobile
+dart run build_runner build --delete-conflicting-outputs
+flutter analyze
+flutter test
+```
