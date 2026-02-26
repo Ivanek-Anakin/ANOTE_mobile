@@ -42,7 +42,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ? Icons.light_mode
                       : Icons.dark_mode,
                 ),
-                tooltip: brightness == Brightness.dark ? 'Světlý režim' : 'Tmavý režim',
+                tooltip: brightness == Brightness.dark
+                    ? 'Světlý režim'
+                    : 'Tmavý režim',
                 onPressed: () {
                   final notifier = ref.read(_themeModeProvider.notifier);
                   notifier.toggle();
@@ -54,11 +56,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       body: Column(
         children: [
-          _StatusPill(status: session.status, errorMessage: session.errorMessage),
+          _StatusPill(
+              status: session.status, errorMessage: session.errorMessage),
+          if (session.errorMessage != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Text(
+                session.errorMessage!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.error,
+                ),
+                maxLines: 4,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           Expanded(
-            child: isWide
-                ? _buildWideLayout(theme)
-                : _buildNarrowLayout(theme),
+            child: isWide ? _buildWideLayout(theme) : _buildNarrowLayout(theme),
           ),
         ],
       ),

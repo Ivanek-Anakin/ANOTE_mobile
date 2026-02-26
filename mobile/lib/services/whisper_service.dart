@@ -3,19 +3,20 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path_provider/path_provider.dart';
-import 'package:whisper_flutter_plus/whisper_flutter_plus.dart';
-
-import '../utils/wav_encoder.dart';
+import 'package:sherpa_onnx/sherpa_onnx.dart' as sherpa;
 
 /// A function that transcribes a list of float32 audio samples to text.
 typedef AudioTranscriber = Future<String> Function(List<double> samples);
 
-/// Manages on-device Whisper.cpp transcription with sliding-window buffering.
+/// Manages on-device speech transcription with sliding-window buffering.
+///
+/// Uses sherpa_onnx (Whisper ONNX) on native platforms (Android/iOS/desktop).
+/// On web, transcription is unavailable (returns empty string).
 ///
 /// Usage:
-/// 1. Call [loadModel] once to copy and initialise the Whisper model.
+/// 1. Call [loadModel] once to download and initialise the model.
 /// 2. Feed incoming audio via [feedAudio]; [transcriptStream] emits live updates.
 /// 3. On recording stop, call [transcribeFull] for a final high-quality pass.
 /// 4. Call [reset] between sessions and [dispose] when done.
@@ -28,6 +29,14 @@ class WhisperService {
   /// Overlap samples re-included in each window to preserve boundary words.
   static const int _overlapSamples = 2 * _sampleRate; // 2 seconds
 
+  /// Model directory name for sherpa_onnx whisper model files.
+  static const String _modelDirName = 'sherpa-onnx-whisper-tiny';
+
+  /// RMS amplitude threshold below which audio is considered silence.
+  /// Buffers quieter than this are skipped to prevent Whisper from
+  /// hallucinating short interjections on ambient noise.
+  static const double _silenceThreshold = 0.01;
+
   final List<double> _audioBuffer = [];
   int _lastBoundary = 0;
   String _previousTailText = '';
@@ -36,6 +45,11 @@ class WhisperService {
 
   /// Injectable transcribe function — set by [loadModel] or supplied in tests.
   AudioTranscriber? _transcriber;
+
+  /// Paths to model files (set during loadModel).
+  String _encoderPath = '';
+  String _decoderPath = '';
+  String _tokensPath = '';
 
   final StreamController<String> _transcriptController =
       StreamController<String>.broadcast();
@@ -58,43 +72,62 @@ class WhisperService {
   // Public API
   // ---------------------------------------------------------------------------
 
-  /// Copies the Whisper model from Flutter assets to the documents directory
-  /// (if not already present) and initialises the runtime.
+  /// Downloads the Whisper model files (if not present) and initialises
+  /// the transcription engine.
+  ///
+  /// On web this sets a no-op transcriber — on-device Whisper is not supported.
   Future<void> loadModel() async {
-    final Directory docsDir = await getApplicationDocumentsDirectory();
-    final String modelPath = '${docsDir.path}/ggml-small.bin';
-    final File modelFile = File(modelPath);
-
-    if (!modelFile.existsSync()) {
-      final ByteData data =
-          await rootBundle.load('assets/models/ggml-small.bin');
-      await modelFile.writeAsBytes(data.buffer.asUint8List());
+    if (kIsWeb) {
+      _transcriber = (_) async => '';
+      return;
     }
 
-    final Whisper whisper =
-        Whisper(model: WhisperModel.small, modelDir: docsDir.path);
+    sherpa.initBindings();
+
+    final Directory docsDir = await getApplicationDocumentsDirectory();
+    final String modelDir = '${docsDir.path}/$_modelDirName';
+
+    _encoderPath = '$modelDir/tiny-encoder.int8.onnx';
+    _decoderPath = '$modelDir/tiny-decoder.int8.onnx';
+    _tokensPath = '$modelDir/tiny-tokens.txt';
+
+    // Download model files if missing
+    if (!File(_encoderPath).existsSync() ||
+        !File(_decoderPath).existsSync() ||
+        !File(_tokensPath).existsSync()) {
+      await _downloadModel(modelDir);
+    }
 
     _transcriber = (List<double> samples) async {
-      final Uint8List wavBytes = WavEncoder.encode(samples);
-      final Directory tempDir = await getTemporaryDirectory();
-      final String wavPath =
-          '${tempDir.path}/whisper_${DateTime.now().millisecondsSinceEpoch}.wav';
-      final File wavFile = File(wavPath);
-      await wavFile.writeAsBytes(wavBytes);
-      try {
-        final WhisperTranscribeResponse response = await whisper.transcribe(
-          transcribeRequest: TranscribeRequest(
-            audio: wavPath,
-            language: 'cs',
-            isTranslate: false,
-            threads: 4,
+      final recognizer = sherpa.OfflineRecognizer(
+        sherpa.OfflineRecognizerConfig(
+          model: sherpa.OfflineModelConfig(
+            whisper: sherpa.OfflineWhisperModelConfig(
+              encoder: _encoderPath,
+              decoder: _decoderPath,
+              language: 'cs',
+              task: 'transcribe',
+              tailPaddings: 800,
+            ),
+            tokens: _tokensPath,
+            numThreads: 2,
+            debug: false,
+            provider: 'cpu',
           ),
+        ),
+      );
+      try {
+        final stream = recognizer.createStream();
+        stream.acceptWaveform(
+          samples: Float32List.fromList(samples),
+          sampleRate: _sampleRate,
         );
-        return response.text.trim();
+        recognizer.decode(stream);
+        final result = recognizer.getResult(stream);
+        stream.free();
+        return result.text.trim();
       } finally {
-        try {
-          wavFile.deleteSync();
-        } catch (_) {}
+        recognizer.free();
       }
     };
   }
@@ -140,6 +173,16 @@ class WhisperService {
   // Internal helpers
   // ---------------------------------------------------------------------------
 
+  /// Calculate root-mean-square amplitude of [samples].
+  static double _rms(List<double> samples) {
+    if (samples.isEmpty) return 0.0;
+    double sumSq = 0.0;
+    for (final s in samples) {
+      sumSq += s * s;
+    }
+    return sqrt(sumSq / samples.length);
+  }
+
   Future<void> _transcribeWindow() async {
     if (_isTranscribing) return;
     if (_audioBuffer.length - _lastBoundary < _windowInterval) return;
@@ -153,6 +196,12 @@ class WhisperService {
       final List<double> window =
           List<double>.from(_audioBuffer.sublist(overlapStart, windowEnd));
 
+      // Skip transcription if the window is too quiet (silence / ambient noise).
+      if (_rms(window) < _silenceThreshold) {
+        _lastBoundary = windowEnd;
+        return;
+      }
+
       final String rawText = await _runTranscriber(window);
       if (rawText.isEmpty) {
         _lastBoundary = windowEnd;
@@ -161,9 +210,8 @@ class WhisperService {
 
       final String deduped = removeOverlap(_previousTailText, rawText);
       if (deduped.isNotEmpty) {
-        _fullTranscript = _fullTranscript.isEmpty
-            ? deduped
-            : '$_fullTranscript $deduped';
+        _fullTranscript =
+            _fullTranscript.isEmpty ? deduped : '$_fullTranscript $deduped';
       }
 
       _previousTailText = _lastWords(rawText, 20);
@@ -184,6 +232,46 @@ class WhisperService {
       throw StateError('Whisper model not loaded — call loadModel() first.');
     }
     return _transcriber!(samples);
+  }
+
+  /// Download whisper tiny model files from HuggingFace.
+  static Future<void> _downloadModel(String modelDir) async {
+    final dir = Directory(modelDir);
+    if (!dir.existsSync()) {
+      dir.createSync(recursive: true);
+    }
+
+    const baseUrl =
+        'https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny/resolve/main';
+    final files = {
+      'tiny-encoder.int8.onnx': '$baseUrl/tiny-encoder.int8.onnx',
+      'tiny-decoder.int8.onnx': '$baseUrl/tiny-decoder.int8.onnx',
+      'tiny-tokens.txt': '$baseUrl/tiny-tokens.txt',
+    };
+
+    final httpClient = HttpClient();
+    try {
+      for (final entry in files.entries) {
+        final filePath = '$modelDir/${entry.key}';
+        if (File(filePath).existsSync()) continue;
+
+        final request = await httpClient.getUrl(Uri.parse(entry.value));
+        final response = await request.close();
+
+        if (response.statusCode >= 200 && response.statusCode < 400) {
+          final file = File(filePath);
+          final sink = file.openWrite();
+          await response.pipe(sink);
+          await sink.close();
+        } else {
+          throw Exception(
+            'Failed to download ${entry.key}: HTTP ${response.statusCode}',
+          );
+        }
+      }
+    } finally {
+      httpClient.close();
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -209,8 +297,7 @@ class WhisperService {
     // Find longest suffix of tailWords that matches a prefix of normalizedNew
     final int maxLen = min(tailWords.length, normalizedNew.length);
     for (int len = maxLen; len > 0; len--) {
-      final List<String> tailSuffix =
-          tailWords.sublist(tailWords.length - len);
+      final List<String> tailSuffix = tailWords.sublist(tailWords.length - len);
       final List<String> newPrefix = normalizedNew.sublist(0, len);
       if (_listsEqual(tailSuffix, newPrefix)) {
         return newWords.sublist(len).join(' ');

@@ -44,7 +44,8 @@ class ReportService {
   }
 
   Future<String?> _getToken() async {
-    return _storage.read(key: AppConstants.secureStorageKeyToken);
+    final token = await _storage.read(key: AppConstants.secureStorageKeyToken);
+    return token?.isNotEmpty == true ? token : AppConstants.defaultToken;
   }
 
   /// Generate a structured medical report from a transcript.

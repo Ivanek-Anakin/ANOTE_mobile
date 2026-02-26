@@ -1,5 +1,6 @@
 name: anote_mobile
 description: ANOTE — Medical report generation from voice
+version: 0.3.0+1
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
@@ -13,7 +14,7 @@ dependencies:
   path_provider: ^2.1.0
   permission_handler: ^11.0.0
   shared_preferences: ^2.2.0
-  whisper_flutter_plus: ^1.0.0
+  sherpa_onnx: ^1.12.26
   audio_streamer: ^4.0.0
 
 dev_dependencies:
