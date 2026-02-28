@@ -24,18 +24,33 @@ class WhisperService {
   static const int _sampleRate = 16000;
 
   /// Number of new samples required before a window transcription is triggered.
-  static const int _windowInterval = 5 * _sampleRate; // 5 seconds
+  static const int _windowInterval = 3 * _sampleRate; // 3 seconds
 
   /// Overlap samples re-included in each window to preserve boundary words.
-  static const int _overlapSamples = 2 * _sampleRate; // 2 seconds
+  static const int _overlapSamples = 1 * _sampleRate; // 1 second
 
   /// Model directory name for sherpa_onnx whisper model files.
-  static const String _modelDirName = 'sherpa-onnx-whisper-tiny';
+  static const String _modelDirName = 'sherpa-onnx-whisper-small';
+
+  /// Human-readable model name (for UI display).
+  static const String modelDisplayName = 'Whisper Small';
+
+  /// Model variant/quantization info.
+  static const String modelVariant = 'INT8 (sherpa-onnx)';
+
+  /// Expected minimum file sizes in bytes for integrity verification.
+  /// Encoder ~120MB, Decoder ~130MB, Tokens ~100KB.
+  /// We use conservative minimums (50% of typical) to catch truncated files.
+  static const Map<String, int> _expectedMinSizes = {
+    'small-encoder.int8.onnx': 50 * 1024 * 1024, // at least 50 MB
+    'small-decoder.int8.onnx': 50 * 1024 * 1024, // at least 50 MB
+    'small-tokens.txt': 10 * 1024, // at least 10 KB
+  };
 
   /// RMS amplitude threshold below which audio is considered silence.
   /// Buffers quieter than this are skipped to prevent Whisper from
   /// hallucinating short interjections on ambient noise.
-  static const double _silenceThreshold = 0.01;
+  static const double _silenceThreshold = 0.05;
 
   final List<double> _audioBuffer = [];
   int _lastBoundary = 0;
@@ -72,6 +87,67 @@ class WhisperService {
   // Public API
   // ---------------------------------------------------------------------------
 
+  /// Check whether all model files exist and meet minimum size requirements.
+  /// Returns true if model is ready to use, false if download is needed.
+  static Future<bool> isModelDownloaded() async {
+    if (kIsWeb) return true;
+    final Directory docsDir = await getApplicationDocumentsDirectory();
+    final String modelDir = '${docsDir.path}/$_modelDirName';
+    for (final entry in _expectedMinSizes.entries) {
+      final file = File('$modelDir/${entry.key}');
+      if (!file.existsSync()) {
+        debugLog('[WhisperService] File missing: ${entry.key}');
+        return false;
+      }
+      final size = file.lengthSync();
+      if (size < entry.value) {
+        debugLog('[WhisperService] File too small: ${entry.key} '
+            '($size bytes, expected >= ${entry.value})');
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /// Delete all model files (corrupted, partial, or outdated).
+  static Future<void> deleteModelFiles() async {
+    if (kIsWeb) return;
+    final Directory docsDir = await getApplicationDocumentsDirectory();
+    final dir = Directory('${docsDir.path}/$_modelDirName');
+    if (dir.existsSync()) {
+      debugLog('[WhisperService] Deleting model directory: ${dir.path}');
+      dir.deleteSync(recursive: true);
+    }
+  }
+
+  /// Verify model files are valid and delete any that are corrupted/partial.
+  /// Returns true if all files are intact, false if re-download is needed.
+  Future<bool> _verifyAndCleanModel(String modelDir) async {
+    bool allValid = true;
+    for (final entry in _expectedMinSizes.entries) {
+      final file = File('$modelDir/${entry.key}');
+      if (!file.existsSync()) {
+        debugLog('[WhisperService] Missing: ${entry.key}');
+        allValid = false;
+        continue;
+      }
+      final size = file.lengthSync();
+      if (size < entry.value) {
+        debugLog('[WhisperService] Corrupted/partial ${entry.key}: '
+            '$size bytes < ${entry.value} min. Deleting.');
+        file.deleteSync();
+        allValid = false;
+      }
+    }
+    return allValid;
+  }
+
+  /// Simple debug logger that works in both debug and release.
+  static void debugLog(String message) {
+    // ignore: avoid_print
+    print(message);
+  }
+
   /// Downloads the Whisper model files (if not present) and initialises
   /// the transcription engine.
   ///
@@ -82,20 +158,63 @@ class WhisperService {
       return;
     }
 
-    sherpa.initBindings();
+    debugLog('[WhisperService] loadModel() starting...');
+    try {
+      sherpa.initBindings();
+      debugLog('[WhisperService] initBindings() succeeded.');
+    } catch (e) {
+      debugLog('[WhisperService] initBindings() FAILED: $e');
+      rethrow;
+    }
 
     final Directory docsDir = await getApplicationDocumentsDirectory();
     final String modelDir = '${docsDir.path}/$_modelDirName';
 
-    _encoderPath = '$modelDir/tiny-encoder.int8.onnx';
-    _decoderPath = '$modelDir/tiny-decoder.int8.onnx';
-    _tokensPath = '$modelDir/tiny-tokens.txt';
+    _encoderPath = '$modelDir/small-encoder.int8.onnx';
+    _decoderPath = '$modelDir/small-decoder.int8.onnx';
+    _tokensPath = '$modelDir/small-tokens.txt';
 
-    // Download model files if missing
-    if (!File(_encoderPath).existsSync() ||
-        !File(_decoderPath).existsSync() ||
-        !File(_tokensPath).existsSync()) {
-      await _downloadModel(modelDir);
+    // Verify existing files — delete corrupted/partial ones
+    final bool intact = await _verifyAndCleanModel(modelDir);
+    if (!intact) {
+      debugLog('[WhisperService] Model files incomplete, downloading...');
+      await _downloadModel(modelDir, onProgress: _onDownloadProgress);
+      // Verify again after download
+      final bool ok = await _verifyAndCleanModel(modelDir);
+      if (!ok) {
+        throw Exception(
+            'Model download failed: files still invalid after download');
+      }
+    }
+
+    debugLog('[WhisperService] Initializing recognizer...');
+    // Validate model files by creating a test recognizer
+    try {
+      final testRecognizer = sherpa.OfflineRecognizer(
+        sherpa.OfflineRecognizerConfig(
+          model: sherpa.OfflineModelConfig(
+            whisper: sherpa.OfflineWhisperModelConfig(
+              encoder: _encoderPath,
+              decoder: _decoderPath,
+              language: 'cs',
+              task: 'transcribe',
+              tailPaddings: 800,
+            ),
+            tokens: _tokensPath,
+            numThreads: 2,
+            debug: false,
+            provider: 'cpu',
+          ),
+        ),
+      );
+      testRecognizer.free();
+      debugLog('[WhisperService] Model validation passed.');
+    } catch (e) {
+      debugLog(
+          '[WhisperService] Model validation FAILED: $e — deleting files.');
+      await deleteModelFiles();
+      throw Exception(
+          'Model files corrupted, deleted. Restart to re-download. Error: $e');
     }
 
     _transcriber = (List<double> samples) async {
@@ -147,9 +266,49 @@ class WhisperService {
   /// Transcribe the entire audio buffer in a single high-quality pass.
   ///
   /// Called on recording stop to produce the definitive transcript.
+  /// Uses chunked processing to avoid OOM on long recordings.
   Future<String> transcribeFull() async {
     if (_audioBuffer.isEmpty) return '';
-    return _runTranscriber(_audioBuffer);
+    debugLog('[WhisperService] transcribeFull: ${_audioBuffer.length} samples '
+        '(${(_audioBuffer.length / _sampleRate).toStringAsFixed(1)}s)');
+
+    // For short recordings (< 30s), transcribe in one shot
+    const int maxSinglePass = 30 * _sampleRate;
+    if (_audioBuffer.length <= maxSinglePass) {
+      return _runTranscriber(_audioBuffer);
+    }
+
+    // For longer recordings, use the same sliding-window approach
+    // but process all windows sequentially for the final pass.
+    const int chunkSize = 15 * _sampleRate; // 15s chunks
+    const int overlap = 3 * _sampleRate; // 3s overlap
+    final List<String> parts = [];
+    String prevTail = '';
+
+    for (int start = 0;
+        start < _audioBuffer.length;
+        start += chunkSize - overlap) {
+      final int end = min(start + chunkSize, _audioBuffer.length);
+      final chunk = _audioBuffer.sublist(start, end);
+
+      // Skip silent chunks
+      if (_rms(chunk) < _silenceThreshold) continue;
+
+      try {
+        final String text = await _runTranscriber(chunk);
+        if (text.isEmpty) continue;
+        final String deduped = removeOverlap(prevTail, text);
+        if (deduped.isNotEmpty) parts.add(deduped);
+        prevTail = _lastWords(text, 20);
+      } catch (e) {
+        debugLog('[WhisperService] transcribeFull chunk error: $e');
+        // Continue with next chunk
+      }
+    }
+
+    final result = parts.join(' ');
+    debugLog('[WhisperService] transcribeFull done: ${result.length} chars');
+    return result;
   }
 
   /// Clear all audio buffers and accumulated transcript state.
@@ -234,40 +393,99 @@ class WhisperService {
     return _transcriber!(samples);
   }
 
-  /// Download whisper tiny model files from HuggingFace.
-  static Future<void> _downloadModel(String modelDir) async {
+  /// Callback for download progress updates. Set externally before loadModel().
+  void Function(String fileName, double progress)? _onDownloadProgress;
+
+  /// Set a callback to receive download progress updates.
+  set onDownloadProgress(void Function(String fileName, double progress)? cb) {
+    _onDownloadProgress = cb;
+  }
+
+  /// Download whisper small model files from HuggingFace.
+  /// Downloads to a temp file first, then renames — so partial downloads
+  /// never leave a "valid-looking" file on disk.
+  static Future<void> _downloadModel(
+    String modelDir, {
+    void Function(String fileName, double progress)? onProgress,
+  }) async {
     final dir = Directory(modelDir);
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
     }
 
     const baseUrl =
-        'https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny/resolve/main';
+        'https://huggingface.co/csukuangfj/sherpa-onnx-whisper-small/resolve/main';
     final files = {
-      'tiny-encoder.int8.onnx': '$baseUrl/tiny-encoder.int8.onnx',
-      'tiny-decoder.int8.onnx': '$baseUrl/tiny-decoder.int8.onnx',
-      'tiny-tokens.txt': '$baseUrl/tiny-tokens.txt',
+      'small-encoder.int8.onnx': '$baseUrl/small-encoder.int8.onnx',
+      'small-decoder.int8.onnx': '$baseUrl/small-decoder.int8.onnx',
+      'small-tokens.txt': '$baseUrl/small-tokens.txt',
     };
 
     final httpClient = HttpClient();
     try {
+      int fileIndex = 0;
       for (final entry in files.entries) {
         final filePath = '$modelDir/${entry.key}';
-        if (File(filePath).existsSync()) continue;
+        final file = File(filePath);
 
+        // Skip if already downloaded and valid size
+        if (file.existsSync()) {
+          final minSize = _expectedMinSizes[entry.key] ?? 0;
+          if (file.lengthSync() >= minSize) {
+            debugLog('[WhisperService] ${entry.key} already valid, skipping.');
+            fileIndex++;
+            continue;
+          }
+          // Corrupted — delete and re-download
+          debugLog('[WhisperService] ${entry.key} too small, re-downloading.');
+          file.deleteSync();
+        }
+
+        // Clean up any leftover temp file
+        final tmpPath = '$filePath.tmp';
+        final tmpFile = File(tmpPath);
+        if (tmpFile.existsSync()) tmpFile.deleteSync();
+
+        debugLog('[WhisperService] Downloading ${entry.key}...');
         final request = await httpClient.getUrl(Uri.parse(entry.value));
         final response = await request.close();
 
         if (response.statusCode >= 200 && response.statusCode < 400) {
-          final file = File(filePath);
-          final sink = file.openWrite();
-          await response.pipe(sink);
+          final contentLength = response.contentLength;
+          final sink = tmpFile.openWrite();
+          int received = 0;
+
+          await for (final chunk in response) {
+            sink.add(chunk);
+            received += chunk.length;
+            if (onProgress != null && contentLength > 0) {
+              final fileProgress = received / contentLength;
+              final overall = (fileIndex + fileProgress) / files.length;
+              onProgress(entry.key, overall);
+            }
+          }
           await sink.close();
+
+          // Verify downloaded size before renaming
+          final downloadedSize = tmpFile.lengthSync();
+          final minSize = _expectedMinSizes[entry.key] ?? 0;
+          if (downloadedSize < minSize) {
+            tmpFile.deleteSync();
+            throw Exception(
+              'Downloaded ${entry.key} too small: $downloadedSize bytes',
+            );
+          }
+
+          // Atomic rename: only a complete file gets the final name
+          tmpFile.renameSync(filePath);
+          debugLog('[WhisperService] ${entry.key} downloaded OK '
+              '($downloadedSize bytes).');
         } else {
           throw Exception(
             'Failed to download ${entry.key}: HTTP ${response.statusCode}',
           );
         }
+        fileIndex++;
       }
     } finally {
       httpClient.close();

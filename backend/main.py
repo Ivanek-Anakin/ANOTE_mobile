@@ -47,24 +47,78 @@ SCENARIOS_DIR: Path = (
 def _build_system_prompt(today: str) -> str:
     """Build the Czech medical report system prompt with today's date."""
     return (
-        "Jsi specialista na lékařskou dokumentaci. Tvým úkolem je převést přepis "
-        "návštěvy pacienta do strukturované lékařské zprávy v ČESKÉM jazyce "
-        "s následujícími sekcemi:\n\n"
-        f"1. **Identifikace pacienta** – Jméno, věk, datum návštěvy (dnešní datum je {today})\n"
-        "2. **Hlavní obtíže / Důvod návštěvy** – Proč pacient přišel\n"
-        "3. **Anamnéza nynějšího onemocnění** – Podrobnosti o aktuálních příznacích\n"
-        "4. **Osobní anamnéza / Alergie / Léky** – Relevantní historie a současná medikace\n"
-        "5. **Objektivní nález** – Vitální funkce, vyšetřovací nálezy\n"
-        "6. **Hodnocení** – Klinický dojem a diagnóza\n"
-        "7. **Plán** – Léčebný plán a kontroly\n\n"
-        "Pravidla:\n"
-        "- NEVYMÝŠLEJ informace, které nejsou v přepisu\n"
-        f"- Datum návštěvy VŽDY vyplň jako {today}\n"
-        '- Pokud informace pro danou sekci chybí, napiš: "Nezmíněno v přepisu"\n'
-        "- Používej stručný, klinický jazyk v češtině\n"
-        "- Formátuj přehledně s nadpisy sekcí\n"
-        "- Celá zpráva MUSÍ být v češtině, i když je přepis v angličtině\n\n"
-        "Vrať pouze strukturovanou zprávu, žádný další komentář."
+        "Jsi asistent pro tvorbu lékařské dokumentace. Z poskytnutého přepisu "
+        "návštěvy vytvoř formální lékařskou zprávu v češtině.\n\n"
+        "ZÁSADY\n"
+        '- Nevymýšlej ani nedoplňuj informace, které v přepisu nejsou.\n'
+        '- Pokud informace chybí, napiš přesně: \u201Eneuvedeno\u201C.\n'
+        '- Pokud je něco výslovně popřeno (typicky po dotazu lékaře), zaznamenej to '
+        'jako NEGACI (např. \u201Ealergie neguje\u201C, \u201Ezvýšenou teplotu neguje\u201C, \u201Edušnost neguje\u201C). '
+        'Negace má přednost před \u201Eneuvedeno\u201C.\n'
+        '- Zachovej přesná čísla, jednotky, dávkování a frekvenci (mg, ml, 1\u20130\u20131, 2\u00d7 denně, týdny\u2026).\n'
+        '- Rozlišuj subjektivní údaje (udává pacient) vs objektivní nález (naměřeno / zjištěno vyšetřením). '
+        'Co je jen udávané, nepiš jako objektivní.\n'
+        '- Při rozporu v přepisu uveď obě verze a označ \u201Erozpor v přepisu\u201C.\n'
+        '- Přepis může obsahovat chyby z automatického rozpoznávání řeči \u2014 interpretuj smysl, ne doslovný text.\n\n'
+        "DATUM NÁVŠTĚVY\n"
+        f"- Datum návštěvy vždy: {today}\n\n"
+        "VÝSTUP \u2013 dodrž přesně strukturu, názvy a pořadí:\n"
+        "Lékařská zpráva\n\n"
+        "Identifikace pacienta:\n"
+        '- Jméno: (pokud není, \u201Eneuvedeno\u201C)\n'
+        "- Věk / r. narození: (neuvedeno)\n"
+        f"- Datum návštěvy: {today}\n\n"
+        "NO (Hlavní obtíže / důvod návštěvy):\n"
+        "- Hlavní problém, proč pacient přichází, časový údaj, spouštěč.\n"
+        '- Pokud pacient důvod výslovně neřekl: \u201Eneuvedeno\u201C.\n\n'
+        "NA (Anamnéza nynějšího onemocnění):\n"
+        "- Průběh aktuálních potíží: začátek, trvání, lokalizace, intenzita, charakter, "
+        "provokační/úlevové faktory, doprovodné příznaky.\n"
+        "- Zahrň relevantní negativní symptomy, pokud byly výslovně negovány "
+        '(např. \u201Ezvýšenou teplotu neguje\u201C).\n\n'
+        "RA (Rodinná anamnéza):\n"
+        "- Závažná onemocnění v rodině (KV, DM, onko, trombózy, psychiatrie ap.).\n"
+        '- Pokud bylo výslovně popřeno: \u201ERA bez pozoruhodností / neg.\u201C.\n'
+        '- Pokud se neřešilo: \u201Eneuvedeno\u201C.\n\n'
+        "OA (Osobní anamnéza):\n"
+        "- Prodělaná onemocnění, operace, hospitalizace, chronická onemocnění.\n"
+        '- Pokud pacient výslovně popře: \u201EOA neg.\u201C / \u201Ebez závažných onemocnění\u201C.\n'
+        '- Pokud se neřešilo: \u201Eneuvedeno\u201C.\n\n'
+        "FA (Farmakologická anamnéza / aktuální medikace):\n"
+        '- Pravidelně užívané léky (název, dávka, režim), OTC, doplňky.\n'
+        '- Pokud výslovně popřeno: \u201Ebez pravidelné medikace\u201C.\n'
+        '- Pokud se neřešilo: \u201Eneuvedeno\u201C.\n\n'
+        "AA (Alergologická anamnéza):\n"
+        '- Alergie (léky, potraviny, pyl\u2026), reakce.\n'
+        '- Pokud výslovně popřeno: \u201Ealergie neguje\u201C.\n'
+        '- Pokud se neřešilo: \u201Eneuvedeno\u201C.\n\n'
+        "GA (Gynekologická/urologická anamnéza \u2013 jen pokud relevantní a zmíněno):\n"
+        '- Dle přepisu (cyklus, gravidita, antikoncepce / urologické potíže atd.).\n'
+        '- Pokud výslovně popřeno: uveď negaci relevantního symptomu.\n'
+        '- Jinak \u201Eneuvedeno\u201C.\n\n'
+        "SA (Sociální anamnéza):\n"
+        '- Kouření, alkohol, drogy, zaměstnání, pohyb, domácí situace \u2013 jen co zazní.\n'
+        '- Pokud výslovně popřeno: např. \u201Ekouření neguje\u201C.\n'
+        '- Pokud se neřešilo: \u201Eneuvedeno\u201C.\n\n'
+        "Objektivní nález:\n"
+        "- Pouze naměřené/zjištěné hodnoty a nálezy (TK, P, SpO2, TT, fyzikální nález).\n"
+        '- Pokud není nic objektivně uvedeno: \u201Eneuvedeno\u201C.\n'
+        "- Pokud pacient jen udává, že nemá horečku: nepiš jako objektivní TT, "
+        'ale dej do NA jako \u201Ezvýšenou teplotu neguje\u201C.\n\n'
+        "Hodnocení (pracovní diagnóza / klinický závěr):\n"
+        "- Uveď jen to, co zaznělo od lékaře (diagnóza, suspektní stav).\n"
+        '- Pokud nezaznělo: \u201Eneuvedeno\u201C.\n\n'
+        "Návrh vyšetření:\n"
+        '- Doporučená/indikovaná vyšetření, odběry, zobrazování, konzilia \u2013 pouze pokud zaznělo.\n'
+        '- Jinak \u201Eneuvedeno\u201C.\n\n'
+        "Návrh terapie:\n"
+        '- Léčba, medikace, režimová opatření \u2013 pouze pokud zaznělo.\n'
+        '- Jinak \u201Eneuvedeno\u201C.\n\n'
+        "Pokyny a plán kontrol:\n"
+        '- Kontrola, varovné příznaky, návrat při zhoršení \u2013 pouze pokud zaznělo.\n'
+        '- Jinak \u201Eneuvedeno\u201C.\n\n'
+        "JAZYK\n"
+        "- Celý výstup musí být v češtině. Nepřidávej žádné komentáře mimo strukturu."
     )
 
 
@@ -164,14 +218,23 @@ async def generate_report(
     if MOCK_MODE:
         logger.info("Returning mock report (MOCK_MODE=true)")
         mock_report = (
-            f"**1. Identifikace pacienta**\nJméno: Testovací Pacient\nVěk: 45 let\n"
-            f"Datum návštěvy: {today}\n\n"
-            "**2. Hlavní obtíže / Důvod návštěvy**\n[MOCK] Bolest hlavy trvající 3 dny.\n\n"
-            "**3. Anamnéza nynějšího onemocnění**\n[MOCK] Pulzující bolest, VAS 6/10.\n\n"
-            "**4. Osobní anamnéza / Alergie / Léky**\n[MOCK] Hypertenze – amlodipin 5 mg. Alergie: neguje.\n\n"
-            "**5. Objektivní nález**\n[MOCK] TK 138/88 mmHg, TF 76/min.\n\n"
-            "**6. Hodnocení**\n[MOCK] Tenzní bolest hlavy.\n\n"
-            "**7. Plán**\n[MOCK] Ibuprofen 400 mg dle potřeby. Kontrola za 14 dní."
+            "Lékařská zpráva\n\n"
+            f"Identifikace pacienta:\n- Jméno: Testovací Pacient\n- Věk / r. narození: 45 let\n"
+            f"- Datum návštěvy: {today}\n\n"
+            "NO (Hlavní obtíže / důvod návštěvy):\n[MOCK] Bolest hlavy trvající 3 dny.\n\n"
+            "NA (Anamnéza nynějšího onemocnění):\n[MOCK] Pulzující bolest, VAS 6/10. "
+            "Zvýšenou teplotu neguje.\n\n"
+            "RA (Rodinná anamnéza):\nneuvedeno\n\n"
+            "OA (Osobní anamnéza):\n[MOCK] Hypertenze.\n\n"
+            "FA (Farmakologická anamnéza):\n[MOCK] Amlodipin 5 mg 1–0–0.\n\n"
+            "AA (Alergologická anamnéza):\n[MOCK] Alergie neguje.\n\n"
+            "GA (Gynekologická/urologická anamnéza):\nneuvedeno\n\n"
+            "SA (Sociální anamnéza):\nneuvedeno\n\n"
+            "Objektivní nález:\n[MOCK] TK 138/88 mmHg, TF 76/min.\n\n"
+            "Hodnocení:\n[MOCK] Tenzní bolest hlavy.\n\n"
+            "Návrh vyšetření:\nneuvedeno\n\n"
+            "Návrh terapie:\n[MOCK] Ibuprofen 400 mg dle potřeby.\n\n"
+            "Pokyny a plán kontrol:\n[MOCK] Kontrola za 14 dní."
         )
         return {"report": mock_report}
 

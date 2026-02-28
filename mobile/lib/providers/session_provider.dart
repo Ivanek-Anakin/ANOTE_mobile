@@ -39,11 +39,63 @@ class SessionNotifier extends StateNotifier<SessionState> {
   StreamSubscription<String>? _transcriptSubscription;
   Timer? _reportTimer;
 
+  bool _isPreloading = false;
+
   SessionNotifier(
     this._reportService,
     this._audioService,
     this._whisperService,
-  ) : super(const SessionState());
+  ) : super(const SessionState()) {
+    // Defer model preload to next event loop so the UI renders first.
+    // This prevents a native crash in sherpa_onnx from killing the app
+    // before any UI is visible.
+    Future.microtask(() => _preloadModel());
+  }
+
+  /// Start downloading / loading the model in the background on app start.
+  Future<void> _preloadModel() async {
+    if (_whisperService.isModelLoaded || _isPreloading) return;
+    _isPreloading = true;
+    try {
+      // Check model integrity first
+      final bool alreadyDownloaded = await WhisperService.isModelDownloaded();
+      WhisperService.debugLog(
+          '[SessionNotifier] Model already downloaded: $alreadyDownloaded');
+
+      if (!alreadyDownloaded) {
+        // Show a progress indicator right away (0%) so user sees activity
+        if (mounted) {
+          state = state.copyWith(
+            modelDownloadProgress: 0.0,
+            modelDownloadFileName: 'kontrola modelu...',
+          );
+        }
+      }
+
+      _whisperService.onDownloadProgress = (String fileName, double progress) {
+        if (!mounted) return;
+        state = state.copyWith(
+          modelDownloadProgress: progress,
+          modelDownloadFileName: fileName,
+        );
+      };
+      await _whisperService.loadModel();
+      _whisperService.onDownloadProgress = null;
+      if (!mounted) return;
+      WhisperService.debugLog('[SessionNotifier] Model loaded successfully.');
+      state = state.copyWith(isModelLoaded: true, clearDownload: true);
+    } catch (e) {
+      _whisperService.onDownloadProgress = null;
+      WhisperService.debugLog('[SessionNotifier] Model load error: $e');
+      if (!mounted) return;
+      state = state.copyWith(
+        clearDownload: true,
+        errorMessage: 'Chyba modelu: $e',
+      );
+    } finally {
+      _isPreloading = false;
+    }
+  }
 
   // ---------------------------------------------------------------------------
   // Recording pipeline
@@ -70,9 +122,30 @@ class SessionNotifier extends StateNotifier<SessionState> {
   Future<void> _startRecordingAsync() async {
     try {
       if (!_whisperService.isModelLoaded) {
-        await _whisperService.loadModel();
-        if (!mounted) return;
-        state = state.copyWith(isModelLoaded: true);
+        // Model is still downloading from preload — wait for it.
+        // If preload hasn't started (shouldn't happen), kick it off.
+        if (!_isPreloading) {
+          _isPreloading = true;
+          _whisperService.onDownloadProgress =
+              (String fileName, double progress) {
+            if (!mounted) return;
+            state = state.copyWith(
+              modelDownloadProgress: progress,
+              modelDownloadFileName: fileName,
+            );
+          };
+          await _whisperService.loadModel();
+          _whisperService.onDownloadProgress = null;
+          _isPreloading = false;
+          if (!mounted) return;
+          state = state.copyWith(isModelLoaded: true, clearDownload: true);
+        } else {
+          // Wait for the ongoing preload to finish.
+          while (_isPreloading && mounted) {
+            await Future<void>.delayed(const Duration(milliseconds: 200));
+          }
+          if (!mounted || !_whisperService.isModelLoaded) return;
+        }
       }
 
       await _audioService.start();
@@ -147,10 +220,18 @@ class SessionNotifier extends StateNotifier<SessionState> {
 
   Future<void> _stopRecordingAsync() async {
     try {
+      WhisperService.debugLog('[SessionNotifier] Stopping audio service...');
       await _audioService.stop();
       if (!mounted) return;
 
-      final String fullTranscript = await _whisperService.transcribeFull();
+      WhisperService.debugLog('[SessionNotifier] Running transcribeFull...');
+      String fullTranscript = '';
+      try {
+        fullTranscript = await _whisperService.transcribeFull();
+      } catch (e) {
+        WhisperService.debugLog('[SessionNotifier] transcribeFull error: $e');
+        // Fall back to the live transcript instead of crashing
+      }
       if (!mounted) return;
 
       if (fullTranscript.isNotEmpty) {
@@ -158,17 +239,25 @@ class SessionNotifier extends StateNotifier<SessionState> {
       }
 
       final String finalTranscript = state.transcript;
+      WhisperService.debugLog('[SessionNotifier] Final transcript length: '
+          '${finalTranscript.length}');
+
       if (finalTranscript.isNotEmpty) {
+        WhisperService.debugLog('[SessionNotifier] Generating report...');
         final String report =
             await _reportService.generateReport(finalTranscript);
         if (!mounted) return;
         state = state.copyWith(report: report);
+        WhisperService.debugLog('[SessionNotifier] Report generated OK.');
       }
     } catch (e) {
+      WhisperService.debugLog(
+          '[SessionNotifier] _stopRecordingAsync error: $e');
       if (!mounted) return;
       state = state.copyWith(errorMessage: e.toString());
     } finally {
       if (mounted) {
+        WhisperService.debugLog('[SessionNotifier] Setting status to idle.');
         state = state.copyWith(status: RecordingStatus.idle);
       }
     }

@@ -58,6 +58,46 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         children: [
           _StatusPill(
               status: session.status, errorMessage: session.errorMessage),
+          if (session.modelDownloadProgress != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Stahování modelu${session.modelDownloadFileName != null ? ': ${session.modelDownloadFileName}' : ''}',
+                          style: theme.textTheme.bodySmall,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Text(
+                        '${(session.modelDownloadProgress! * 100).toInt()}%',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: session.modelDownloadProgress,
+                      minHeight: 6,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           if (session.errorMessage != null)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),

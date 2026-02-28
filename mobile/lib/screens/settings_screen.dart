@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/constants.dart';
 import '../services/report_service.dart';
+import '../services/whisper_service.dart';
 import 'home_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -67,7 +68,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     setState(() {
       _isTestingConnection = false;
-      _connectionStatus = reachable ? '✅ Backend dostupný' : '❌ Backend nedostupný';
+      _connectionStatus =
+          reachable ? '✅ Backend dostupný' : '❌ Backend nedostupný';
     });
   }
 
@@ -92,7 +94,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Připojení k backendu', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            Text('Připojení k backendu',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             TextField(
               controller: _urlController,
@@ -142,7 +146,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               Text(_connectionStatus!, style: theme.textTheme.bodyMedium),
             ],
             const Divider(height: 32),
-            Text('Vzhled', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            Text('Vzhled',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             SegmentedButton<ThemeMode>(
               segments: const [
@@ -159,7 +165,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               },
             ),
             const Divider(height: 32),
-            Text('O aplikaci', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            Text('Rozpoznávání řeči',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            _InfoRow(label: 'Model', value: WhisperService.modelDisplayName),
+            const SizedBox(height: 4),
+            _InfoRow(label: 'Varianta', value: WhisperService.modelVariant),
+            const SizedBox(height: 4),
+            const _InfoRow(label: 'Jazyk', value: 'čeština (cs)'),
+            const SizedBox(height: 4),
+            const _InfoRow(label: 'Inference', value: 'on-device / CPU'),
+            const Divider(height: 32),
+            Text('O aplikaci',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             const Text('ANOTE Mobile v1.0.0'),
             const SizedBox(height: 4),
@@ -170,6 +190,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _InfoRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      children: [
+        Text('$label: ',
+            style: theme.textTheme.bodyMedium
+                ?.copyWith(fontWeight: FontWeight.w600)),
+        Expanded(child: Text(value, style: theme.textTheme.bodyMedium)),
+      ],
     );
   }
 }
