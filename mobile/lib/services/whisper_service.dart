@@ -253,7 +253,8 @@ class WhisperService {
       );
       debugLog('[WhisperService] Silero VAD initialized.');
     } catch (e) {
-      debugLog('[WhisperService] VAD init FAILED: $e — continuing without VAD.');
+      debugLog(
+          '[WhisperService] VAD init FAILED: $e — continuing without VAD.');
       _vad = null;
     }
 
@@ -337,11 +338,13 @@ class WhisperService {
   /// in chunks. This gives better results than the live streaming pass.
   Future<String> transcribeFull() async {
     if (_rawAudioBuffer.isEmpty) return '';
-    debugLog('[WhisperService] transcribeFull: ${_rawAudioBuffer.length} raw samples '
+    debugLog(
+        '[WhisperService] transcribeFull: ${_rawAudioBuffer.length} raw samples '
         '(${(_rawAudioBuffer.length / _sampleRate).toStringAsFixed(1)}s)');
 
     // Extract speech segments from raw audio using a fresh VAD pass
-    final List<Float32List> speechSegments = _extractSpeechSegments(_rawAudioBuffer);
+    final List<Float32List> speechSegments =
+        _extractSpeechSegments(_rawAudioBuffer);
 
     if (speechSegments.isEmpty) {
       debugLog('[WhisperService] transcribeFull: no speech detected by VAD.');
@@ -353,7 +356,8 @@ class WhisperService {
     for (final seg in speechSegments) {
       totalSpeechSamples += seg.length;
     }
-    debugLog('[WhisperService] transcribeFull: ${speechSegments.length} speech segments, '
+    debugLog(
+        '[WhisperService] transcribeFull: ${speechSegments.length} speech segments, '
         '${(totalSpeechSamples / _sampleRate).toStringAsFixed(1)}s of speech');
 
     // Concatenate all speech into one buffer
@@ -438,7 +442,8 @@ class WhisperService {
         config: sherpa.VadModelConfig(
           sileroVad: sherpa.SileroVadModelConfig(
             model: _vadModelPath,
-            threshold: 0.45, // slightly lower for final pass — catch more speech
+            threshold:
+                0.45, // slightly lower for final pass — catch more speech
             minSilenceDuration: 0.5,
             minSpeechDuration: 0.25,
             maxSpeechDuration: 30.0,

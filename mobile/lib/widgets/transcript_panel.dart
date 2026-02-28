@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/session_state.dart';
 import '../providers/session_provider.dart';
@@ -14,7 +15,9 @@ class _TranscriptPanelState extends ConsumerState<TranscriptPanel> {
   bool _expanded = true;
 
   @override
-  Widget build(BuildContext context, ) {
+  Widget build(
+    BuildContext context,
+  ) {
     final session = ref.watch(sessionProvider);
     final theme = Theme.of(context);
 
@@ -67,6 +70,41 @@ class _TranscriptPanelState extends ConsumerState<TranscriptPanel> {
                     ),
                   ),
                   const Spacer(),
+                  // Fullscreen button
+                  IconButton(
+                    icon: const Icon(Icons.open_in_full, size: 20),
+                    tooltip: 'Zobrazit na celou obrazovku',
+                    onPressed: () =>
+                        _openFullscreen(context, session.transcript),
+                    visualDensity: VisualDensity.compact,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 36,
+                      minHeight: 36,
+                    ),
+                  ),
+                  // Copy button
+                  if (hasContent)
+                    IconButton(
+                      icon: const Icon(Icons.copy, size: 20),
+                      tooltip: 'Kopírovat přepis',
+                      onPressed: () {
+                        Clipboard.setData(
+                            ClipboardData(text: session.transcript));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Přepis zkopírován'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                      visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 36,
+                        minHeight: 36,
+                      ),
+                    ),
                   Icon(
                     _expanded ? Icons.expand_less : Icons.expand_more,
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
@@ -80,7 +118,7 @@ class _TranscriptPanelState extends ConsumerState<TranscriptPanel> {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Container(
                 width: double.infinity,
-                constraints: const BoxConstraints(maxHeight: 150),
+                constraints: const BoxConstraints(maxHeight: 200),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceContainerHighest
@@ -91,7 +129,7 @@ class _TranscriptPanelState extends ConsumerState<TranscriptPanel> {
                   ),
                 ),
                 child: SingleChildScrollView(
-                  child: Text(
+                  child: SelectableText(
                     session.transcript.isEmpty
                         ? 'Čekám na řeč...'
                         : session.transcript,
@@ -105,6 +143,55 @@ class _TranscriptPanelState extends ConsumerState<TranscriptPanel> {
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  void _openFullscreen(BuildContext context, String transcript) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => _FullscreenTranscriptView(transcript: transcript),
+      ),
+    );
+  }
+}
+
+/// Fullscreen view for reading / copying the transcript.
+class _FullscreenTranscriptView extends StatelessWidget {
+  final String transcript;
+  const _FullscreenTranscriptView({required this.transcript});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('🎤 Přepis řeči'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.copy),
+            tooltip: 'Kopírovat',
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: transcript));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Přepis zkopírován'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          child: SelectableText(
+            transcript.isEmpty ? 'Žádný přepis k zobrazení...' : transcript,
+            style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
+          ),
+        ),
       ),
     );
   }

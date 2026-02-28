@@ -16,6 +16,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _showDemo = false;
+  bool _reportExpanded = true;
 
   @override
   Widget build(BuildContext context) {
@@ -119,15 +120,47 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildNarrowLayout(ThemeData theme) {
+    final screenHeight = MediaQuery.of(context).size.height;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(
-            height: 300,
-            child: const ReportPanel(),
-          ),
+          if (_reportExpanded)
+            SizedBox(
+              height: screenHeight * 0.55,
+              child: ReportPanel(
+                onClose: () => setState(() => _reportExpanded = false),
+              ),
+            )
+          else
+            Card(
+              child: InkWell(
+                onTap: () => setState(() => _reportExpanded = true),
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    children: [
+                      const Text('📋', style: TextStyle(fontSize: 20)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Lékařská zpráva',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Icon(Icons.expand_more,
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: 0.6)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           const SizedBox(height: 12),
           const TranscriptPanel(),
           const SizedBox(height: 12),

@@ -5,10 +5,8 @@ void main() {
   group('WhisperService.removeOverlap', () {
     test('removes overlapping words between previous tail and new text', () {
       const String previousTail = 'bolest na hrudi trvající dva';
-      const String newText =
-          'trvající dva dny s vyzařováním do levé ruky';
-      final String result =
-          WhisperService.removeOverlap(previousTail, newText);
+      const String newText = 'trvající dva dny s vyzařováním do levé ruky';
+      final String result = WhisperService.removeOverlap(previousTail, newText);
       expect(result, 'dny s vyzařováním do levé ruky');
     });
 
@@ -129,7 +127,8 @@ void main() {
       expect(callCount, 0);
     });
 
-    test('transcribeFull returns empty string after reset with no audio', () async {
+    test('transcribeFull returns empty string after reset with no audio',
+        () async {
       final service = WhisperService.withTranscriber((samples) async => 'text');
       service.reset();
       final result = await service.transcribeFull();
