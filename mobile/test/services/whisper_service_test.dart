@@ -50,7 +50,7 @@ void main() {
   });
 
   group('WhisperService sliding window', () {
-    test('triggers transcription after 5 seconds (80000 samples) of new audio',
+    test('triggers transcription after 3 seconds (48000 samples) of new audio',
         () async {
       int callCount = 0;
       final service = WhisperService.withTranscriber((samples) async {
@@ -58,8 +58,8 @@ void main() {
         return 'přepis';
       });
 
-      // Feed exactly one window interval worth of samples
-      service.feedAudio(List<double>.filled(80000, 0.0));
+      // Feed exactly one window interval worth of samples (3s = 48000)
+      service.feedAudio(List<double>.filled(48000, 0.0));
 
       // Let the async transcription complete
       await Future<void>.delayed(const Duration(milliseconds: 50));
@@ -67,7 +67,7 @@ void main() {
       expect(callCount, 1);
     });
 
-    test('does not trigger transcription before 5 seconds of new audio',
+    test('does not trigger transcription before 3 seconds of new audio',
         () async {
       int callCount = 0;
       final service = WhisperService.withTranscriber((samples) async {
@@ -75,8 +75,8 @@ void main() {
         return 'přepis';
       });
 
-      // Feed less than one window (79999 samples)
-      service.feedAudio(List<double>.filled(79999, 0.0));
+      // Feed less than one window (47999 samples)
+      service.feedAudio(List<double>.filled(47999, 0.0));
 
       await Future<void>.delayed(const Duration(milliseconds: 50));
 
@@ -95,8 +95,8 @@ void main() {
 
       // Feed two windows worth — but the second should be skipped while
       // the first is still in progress.
-      service.feedAudio(List<double>.filled(80000, 0.0));
-      service.feedAudio(List<double>.filled(80000, 0.0));
+      service.feedAudio(List<double>.filled(48000, 0.0));
+      service.feedAudio(List<double>.filled(48000, 0.0));
 
       await Future<void>.delayed(const Duration(milliseconds: 50));
 
@@ -113,8 +113,8 @@ void main() {
         return 'přepis';
       });
 
-      // Feed enough audio to accumulate state
-      service.feedAudio(List<double>.filled(80000, 0.0));
+      // Feed enough audio to accumulate state (3s = 48000 samples)
+      service.feedAudio(List<double>.filled(48000, 0.0));
       await Future<void>.delayed(const Duration(milliseconds: 50));
 
       // Reset
@@ -123,7 +123,7 @@ void main() {
       // After reset, feeding fewer than a full window should NOT trigger
       // transcription (lastBoundary and buffer are both at 0)
       callCount = 0;
-      service.feedAudio(List<double>.filled(40000, 0.0));
+      service.feedAudio(List<double>.filled(24000, 0.0));
       await Future<void>.delayed(const Duration(milliseconds: 50));
 
       expect(callCount, 0);

@@ -38,28 +38,41 @@ class WhisperService {
   /// Model variant/quantization info.
   static const String modelVariant = 'INT8 (sherpa-onnx)';
 
+  /// URL for Silero VAD model download.
+  static const String _vadModelUrl =
+      'https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/silero_vad.onnx';
+
   /// Expected minimum file sizes in bytes for integrity verification.
-  /// Encoder ~120MB, Decoder ~130MB, Tokens ~100KB.
+  /// Encoder ~120MB, Decoder ~130MB, Tokens ~100KB, VAD ~600KB.
   /// We use conservative minimums (50% of typical) to catch truncated files.
   static const Map<String, int> _expectedMinSizes = {
     'small-encoder.int8.onnx': 50 * 1024 * 1024, // at least 50 MB
     'small-decoder.int8.onnx': 50 * 1024 * 1024, // at least 50 MB
     'small-tokens.txt': 10 * 1024, // at least 10 KB
+    'silero_vad.onnx': 300 * 1024, // at least 300 KB
   };
 
-  /// RMS amplitude threshold below which audio is considered silence.
-  /// Buffers quieter than this are skipped to prevent Whisper from
-  /// hallucinating short interjections on ambient noise.
-  static const double _silenceThreshold = 0.05;
+  /// Accumulated speech-only audio buffer (VAD-filtered).
+  final List<double> _speechBuffer = [];
 
-  final List<double> _audioBuffer = [];
-  int _lastBoundary = 0;
+  /// Raw audio buffer kept for transcribeFull() VAD re-processing.
+  final List<double> _rawAudioBuffer = [];
+
+  /// Number of speech samples already transcribed in live windows.
+  int _lastSpeechBoundary = 0;
+
   String _previousTailText = '';
   String _fullTranscript = '';
   bool _isTranscribing = false;
 
   /// Injectable transcribe function — set by [loadModel] or supplied in tests.
   AudioTranscriber? _transcriber;
+
+  /// Silero VAD instance for voice activity detection.
+  sherpa.VoiceActivityDetector? _vad;
+
+  /// Path to the VAD model file.
+  String _vadModelPath = '';
 
   /// Paths to model files (set during loadModel).
   String _encoderPath = '';
@@ -173,6 +186,7 @@ class WhisperService {
     _encoderPath = '$modelDir/small-encoder.int8.onnx';
     _decoderPath = '$modelDir/small-decoder.int8.onnx';
     _tokensPath = '$modelDir/small-tokens.txt';
+    _vadModelPath = '$modelDir/silero_vad.onnx';
 
     // Verify existing files — delete corrupted/partial ones
     final bool intact = await _verifyAndCleanModel(modelDir);
@@ -217,6 +231,32 @@ class WhisperService {
           'Model files corrupted, deleted. Restart to re-download. Error: $e');
     }
 
+    // Initialize Silero VAD
+    debugLog('[WhisperService] Initializing Silero VAD...');
+    try {
+      _vad = sherpa.VoiceActivityDetector(
+        config: sherpa.VadModelConfig(
+          sileroVad: sherpa.SileroVadModelConfig(
+            model: _vadModelPath,
+            threshold: 0.5,
+            minSilenceDuration: 0.5,
+            minSpeechDuration: 0.25,
+            maxSpeechDuration: 30.0,
+            windowSize: 512,
+          ),
+          sampleRate: _sampleRate,
+          numThreads: 1,
+          provider: 'cpu',
+          debug: false,
+        ),
+        bufferSizeInSeconds: 120.0,
+      );
+      debugLog('[WhisperService] Silero VAD initialized.');
+    } catch (e) {
+      debugLog('[WhisperService] VAD init FAILED: $e — continuing without VAD.');
+      _vad = null;
+    }
+
     _transcriber = (List<double> samples) async {
       final recognizer = sherpa.OfflineRecognizer(
         sherpa.OfflineRecognizerConfig(
@@ -253,46 +293,94 @@ class WhisperService {
 
   /// Accept new audio [samples] from the microphone stream.
   ///
-  /// Triggers a sliding-window transcription when enough new audio has
-  /// accumulated ([_windowInterval] samples since [_lastBoundary]).
+  /// Audio is passed through Silero VAD — only speech segments are buffered.
+  /// Triggers a sliding-window transcription when enough speech has
+  /// accumulated ([_windowInterval] samples since last transcription).
   void feedAudio(List<double> samples) {
-    _audioBuffer.addAll(samples);
+    // Keep raw audio for final transcribeFull() pass
+    _rawAudioBuffer.addAll(samples);
+
+    if (_vad == null) {
+      // Fallback: no VAD, buffer everything (like before)
+      _speechBuffer.addAll(samples);
+    } else {
+      // Feed audio through VAD in 512-sample windows
+      final floatSamples = Float32List.fromList(
+        samples.map((s) => s.toDouble()).toList(),
+      );
+      _vad!.acceptWaveform(floatSamples);
+
+      // Extract any detected speech segments
+      while (!_vad!.isEmpty()) {
+        final segment = _vad!.front();
+        _vad!.pop();
+        if (segment.samples.isNotEmpty) {
+          _speechBuffer.addAll(segment.samples.toList());
+          debugLog('[WhisperService] VAD speech segment: '
+              '${segment.samples.length} samples '
+              '(${(segment.samples.length / _sampleRate).toStringAsFixed(2)}s)');
+        }
+      }
+    }
+
+    // Trigger transcription when enough speech has accumulated
     if (!_isTranscribing &&
-        _audioBuffer.length - _lastBoundary >= _windowInterval) {
+        _speechBuffer.length - _lastSpeechBoundary >= _windowInterval) {
       _transcribeWindow();
     }
   }
 
-  /// Transcribe the entire audio buffer in a single high-quality pass.
+  /// Transcribe all speech from the recording in a high-quality pass.
   ///
-  /// Called on recording stop to produce the definitive transcript.
-  /// Uses chunked processing to avoid OOM on long recordings.
+  /// Called on recording stop. Re-processes the raw audio through a fresh
+  /// VAD instance to extract clean speech segments, then transcribes them
+  /// in chunks. This gives better results than the live streaming pass.
   Future<String> transcribeFull() async {
-    if (_audioBuffer.isEmpty) return '';
-    debugLog('[WhisperService] transcribeFull: ${_audioBuffer.length} samples '
-        '(${(_audioBuffer.length / _sampleRate).toStringAsFixed(1)}s)');
+    if (_rawAudioBuffer.isEmpty) return '';
+    debugLog('[WhisperService] transcribeFull: ${_rawAudioBuffer.length} raw samples '
+        '(${(_rawAudioBuffer.length / _sampleRate).toStringAsFixed(1)}s)');
 
-    // For short recordings (< 30s), transcribe in one shot
-    const int maxSinglePass = 30 * _sampleRate;
-    if (_audioBuffer.length <= maxSinglePass) {
-      return _runTranscriber(_audioBuffer);
+    // Extract speech segments from raw audio using a fresh VAD pass
+    final List<Float32List> speechSegments = _extractSpeechSegments(_rawAudioBuffer);
+
+    if (speechSegments.isEmpty) {
+      debugLog('[WhisperService] transcribeFull: no speech detected by VAD.');
+      return '';
     }
 
-    // For longer recordings, use the same sliding-window approach
-    // but process all windows sequentially for the final pass.
+    // Calculate total speech duration
+    int totalSpeechSamples = 0;
+    for (final seg in speechSegments) {
+      totalSpeechSamples += seg.length;
+    }
+    debugLog('[WhisperService] transcribeFull: ${speechSegments.length} speech segments, '
+        '${(totalSpeechSamples / _sampleRate).toStringAsFixed(1)}s of speech');
+
+    // Concatenate all speech into one buffer
+    final List<double> allSpeech = [];
+    for (final seg in speechSegments) {
+      allSpeech.addAll(seg.toList());
+    }
+
+    // For short speech (< 30s), transcribe in one shot
+    const int maxSinglePass = 30 * _sampleRate;
+    if (allSpeech.length <= maxSinglePass) {
+      final result = await _runTranscriber(allSpeech);
+      debugLog('[WhisperService] transcribeFull done: ${result.length} chars');
+      return result;
+    }
+
+    // For longer speech, chunk it
     const int chunkSize = 15 * _sampleRate; // 15s chunks
     const int overlap = 3 * _sampleRate; // 3s overlap
     final List<String> parts = [];
     String prevTail = '';
 
     for (int start = 0;
-        start < _audioBuffer.length;
+        start < allSpeech.length;
         start += chunkSize - overlap) {
-      final int end = min(start + chunkSize, _audioBuffer.length);
-      final chunk = _audioBuffer.sublist(start, end);
-
-      // Skip silent chunks
-      if (_rms(chunk) < _silenceThreshold) continue;
+      final int end = min(start + chunkSize, allSpeech.length);
+      final chunk = allSpeech.sublist(start, end);
 
       try {
         final String text = await _runTranscriber(chunk);
@@ -313,16 +401,20 @@ class WhisperService {
 
   /// Clear all audio buffers and accumulated transcript state.
   void reset() {
-    _audioBuffer.clear();
-    _lastBoundary = 0;
+    _speechBuffer.clear();
+    _rawAudioBuffer.clear();
+    _lastSpeechBoundary = 0;
     _previousTailText = '';
     _fullTranscript = '';
     _isTranscribing = false;
+    _vad?.reset();
   }
 
   /// Release all resources.
   void dispose() {
     reset();
+    _vad?.free();
+    _vad = null;
     if (!_transcriptController.isClosed) {
       _transcriptController.close();
     }
@@ -332,38 +424,97 @@ class WhisperService {
   // Internal helpers
   // ---------------------------------------------------------------------------
 
-  /// Calculate root-mean-square amplitude of [samples].
-  static double _rms(List<double> samples) {
-    if (samples.isEmpty) return 0.0;
-    double sumSq = 0.0;
-    for (final s in samples) {
-      sumSq += s * s;
+  /// Extract speech segments from raw audio using a fresh VAD instance.
+  /// Used by transcribeFull() for a clean second pass over all audio.
+  List<Float32List> _extractSpeechSegments(List<double> rawAudio) {
+    if (_vadModelPath.isEmpty) {
+      // No VAD model — return entire audio as one segment
+      return [Float32List.fromList(rawAudio)];
     }
-    return sqrt(sumSq / samples.length);
+
+    final List<Float32List> segments = [];
+    try {
+      final vad = sherpa.VoiceActivityDetector(
+        config: sherpa.VadModelConfig(
+          sileroVad: sherpa.SileroVadModelConfig(
+            model: _vadModelPath,
+            threshold: 0.45, // slightly lower for final pass — catch more speech
+            minSilenceDuration: 0.5,
+            minSpeechDuration: 0.25,
+            maxSpeechDuration: 30.0,
+            windowSize: 512,
+          ),
+          sampleRate: _sampleRate,
+          numThreads: 1,
+          provider: 'cpu',
+          debug: false,
+        ),
+        bufferSizeInSeconds: 120.0,
+      );
+
+      // Process in 512-sample windows (VAD requirement)
+      const int windowSize = 512;
+      for (int i = 0; i < rawAudio.length; i += windowSize) {
+        final int end = min(i + windowSize, rawAudio.length);
+        final chunk = rawAudio.sublist(i, end);
+        // Pad last chunk to windowSize if needed
+        final Float32List padded;
+        if (chunk.length < windowSize) {
+          padded = Float32List(windowSize);
+          for (int j = 0; j < chunk.length; j++) {
+            padded[j] = chunk[j];
+          }
+        } else {
+          padded = Float32List.fromList(chunk);
+        }
+        vad.acceptWaveform(padded);
+
+        while (!vad.isEmpty()) {
+          final segment = vad.front();
+          vad.pop();
+          if (segment.samples.isNotEmpty) {
+            segments.add(segment.samples);
+          }
+        }
+      }
+
+      // Flush remaining speech
+      vad.flush();
+      while (!vad.isEmpty()) {
+        final segment = vad.front();
+        vad.pop();
+        if (segment.samples.isNotEmpty) {
+          segments.add(segment.samples);
+        }
+      }
+
+      vad.free();
+    } catch (e) {
+      debugLog('[WhisperService] VAD extraction failed: $e — using raw audio.');
+      return [Float32List.fromList(rawAudio)];
+    }
+
+    return segments;
   }
 
   Future<void> _transcribeWindow() async {
     if (_isTranscribing) return;
-    if (_audioBuffer.length - _lastBoundary < _windowInterval) return;
+    if (_speechBuffer.length - _lastSpeechBoundary < _windowInterval) return;
     _isTranscribing = true;
 
     try {
-      final int overlapStart = max(0, _lastBoundary - _overlapSamples);
+      final int overlapStart = max(0, _lastSpeechBoundary - _overlapSamples);
       // Snapshot the buffer end BEFORE the async call so we don't skip audio
       // that arrives while we're transcribing.
-      final int windowEnd = _audioBuffer.length;
+      final int windowEnd = _speechBuffer.length;
       final List<double> window =
-          List<double>.from(_audioBuffer.sublist(overlapStart, windowEnd));
+          List<double>.from(_speechBuffer.sublist(overlapStart, windowEnd));
 
-      // Skip transcription if the window is too quiet (silence / ambient noise).
-      if (_rms(window) < _silenceThreshold) {
-        _lastBoundary = windowEnd;
-        return;
-      }
+      // No RMS silence check needed — VAD already filtered silence.
 
       final String rawText = await _runTranscriber(window);
       if (rawText.isEmpty) {
-        _lastBoundary = windowEnd;
+        _lastSpeechBoundary = windowEnd;
         return;
       }
 
@@ -374,7 +525,7 @@ class WhisperService {
       }
 
       _previousTailText = _lastWords(rawText, 20);
-      _lastBoundary = windowEnd;
+      _lastSpeechBoundary = windowEnd;
 
       if (!_transcriptController.isClosed) {
         _transcriptController.add(_fullTranscript);
@@ -419,6 +570,7 @@ class WhisperService {
       'small-encoder.int8.onnx': '$baseUrl/small-encoder.int8.onnx',
       'small-decoder.int8.onnx': '$baseUrl/small-decoder.int8.onnx',
       'small-tokens.txt': '$baseUrl/small-tokens.txt',
+      'silero_vad.onnx': _vadModelUrl,
     };
 
     final httpClient = HttpClient();
