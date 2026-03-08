@@ -46,10 +46,13 @@ class _TranscriptPanelState extends ConsumerState<TranscriptPanel> {
                 children: [
                   const Text('🎤', style: TextStyle(fontSize: 20)),
                   const SizedBox(width: 8),
-                  Text(
-                    'Přepis řeči',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                  Flexible(
+                    child: Text(
+                      'Přepis řeči',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const SizedBox(width: 8),

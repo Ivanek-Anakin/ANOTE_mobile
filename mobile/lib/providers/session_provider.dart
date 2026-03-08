@@ -52,8 +52,13 @@ class SessionNotifier extends StateNotifier<SessionState> {
     Future.microtask(() => _preloadModel());
   }
 
+  /// Maximum auto-retry attempts for model preload.
+  static const int _maxPreloadRetries = 3;
+
   /// Start downloading / loading the model in the background on app start.
-  Future<void> _preloadModel() async {
+  /// Automatically retries up to [_maxPreloadRetries] times on network errors
+  /// with exponential backoff (5s, 10s, 20s).
+  Future<void> _preloadModel({int attempt = 1}) async {
     if (_whisperService.isModelLoaded || _isPreloading) return;
     _isPreloading = true;
     try {
@@ -68,6 +73,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
           state = state.copyWith(
             modelDownloadProgress: 0.0,
             modelDownloadFileName: 'kontrola modelu...',
+            clearError: true,
           );
         }
       }
@@ -86,15 +92,65 @@ class SessionNotifier extends StateNotifier<SessionState> {
       state = state.copyWith(isModelLoaded: true, clearDownload: true);
     } catch (e) {
       _whisperService.onDownloadProgress = null;
-      WhisperService.debugLog('[SessionNotifier] Model load error: $e');
+      WhisperService.debugLog(
+          '[SessionNotifier] Model load error (attempt $attempt): $e');
       if (!mounted) return;
+
+      // Auto-retry on network errors with exponential backoff
+      final bool isNetworkError = _isNetworkException(e);
+      if (isNetworkError && attempt < _maxPreloadRetries) {
+        final delay =
+            Duration(seconds: 5 * (1 << (attempt - 1))); // 5s, 10s, 20s
+        WhisperService.debugLog(
+            '[SessionNotifier] Network error — retrying in ${delay.inSeconds}s '
+            '(attempt ${attempt + 1}/$_maxPreloadRetries)...');
+        state = state.copyWith(
+          clearDownload: true,
+          errorMessage:
+              'Stahování přerušeno. Automatický pokus za ${delay.inSeconds}s...',
+        );
+        _isPreloading = false;
+        await Future<void>.delayed(delay);
+        if (!mounted) return;
+        // Clear error before retry
+        state = state.copyWith(clearError: true);
+        return _preloadModel(attempt: attempt + 1);
+      }
+
       state = state.copyWith(
         clearDownload: true,
-        errorMessage: 'Chyba modelu: $e',
+        errorMessage: isNetworkError
+            ? 'Stahování modelu selhalo. Zkontrolujte internet a stiskněte tlačítko níže.'
+            : 'Chyba modelu: $e',
       );
     } finally {
       _isPreloading = false;
     }
+  }
+
+  /// Check if an exception is network-related.
+  bool _isNetworkException(Object e) {
+    final msg = e.toString().toLowerCase();
+    return msg.contains('connection closed') ||
+        msg.contains('connection refused') ||
+        msg.contains('connection reset') ||
+        msg.contains('connection timed out') ||
+        msg.contains('network') ||
+        msg.contains('socket') ||
+        msg.contains('nodename nor servname') ||
+        msg.contains('no address associated') ||
+        msg.contains('host not found') ||
+        msg.contains('dns') ||
+        msg.contains('unreachable') ||
+        msg.contains('timed out') ||
+        msg.contains('httpclient');
+  }
+
+  /// Allow user to manually retry model loading after a failure.
+  void retryModelLoad() {
+    if (_whisperService.isModelLoaded || _isPreloading) return;
+    state = state.copyWith(clearError: true, clearDownload: true);
+    _preloadModel();
   }
 
   // ---------------------------------------------------------------------------
@@ -134,7 +190,22 @@ class SessionNotifier extends StateNotifier<SessionState> {
               modelDownloadFileName: fileName,
             );
           };
-          await _whisperService.loadModel();
+          try {
+            await _whisperService.loadModel();
+          } catch (e) {
+            _whisperService.onDownloadProgress = null;
+            _isPreloading = false;
+            if (!mounted) return;
+            final isNetwork = _isNetworkException(e);
+            state = state.copyWith(
+              status: RecordingStatus.idle,
+              clearDownload: true,
+              errorMessage: isNetwork
+                  ? 'Model nelze stáhnout. Zkontrolujte připojení k internetu.'
+                  : 'Chyba modelu: $e',
+            );
+            return;
+          }
           _whisperService.onDownloadProgress = null;
           _isPreloading = false;
           if (!mounted) return;
@@ -144,7 +215,15 @@ class SessionNotifier extends StateNotifier<SessionState> {
           while (_isPreloading && mounted) {
             await Future<void>.delayed(const Duration(milliseconds: 200));
           }
-          if (!mounted || !_whisperService.isModelLoaded) return;
+          if (!mounted || !_whisperService.isModelLoaded) {
+            if (mounted) {
+              state = state.copyWith(
+                status: RecordingStatus.idle,
+                errorMessage: 'Model se nepodařilo načíst. Zkuste to znovu.',
+              );
+            }
+            return;
+          }
         }
       }
 

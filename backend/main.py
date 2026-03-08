@@ -8,7 +8,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from openai import OpenAI
+from openai import AzureOpenAI, OpenAI
 from pydantic import BaseModel
 
 load_dotenv()
@@ -30,12 +30,24 @@ app.add_middleware(
 )
 
 if not MOCK_MODE:
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    # Azure OpenAI (production) — preferred when AZURE_OPENAI_KEY is set
+    if os.environ.get("AZURE_OPENAI_KEY"):
+        client = AzureOpenAI(
+            api_key=os.environ["AZURE_OPENAI_KEY"],
+            api_version="2025-04-01-preview",
+            azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
+        )
+        logger.info("Using Azure OpenAI at %s", os.environ["AZURE_OPENAI_ENDPOINT"])
+    else:
+        # Dev fallback — plain OpenAI
+        client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+        logger.info("Using plain OpenAI (dev fallback)")
 else:
     client = None  # type: ignore[assignment]
     logger.warning("MOCK_MODE is ON — OpenAI will not be called")
 
-CHAT_MODEL: str = os.environ.get("OPENAI_CHAT_MODEL", "gpt-4o-mini")
+CHAT_MODEL: str = os.environ.get("AZURE_OPENAI_DEPLOYMENT",
+                                  os.environ.get("OPENAI_CHAT_MODEL", "gpt-4-1-mini"))
 API_TOKEN: str = os.environ.get("APP_API_TOKEN", "dev-token")
 
 # Path to demo scenario .txt files (relative to this file's location)

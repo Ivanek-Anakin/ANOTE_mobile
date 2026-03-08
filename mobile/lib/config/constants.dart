@@ -1,7 +1,9 @@
 class AppConstants {
-  // Local dev: http://localhost:8000 (Chrome) or http://<mac-lan-ip>:8000 (phone)
-  static const String defaultBackendUrl = 'http://172.20.10.2:8000';
-  static const String defaultToken = 'dev-token';
+  // Production: Azure Container Apps (West Europe)
+  static const String defaultBackendUrl =
+      'https://anote-api.politesmoke-02c93984.westeurope.azurecontainerapps.io';
+  static const String defaultToken =
+      '_lZNhJDgaoneVaztSf2tJnf-rZMEQV5ZCLBPRAyC38I';
   static const Duration reportGenerationInterval = Duration(seconds: 15);
   static const Duration pollInterval = Duration(milliseconds: 500);
   static const String secureStorageKeyToken = 'api_bearer_token';

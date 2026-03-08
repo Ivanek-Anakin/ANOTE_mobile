@@ -24,10 +24,11 @@ class WhisperService {
   static const int _sampleRate = 16000;
 
   /// Number of new samples required before a window transcription is triggered.
-  static const int _windowInterval = 3 * _sampleRate; // 3 seconds
+  /// Whisper needs longer context (10s+) for good Czech transcription.
+  static const int _windowInterval = 10 * _sampleRate; // 10 seconds
 
   /// Overlap samples re-included in each window to preserve boundary words.
-  static const int _overlapSamples = 1 * _sampleRate; // 1 second
+  static const int _overlapSamples = 3 * _sampleRate; // 3 seconds
 
   /// Model directory name for sherpa_onnx whisper model files.
   static const String _modelDirName = 'sherpa-onnx-whisper-small';
@@ -67,6 +68,9 @@ class WhisperService {
 
   /// Injectable transcribe function — set by [loadModel] or supplied in tests.
   AudioTranscriber? _transcriber;
+
+  /// Persistent recognizer instance (reused across transcription calls).
+  sherpa.OfflineRecognizer? _recognizer;
 
   /// Silero VAD instance for voice activity detection.
   sherpa.VoiceActivityDetector? _vad;
@@ -205,21 +209,7 @@ class WhisperService {
     // Validate model files by creating a test recognizer
     try {
       final testRecognizer = sherpa.OfflineRecognizer(
-        sherpa.OfflineRecognizerConfig(
-          model: sherpa.OfflineModelConfig(
-            whisper: sherpa.OfflineWhisperModelConfig(
-              encoder: _encoderPath,
-              decoder: _decoderPath,
-              language: 'cs',
-              task: 'transcribe',
-              tailPaddings: 800,
-            ),
-            tokens: _tokensPath,
-            numThreads: 2,
-            debug: false,
-            provider: 'cpu',
-          ),
-        ),
+        _buildRecognizerConfig(),
       );
       testRecognizer.free();
       debugLog('[WhisperService] Model validation passed.');
@@ -258,37 +248,20 @@ class WhisperService {
       _vad = null;
     }
 
+    // Create a persistent recognizer for the session (reused across calls)
+    _recognizer = sherpa.OfflineRecognizer(_buildRecognizerConfig());
+    debugLog('[WhisperService] Persistent recognizer created.');
+
     _transcriber = (List<double> samples) async {
-      final recognizer = sherpa.OfflineRecognizer(
-        sherpa.OfflineRecognizerConfig(
-          model: sherpa.OfflineModelConfig(
-            whisper: sherpa.OfflineWhisperModelConfig(
-              encoder: _encoderPath,
-              decoder: _decoderPath,
-              language: 'cs',
-              task: 'transcribe',
-              tailPaddings: 800,
-            ),
-            tokens: _tokensPath,
-            numThreads: 2,
-            debug: false,
-            provider: 'cpu',
-          ),
-        ),
+      final stream = _recognizer!.createStream();
+      stream.acceptWaveform(
+        samples: Float32List.fromList(samples),
+        sampleRate: _sampleRate,
       );
-      try {
-        final stream = recognizer.createStream();
-        stream.acceptWaveform(
-          samples: Float32List.fromList(samples),
-          sampleRate: _sampleRate,
-        );
-        recognizer.decode(stream);
-        final result = recognizer.getResult(stream);
-        stream.free();
-        return result.text.trim();
-      } finally {
-        recognizer.free();
-      }
+      _recognizer!.decode(stream);
+      final result = _recognizer!.getResult(stream);
+      stream.free();
+      return result.text.trim();
     };
   }
 
@@ -374,9 +347,9 @@ class WhisperService {
       return result;
     }
 
-    // For longer speech, chunk it
-    const int chunkSize = 15 * _sampleRate; // 15s chunks
-    const int overlap = 3 * _sampleRate; // 3s overlap
+    // For longer speech, chunk it — use 30s (Whisper's max context)
+    const int chunkSize = 30 * _sampleRate; // 30s chunks
+    const int overlap = 5 * _sampleRate; // 5s overlap
     final List<String> parts = [];
     String prevTail = '';
 
@@ -417,6 +390,8 @@ class WhisperService {
   /// Release all resources.
   void dispose() {
     reset();
+    _recognizer?.free();
+    _recognizer = null;
     _vad?.free();
     _vad = null;
     if (!_transcriptController.isClosed) {
@@ -427,6 +402,27 @@ class WhisperService {
   // ---------------------------------------------------------------------------
   // Internal helpers
   // ---------------------------------------------------------------------------
+
+  /// Build a shared recognizer config for Whisper Small Czech.
+  /// tailPaddings: -1 (auto) avoids hallucinations from excessive silence padding.
+  /// numThreads: 4 for modern devices (iPhone 13+, recent Android).
+  sherpa.OfflineRecognizerConfig _buildRecognizerConfig() {
+    return sherpa.OfflineRecognizerConfig(
+      model: sherpa.OfflineModelConfig(
+        whisper: sherpa.OfflineWhisperModelConfig(
+          encoder: _encoderPath,
+          decoder: _decoderPath,
+          language: 'cs',
+          task: 'transcribe',
+          tailPaddings: -1,
+        ),
+        tokens: _tokensPath,
+        numThreads: 4,
+        debug: false,
+        provider: 'cpu',
+      ),
+    );
+  }
 
   /// Extract speech segments from raw audio using a fresh VAD instance.
   /// Used by transcribeFull() for a clean second pass over all audio.
@@ -603,44 +599,68 @@ class WhisperService {
         final tmpFile = File(tmpPath);
         if (tmpFile.existsSync()) tmpFile.deleteSync();
 
-        debugLog('[WhisperService] Downloading ${entry.key}...');
-        final request = await httpClient.getUrl(Uri.parse(entry.value));
-        final response = await request.close();
+        // Retry each file download up to 3 times with exponential backoff
+        const int maxRetries = 3;
+        for (int attempt = 1; attempt <= maxRetries; attempt++) {
+          try {
+            debugLog('[WhisperService] Downloading ${entry.key}... '
+                '(attempt $attempt/$maxRetries)');
+            final request = await httpClient.getUrl(Uri.parse(entry.value));
+            final response = await request.close();
 
-        if (response.statusCode >= 200 && response.statusCode < 400) {
-          final contentLength = response.contentLength;
-          final sink = tmpFile.openWrite();
-          int received = 0;
+            if (response.statusCode >= 200 && response.statusCode < 400) {
+              final contentLength = response.contentLength;
+              final sink = tmpFile.openWrite();
+              int received = 0;
 
-          await for (final chunk in response) {
-            sink.add(chunk);
-            received += chunk.length;
-            if (onProgress != null && contentLength > 0) {
-              final fileProgress = received / contentLength;
-              final overall = (fileIndex + fileProgress) / files.length;
-              onProgress(entry.key, overall);
+              await for (final chunk in response) {
+                sink.add(chunk);
+                received += chunk.length;
+                if (onProgress != null && contentLength > 0) {
+                  final fileProgress = received / contentLength;
+                  final overall = (fileIndex + fileProgress) / files.length;
+                  onProgress(entry.key, overall);
+                }
+              }
+              await sink.close();
+
+              // Verify downloaded size before renaming
+              final downloadedSize = tmpFile.lengthSync();
+              final minSize = _expectedMinSizes[entry.key] ?? 0;
+              if (downloadedSize < minSize) {
+                tmpFile.deleteSync();
+                throw Exception(
+                  'Downloaded ${entry.key} too small: $downloadedSize bytes',
+                );
+              }
+
+              // Atomic rename: only a complete file gets the final name
+              tmpFile.renameSync(filePath);
+              debugLog('[WhisperService] ${entry.key} downloaded OK '
+                  '($downloadedSize bytes).');
+              break; // Success — exit retry loop
+            } else {
+              throw Exception(
+                'Failed to download ${entry.key}: HTTP ${response.statusCode}',
+              );
             }
+          } catch (e) {
+            // Clean up partial temp file
+            if (tmpFile.existsSync()) {
+              try {
+                tmpFile.deleteSync();
+              } catch (_) {}
+            }
+            if (attempt == maxRetries) {
+              debugLog('[WhisperService] ${entry.key} failed after '
+                  '$maxRetries attempts: $e');
+              rethrow;
+            }
+            final delay = Duration(seconds: attempt * 2); // 2s, 4s, 6s
+            debugLog('[WhisperService] ${entry.key} attempt $attempt failed: '
+                '$e — retrying in ${delay.inSeconds}s...');
+            await Future<void>.delayed(delay);
           }
-          await sink.close();
-
-          // Verify downloaded size before renaming
-          final downloadedSize = tmpFile.lengthSync();
-          final minSize = _expectedMinSizes[entry.key] ?? 0;
-          if (downloadedSize < minSize) {
-            tmpFile.deleteSync();
-            throw Exception(
-              'Downloaded ${entry.key} too small: $downloadedSize bytes',
-            );
-          }
-
-          // Atomic rename: only a complete file gets the final name
-          tmpFile.renameSync(filePath);
-          debugLog('[WhisperService] ${entry.key} downloaded OK '
-              '($downloadedSize bytes).');
-        } else {
-          throw Exception(
-            'Failed to download ${entry.key}: HTTP ${response.statusCode}',
-          );
         }
         fileIndex++;
       }

@@ -75,7 +75,17 @@ class ReportService {
       } else if (statusCode == 502) {
         throw const ReportServerException('Backend server error');
       }
-      throw ReportNetworkException('Network error: ${e.message}');
+      // Provide user-friendly Czech message for network errors
+      final msg = e.message?.toLowerCase() ?? '';
+      if (msg.contains('connection closed') ||
+          msg.contains('connection refused') ||
+          msg.contains('socket') ||
+          msg.contains('timed out') ||
+          msg.contains('network')) {
+        throw const ReportNetworkException(
+            'Připojení k serveru selhalo. Zkontrolujte internet.');
+      }
+      throw ReportNetworkException('Chyba sítě: ${e.message}');
     }
   }
 

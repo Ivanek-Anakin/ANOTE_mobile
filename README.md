@@ -1,6 +1,6 @@
 # ANOTE Mobile
 
-Medical report generation from voice — on-device speech-to-text (Whisper + Silero VAD) with a Python/FastAPI backend for structured Czech medical report generation via GPT-4o-mini.
+Medical report generation from voice — on-device speech-to-text (Whisper + Silero VAD) with a Python/FastAPI backend for structured Czech medical report generation via Azure OpenAI (gpt-4.1-mini).
 
 ## Architecture
 
@@ -28,7 +28,7 @@ Medical report generation from voice — on-device speech-to-text (Whisper + Sil
 ┌──────────── Backend Server ───────────────────────────┐
 │                                                        │
 │  FastAPI (Python)                                      │
-│  POST /report → OpenAI GPT-4o-mini                     │
+│  POST /report → Azure OpenAI gpt-4.1-mini              │
 │    → 13-section structured Czech medical report        │
 │                                                        │
 └────────────────────────────────────────────────────────┘
@@ -39,7 +39,8 @@ Medical report generation from voice — on-device speech-to-text (Whisper + Sil
 - **On-device transcription** — Whisper Small (INT8) via sherpa_onnx, no audio leaves the device
 - **Voice Activity Detection** — Silero VAD filters silence to prevent hallucinations
 - **Real-time transcription** — live transcript updates every ~3 seconds during recording
-- **Structured medical reports** — GPT-4o-mini generates 13-section Czech medical report (NO, NA, RA, OA, FA, AA, GA, SA, objektivní nález, hodnocení, vyšetření, terapie, pokyny)
+- **Structured medical reports** — Azure OpenAI gpt-4.1-mini generates 13-section Czech medical report (NO, NA, RA, OA, FA, AA, GA, SA, objektivní nález, hodnocení, vyšetření, terapie, pokyny)
+- **GDPR-compliant** — Azure OpenAI in West Europe, no patient data leaves the EU
 - **Model auto-download** — Whisper + VAD models download on first launch with progress UI
 - **Collapsible panels** — report and transcript panels expand/collapse/fullscreen
 - **Copy to clipboard** — one-tap copy for both report and transcript
@@ -51,12 +52,22 @@ Medical report generation from voice — on-device speech-to-text (Whisper + Sil
 ```
 ANOTE_mobile/
 ├── README.md
+├── LLM_JUDGE_SPEC.md           # Report quality evaluation tech spec
+├── MODEL_COMPARISON_TEST.md   # gpt-4.1-mini vs gpt-5-mini benchmark
+├── PRODUCTION_CHECKLIST.md     # Step-by-step production deployment guide
 ├── backend/
 │   ├── main.py                  # FastAPI — /health and /report endpoints
+│   ├── evaluate_reports.py      # LLM-as-Judge report quality evaluation
+│   ├── evaluate_transcription.py # Whisper+VAD transcription quality evaluation
+│   ├── test_models.py           # Model comparison test script
+│   ├── test_hurvinek.py         # Hurvínek scenario test script
 │   ├── requirements.txt
 │   ├── Dockerfile
 │   └── tests/
 │       └── test_report_endpoint.py
+├── testing_hurvinek/            # Czech audio + ASR transcripts for testing
+│   ├── *.mp3                    # Audio files (3 episodes)
+│   └── *.txt                    # UniScribe transcriptions
 └── mobile/
     ├── pubspec.yaml
     ├── lib/
@@ -109,6 +120,14 @@ All models are auto-downloaded on first launch (~250 MB total):
 ```bash
 cd backend
 pip install -r requirements.txt
+
+# Azure OpenAI (production)
+AZURE_OPENAI_KEY="..." \
+AZURE_OPENAI_ENDPOINT="https://anote-openai.openai.azure.com" \
+AZURE_OPENAI_DEPLOYMENT="gpt-4-1-mini" \
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+# Plain OpenAI (dev fallback)
 OPENAI_API_KEY="sk-..." uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
@@ -179,3 +198,47 @@ xcrun devicectl device install app \
 cd backend
 python -m pytest tests/ -v
 ```
+
+## Azure OpenAI Model Comparison
+
+Both gpt-4.1-mini and gpt-5-mini were benchmarked on a Czech cardiac emergency scenario. See [MODEL_COMPARISON_TEST.md](MODEL_COMPARISON_TEST.md) for full details.
+
+| Metric | gpt-4.1-mini | gpt-5-mini |
+|--------|-------------|------------|
+| Latency | **4–6 s** | 15–20 s |
+| Cost/report | **~$0.001** | ~$0.004 |
+| Quality | Excellent | Slightly better |
+| GDPR (EU data) | Standard SKU ✅ | GlobalStandard ❌ |
+| Temperature control | Yes | No |
+
+**Decision:** gpt-4.1-mini selected for production — fast enough for 15s update cycle, GDPR-compliant, 4× cheaper.
+
+## Transcription Evaluation
+
+`backend/evaluate_transcription.py` benchmarks the on-device Whisper + Silero VAD pipeline against reference transcripts. It mirrors the Dart `transcribeFull()` pipeline exactly (VAD → concatenate speech → 15s chunking with 3s overlap and word deduplication) and computes WER/CER via [jiwer](https://github.com/jitsi/jiwer).
+
+### Run
+
+```bash
+cd backend
+pip install sherpa-onnx jiwer numpy
+
+# Single config (quick check)
+python evaluate_transcription.py --threshold 0.45 --min-silence 0.5 --min-speech 0.25 --tail-paddings 800
+
+# Smart sweep (finds best VAD params)
+python evaluate_transcription.py
+```
+
+Models are auto-downloaded to `backend/models/` on first run (~360 MB). Audio files are read from `testing_hurvinek/` (Czech children's puppet show — 3 episodes, ~10 min each).
+
+### Results (Whisper Small INT8, single config)
+
+| Scenario | WER | CER | Speech% | Segments |
+|----------|-----|-----|---------|----------|
+| Nachlazení | 53.4% | 39.3% | 90.7% | 36 |
+| Zlomenina | 56.6% | 31.8% | 82.5% | 48 |
+| Angína | 56.8% | 32.5% | 91.6% | 35 |
+| **Mean** | **55.6%** | **34.5%** | **88.3%** | — |
+
+WER/CER are measured on challenging Czech audio with multiple speakers, music, and sound effects. Medical dictation (single speaker, quiet room) is expected to perform significantly better.
