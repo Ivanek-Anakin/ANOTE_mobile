@@ -8,4 +8,5 @@ class AppConstants {
   static const Duration pollInterval = Duration(milliseconds: 500);
   static const String secureStorageKeyToken = 'api_bearer_token';
   static const String secureStorageKeyUrl = 'backend_url';
+  static const String visitTypePrefKey = 'visit_type';
 }

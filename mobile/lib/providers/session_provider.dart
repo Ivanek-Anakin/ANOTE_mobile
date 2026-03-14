@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/constants.dart';
 import '../models/session_state.dart';
@@ -20,6 +21,30 @@ final audioServiceProvider = Provider<AudioService>((ref) {
 final whisperServiceProvider = Provider<WhisperService>((ref) {
   return WhisperService();
 });
+
+/// Provides the persisted visit type preference.
+final visitTypeProvider =
+    StateNotifierProvider<VisitTypeNotifier, VisitType>((ref) {
+  return VisitTypeNotifier();
+});
+
+class VisitTypeNotifier extends StateNotifier<VisitType> {
+  VisitTypeNotifier() : super(VisitType.defaultType) {
+    _load();
+  }
+
+  Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString(AppConstants.visitTypePrefKey);
+    state = VisitTypeApi.fromString(value);
+  }
+
+  Future<void> setVisitType(VisitType type) async {
+    state = type;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(AppConstants.visitTypePrefKey, type.apiValue);
+  }
+}
 
 final sessionProvider =
     StateNotifierProvider<SessionNotifier, SessionState>((ref) {
@@ -50,6 +75,13 @@ class SessionNotifier extends StateNotifier<SessionState> {
     // This prevents a native crash in sherpa_onnx from killing the app
     // before any UI is visible.
     Future.microtask(() => _preloadModel());
+  }
+
+  /// Read the current visit type API string from SharedPreferences.
+  Future<String> _getVisitTypeApi() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString(AppConstants.visitTypePrefKey);
+    return VisitTypeApi.fromString(value).apiValue;
   }
 
   /// Maximum auto-retry attempts for model preload.
@@ -272,7 +304,9 @@ class SessionNotifier extends StateNotifier<SessionState> {
       return;
     }
     try {
-      final String report = await _reportService.generateReport(transcript);
+      final vt = await _getVisitTypeApi();
+      final String report =
+          await _reportService.generateReport(transcript, visitType: vt);
       if (mounted && state.status == RecordingStatus.recording) {
         state = state.copyWith(report: report);
       }
@@ -323,10 +357,11 @@ class SessionNotifier extends StateNotifier<SessionState> {
 
       if (finalTranscript.isNotEmpty) {
         WhisperService.debugLog('[SessionNotifier] Generating report...');
+        final vt = await _getVisitTypeApi();
         final String report =
-            await _reportService.generateReport(finalTranscript);
+            await _reportService.generateReport(finalTranscript, visitType: vt);
         if (!mounted) return;
-        state = state.copyWith(report: report);
+        state = state.copyWith(report: report, visitTypeChanged: false);
         WhisperService.debugLog('[SessionNotifier] Report generated OK.');
       }
     } catch (e) {
@@ -398,10 +433,13 @@ class SessionNotifier extends StateNotifier<SessionState> {
     state = state.copyWith(transcript: transcript);
 
     try {
-      final String report = await _reportService.generateReport(transcript);
+      final vt = await _getVisitTypeApi();
+      final String report =
+          await _reportService.generateReport(transcript, visitType: vt);
       state = state.copyWith(
         status: RecordingStatus.idle,
         report: report,
+        visitTypeChanged: false,
       );
     } catch (e) {
       state = state.copyWith(
@@ -414,6 +452,42 @@ class SessionNotifier extends StateNotifier<SessionState> {
   /// Cancel demo playback — sets status to idle.
   void cancelDemo() {
     state = state.copyWith(status: RecordingStatus.idle);
+  }
+
+  /// Mark that the visit type was changed (show regenerate button).
+  void markVisitTypeChanged() {
+    if (state.report.isNotEmpty) {
+      state = state.copyWith(visitTypeChanged: true);
+    }
+  }
+
+  /// Regenerate the report using the current transcript and visit type.
+  Future<void> regenerateReport() async {
+    final transcript = state.transcript;
+    if (transcript.isEmpty) return;
+
+    state = state.copyWith(
+      status: RecordingStatus.processing,
+      clearError: true,
+      visitTypeChanged: false,
+    );
+
+    try {
+      final vt = await _getVisitTypeApi();
+      final String report =
+          await _reportService.generateReport(transcript, visitType: vt);
+      if (!mounted) return;
+      state = state.copyWith(
+        status: RecordingStatus.idle,
+        report: report,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      state = state.copyWith(
+        status: RecordingStatus.idle,
+        errorMessage: e.toString(),
+      );
+    }
   }
 
   @override

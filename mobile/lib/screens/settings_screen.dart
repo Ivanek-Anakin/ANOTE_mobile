@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/constants.dart';
+import '../models/session_state.dart';
+import '../providers/session_provider.dart';
 import '../services/report_service.dart';
 import '../services/whisper_service.dart';
 import 'home_screen.dart';
@@ -162,6 +164,43 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ref.read(themeModeProvider.notifier).setMode(mode);
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.setString(_themePrefKey, mode.name);
+              },
+            ),
+            const Divider(height: 32),
+            Text('Typ návštěvy',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 4),
+            Text(
+              'Ovlivňuje strukturu generované zprávy.',
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(height: 12),
+            Consumer(
+              builder: (context, ref, _) {
+                final currentVisitType = ref.watch(visitTypeProvider);
+                return SegmentedButton<VisitType>(
+                  segments: const [
+                    ButtonSegment(
+                      value: VisitType.defaultType,
+                      label: Text('Výchozí'),
+                    ),
+                    ButtonSegment(
+                      value: VisitType.initial,
+                      label: Text('Vstupní'),
+                    ),
+                    ButtonSegment(
+                      value: VisitType.followup,
+                      label: Text('Kontrolní'),
+                    ),
+                  ],
+                  selected: {currentVisitType},
+                  onSelectionChanged: (types) {
+                    final type = types.first;
+                    ref.read(visitTypeProvider.notifier).setVisitType(type);
+                    ref.read(sessionProvider.notifier).markVisitTypeChanged();
+                  },
+                );
               },
             ),
             const Divider(height: 32),

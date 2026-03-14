@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/session_state.dart';
 import '../providers/session_provider.dart';
 
 /// Collapsible report panel with close button and fullscreen option.
@@ -100,6 +101,28 @@ class ReportPanel extends ConsumerWidget {
                 textAlignVertical: TextAlignVertical.top,
               ),
             ),
+            if (session.visitTypeChanged && session.report.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: session.status == RecordingStatus.processing
+                        ? null
+                        : () => ref
+                            .read(sessionProvider.notifier)
+                            .regenerateReport(),
+                    icon: session.status == RecordingStatus.processing
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.refresh, size: 18),
+                    label: const Text('Přegenerovat zprávu'),
+                  ),
+                ),
+              ),
             if (session.report.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 8),

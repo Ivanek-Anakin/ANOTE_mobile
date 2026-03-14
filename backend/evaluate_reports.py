@@ -14,6 +14,7 @@ Prompt variants:
     v1  -- completeness boost (capture all contextual details)
     v2  -- stricter structure (enforce 13 sections, formatting)
     v3  -- enhanced negation + noise filtering
+    v4  -- enhanced production (adherence + negation + SA + roles)
 """
 
 import argparse
@@ -43,27 +44,62 @@ API_KEY = os.environ.get(
     "REDACTED_KEY",
 )
 
-# ── System prompt (exact copy from backend/main.py _build_system_prompt) ─────
+# ── System prompt (synced from backend/main.py _build_system_prompt) ──────────
+
+
+def _build_base_rules() -> str:
+    """Return the ZÁSADY (rules) block shared by all visit-type prompts."""
+    return (
+        "ZÁSADY\n"
+        "- Nevymýšlej ani nedoplňuj informace, které v přepisu nejsou.\n"
+        '- Pokud informace chybí, napiš přesně: \u201Eneuvedeno\u201C.\n'
+        "- Pokud je něco výslovně popřeno (typicky po dotazu lékaře), zaznamenej to "
+        "jako NEGACI. Negace má přednost před \u201Eneuvedeno\u201C. Používej formulace jako:\n"
+        '  \u2022 \u201Ealergie neguje\u201C\n'
+        '  \u2022 \u201Ezvýšenou teplotu neguje\u201C\n'
+        '  \u2022 \u201Edušnost neguje\u201C\n'
+        '  \u2022 \u201Etěžké hypoglykémie neměl/a\u201C\n'
+        '  \u2022 \u201Enoční hypoglykémie neudává\u201C\n'
+        '  \u2022 \u201Ebez bolestí\u201C\n'
+        '  \u2022 \u201Ejinak se cítí dobře\u201C / \u201Ejiné obtíže neguje\u201C\n'
+        '  \u2022 \u201Ekomplikace neguje\u201C\n'
+        "- U chronických onemocnění aktivně zaznamenávej negace komplikací "
+        "(těžké hypoglykémie, noční hypoglykémie, retinopatie, neuropatie apod.), "
+        "pokud byly výslovně popřeny.\n"
+        "- Rozlišuj \u201Epacient výslovně popřel\u201C vs \u201Enebylo zmíněno\u201C \u2014 "
+        "první je negace, druhé je \u201Eneuvedeno\u201C.\n"
+        "- Zachovej přesná čísla, jednotky, dávkování a frekvenci "
+        "(mg, ml, 1\u20130\u20131, 2\u00d7 denně, týdny\u2026).\n"
+        "- Aktivně zachycuj přibližné údaje a kvantifikace, i pokud jsou nepřesné: "
+        "dobu trvání (asi 3 měsíce, pár dní), četnost (2\u00d7 týdně, občas, denně), "
+        "hmotnostní změny (přibral/a asi 2 kg), dávkování, naměřené hodnoty "
+        "(domácí TK kolem 120/70). Zachovej formulaci s \u201Easi\u201C / \u201Epřibližně\u201C / "
+        "\u201Ekolem\u201C \u2014 neupřesňuj ani nezaokrouhluj.\n"
+        "- Rozlišuj subjektivní údaje (udává pacient) vs objektivní nález "
+        "(naměřeno / zjištěno vyšetřením). Co je jen udávané, nepiš jako objektivní.\n"
+        "- Při rozporu v přepisu uveď obě verze a označ \u201Erozpor v přepisu\u201C.\n"
+        "- Přepis může obsahovat chyby z automatického rozpoznávání řeči \u2014 "
+        "interpretuj smysl, ne doslovný text.\n"
+        "- V přepisu se střídají repliky lékaře a pacienta. Otázky, pokyny "
+        "a diagnózy přiřaď lékaři. Odpovědi, stížnosti a subjektivní popisy "
+        "přiřaď pacientovi. Pokud není jasné, kdo mluví, uveď obsah bez přiřazení.\n"
+        "- U změn medikace nebo léčby zaznamenej, kdo změnu doporučil "
+        "(jiný lékař, specialista), pokud to v přepisu zazní.\n"
+    )
 
 
 def _build_system_prompt(today: str) -> str:
-    """Build the Czech medical report system prompt with today's date."""
-    return (
+    """Build the Czech medical report system prompt with today's date.
+
+    This is the v4 enhanced prompt used in production (default/initial mode).
+    """
+    intro = (
         "Jsi asistent pro tvorbu lékařské dokumentace. Z poskytnutého přepisu "
         "návštěvy vytvoř formální lékařskou zprávu v češtině.\n\n"
-        "ZÁSADY\n"
-        '- Nevymýšlej ani nedoplňuj informace, které v přepisu nejsou.\n'
-        '- Pokud informace chybí, napiš přesně: \u201Eneuvedeno\u201C.\n'
-        '- Pokud je něco výslovně popřeno (typicky po dotazu lékaře), zaznamenej to '
-        'jako NEGACI (např. \u201Ealergie neguje\u201C, \u201Ezvýšenou teplotu neguje\u201C, \u201Edušnost neguje\u201C). '
-        'Negace má přednost před \u201Eneuvedeno\u201C.\n'
-        '- Zachovej přesná čísla, jednotky, dávkování a frekvenci (mg, ml, 1\u20130\u20131, 2\u00d7 denně, týdny\u2026).\n'
-        '- Rozlišuj subjektivní údaje (udává pacient) vs objektivní nález (naměřeno / zjištěno vyšetřením). '
-        'Co je jen udávané, nepiš jako objektivní.\n'
-        '- Při rozporu v přepisu uveď obě verze a označ \u201Erozpor v přepisu\u201C.\n'
-        '- Přepis může obsahovat chyby z automatického rozpoznávání řeči \u2014 interpretuj smysl, ne doslovný text.\n\n'
-        "DATUM NÁVŠTĚVY\n"
-        f"- Datum návštěvy vždy: {today}\n\n"
+    )
+    rules = _build_base_rules()
+    sections = (
+        f"DATUM NÁVŠTĚVY\n- Datum návštěvy vždy: {today}\n\n"
         "VÝSTUP \u2013 dodrž přesně strukturu, názvy a pořadí:\n"
         "Lékařská zpráva\n\n"
         "Identifikace pacienta:\n"
@@ -99,8 +135,22 @@ def _build_system_prompt(today: str) -> str:
         '- Pokud výslovně popřeno: uveď negaci relevantního symptomu.\n'
         '- Jinak \u201Eneuvedeno\u201C.\n\n'
         "SA (Sociální anamnéza):\n"
-        '- Kouření, alkohol, drogy, zaměstnání, pohyb, domácí situace \u2013 jen co zazní.\n'
-        '- Pokud výslovně popřeno: např. \u201Ekouření neguje\u201C.\n'
+        "- Kouření, alkohol, drogy \u2013 jen co zazní. Pokud výslovně popřeno: "
+        'např. \u201Ekouření neguje\u201C.\n'
+        "- Zaměstnání: typ a pracovní zátěž (směnný provoz, fyzická práce, cestování).\n"
+        "- Rodinná situace: péče o blízké, psychická a sociální zátěž.\n"
+        "- Pohyb a cvičení: typ, frekvence, změna oproti minulosti.\n"
+        "- Zaznamenej, jak sociální a pracovní faktory ovlivňují pacientův režim, "
+        "kompenzaci onemocnění nebo adherenci (např. nepravidelné stravování kvůli "
+        "cestování, nemožnost cvičit kvůli pracovní zátěži).\n"
+        '- Pokud se neřešilo: \u201Eneuvedeno\u201C.\n\n'
+        "Adherence a spolupráce pacienta:\n"
+        "- Zaznamenej, zda pacient dodržuje doporučený režim, léčbu a kontroly.\n"
+        "- Uveď, co pacient odmítá (rehabilitace, technologie, vyšetření) "
+        "a důvod odmítnutí, pokud zazněl.\n"
+        "- Uveď, co pacient nedodal (záznamy o jídlech, zprávy z vyšetření, výsledky).\n"
+        "- Pokud pacient nedodržuje dietu, pohyb nebo medikaci, zaznamenej konkrétně co a proč.\n"
+        '- Pokud je spolupráce dobrá: \u201Espolupráce dobrá\u201C / \u201Erežim dodržuje\u201C.\n'
         '- Pokud se neřešilo: \u201Eneuvedeno\u201C.\n\n'
         "Objektivní nález:\n"
         "- Pouze naměřené/zjištěné hodnoty a nálezy (TK, P, SpO2, TT, fyzikální nález).\n"
@@ -119,9 +169,12 @@ def _build_system_prompt(today: str) -> str:
         "Pokyny a plán kontrol:\n"
         '- Kontrola, varovné příznaky, návrat při zhoršení \u2013 pouze pokud zaznělo.\n'
         '- Jinak \u201Eneuvedeno\u201C.\n\n'
+    )
+    footer = (
         "JAZYK\n"
         "- Celý výstup musí být v češtině. Nepřidávej žádné komentáře mimo strukturu."
     )
+    return intro + rules + "\n" + sections + footer
 
 
 # ── Prompt variants ──────────────────────────────────────────────────────────
@@ -184,6 +237,14 @@ PROMPT_VARIANTS = {
             "NEZAPISUJ ho do zprávy."
         ),
     },
+    "v4": {
+        "name": "Enhanced v4 (adherence + negation + SA + roles)",
+        "description": (
+            "Production prompt with expanded negation handling, approximate quantities, "
+            "enriched SA, adherence section, and LLM-based speaker role detection"
+        ),
+        "suffix": "",  # v4 is the new base prompt — no suffix needed
+    },
 }
 
 
@@ -204,11 +265,15 @@ You are a medical documentation quality auditor. You will receive:
 Evaluate the report on these 6 dimensions (score 0-5 each):
 
 1. FACTUAL_ACCURACY: Are all facts in the report traceable to the transcript? Any hallucinated information?
-2. COMPLETENESS: Does the report capture all medically relevant information from the transcript?
-3. STRUCTURE: Are all 13 required sections present? Is information placed in the correct section?
-4. NEGATION_HANDLING: Does the report correctly distinguish "neuvedeno" (not discussed) from explicit negations?
+2. COMPLETENESS: Does the report capture all medically relevant information from the transcript? This includes:
+   - approximate quantities (durations, frequencies, weight changes)
+   - patient adherence (what patient refuses, didn't bring, doesn't follow)
+   - social/occupational factors affecting disease management
+   - who recommended medication changes (other specialists)
+3. STRUCTURE: Are all required sections present? Is information placed in the correct section? Is there an Adherence section if relevant?
+4. NEGATION_HANDLING: Does the report correctly distinguish "neuvedeno" (not discussed) from explicit negations? Are complication negations captured (e.g., "těžké hypoglykémie neměl", "noční hypoglykémie neudává")?
 5. CLINICAL_LANGUAGE: Is the Czech medical terminology appropriate and professional?
-6. NOISE_RESILIENCE: Does the report correctly filter ASR errors, songs, banter, and irrelevant content?
+6. NOISE_RESILIENCE: Does the report correctly filter ASR errors, songs, banter, and irrelevant content? Does it correctly attribute statements to doctor vs patient?
 
 For each dimension, provide:
 - score (integer 0-5)
@@ -574,8 +639,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--prompt-variant",
         default="v0",
-        choices=["v0", "v1", "v2", "v3"],
-        help="Prompt variant: v0=baseline, v1=completeness, v2=structure, v3=negation+noise (default: v0)",
+        choices=["v0", "v1", "v2", "v3", "v4"],
+        help="Prompt variant: v0=baseline, v1=completeness, v2=structure, v3=negation+noise, v4=enhanced-production (default: v0)",
     )
     args = parser.parse_args()
 

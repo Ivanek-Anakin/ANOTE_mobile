@@ -56,24 +56,54 @@ SCENARIOS_DIR: Path = (
 )
 
 
-def _build_system_prompt(today: str) -> str:
-    """Build the Czech medical report system prompt with today's date."""
+VALID_VISIT_TYPES = {"default", "initial", "followup"}
+
+
+def _build_base_rules() -> str:
+    """Return the ZÁSADY (rules) block shared by all visit-type prompts."""
     return (
-        "Jsi asistent pro tvorbu lékařské dokumentace. Z poskytnutého přepisu "
-        "návštěvy vytvoř formální lékařskou zprávu v češtině.\n\n"
         "ZÁSADY\n"
-        '- Nevymýšlej ani nedoplňuj informace, které v přepisu nejsou.\n'
+        "- Nevymýšlej ani nedoplňuj informace, které v přepisu nejsou.\n"
         '- Pokud informace chybí, napiš přesně: \u201Eneuvedeno\u201C.\n'
-        '- Pokud je něco výslovně popřeno (typicky po dotazu lékaře), zaznamenej to '
-        'jako NEGACI (např. \u201Ealergie neguje\u201C, \u201Ezvýšenou teplotu neguje\u201C, \u201Edušnost neguje\u201C). '
-        'Negace má přednost před \u201Eneuvedeno\u201C.\n'
-        '- Zachovej přesná čísla, jednotky, dávkování a frekvenci (mg, ml, 1\u20130\u20131, 2\u00d7 denně, týdny\u2026).\n'
-        '- Rozlišuj subjektivní údaje (udává pacient) vs objektivní nález (naměřeno / zjištěno vyšetřením). '
-        'Co je jen udávané, nepiš jako objektivní.\n'
-        '- Při rozporu v přepisu uveď obě verze a označ \u201Erozpor v přepisu\u201C.\n'
-        '- Přepis může obsahovat chyby z automatického rozpoznávání řeči \u2014 interpretuj smysl, ne doslovný text.\n\n'
-        "DATUM NÁVŠTĚVY\n"
-        f"- Datum návštěvy vždy: {today}\n\n"
+        "- Pokud je něco výslovně popřeno (typicky po dotazu lékaře), zaznamenej to "
+        "jako NEGACI. Negace má přednost před \u201Eneuvedeno\u201C. Používej formulace jako:\n"
+        '  \u2022 \u201Ealergie neguje\u201C\n'
+        '  \u2022 \u201Ezvýšenou teplotu neguje\u201C\n'
+        '  \u2022 \u201Edušnost neguje\u201C\n'
+        '  \u2022 \u201Etěžké hypoglykémie neměl/a\u201C\n'
+        '  \u2022 \u201Enoční hypoglykémie neudává\u201C\n'
+        '  \u2022 \u201Ebez bolestí\u201C\n'
+        '  \u2022 \u201Ejinak se cítí dobře\u201C / \u201Ejiné obtíže neguje\u201C\n'
+        '  \u2022 \u201Ekomplikace neguje\u201C\n'
+        "- U chronických onemocnění aktivně zaznamenávej negace komplikací "
+        "(těžké hypoglykémie, noční hypoglykémie, retinopatie, neuropatie apod.), "
+        "pokud byly výslovně popřeny.\n"
+        "- Rozlišuj \u201Epacient výslovně popřel\u201C vs \u201Enebylo zmíněno\u201C \u2014 "
+        "první je negace, druhé je \u201Eneuvedeno\u201C.\n"
+        "- Zachovej přesná čísla, jednotky, dávkování a frekvenci "
+        "(mg, ml, 1\u20130\u20131, 2\u00d7 denně, týdny\u2026).\n"
+        "- Aktivně zachycuj přibližné údaje a kvantifikace, i pokud jsou nepřesné: "
+        "dobu trvání (asi 3 měsíce, pár dní), četnost (2\u00d7 týdně, občas, denně), "
+        "hmotnostní změny (přibral/a asi 2 kg), dávkování, naměřené hodnoty "
+        "(domácí TK kolem 120/70). Zachovej formulaci s \u201Easi\u201C / \u201Epřibližně\u201C / "
+        "\u201Ekolem\u201C \u2014 neupřesňuj ani nezaokrouhluj.\n"
+        "- Rozlišuj subjektivní údaje (udává pacient) vs objektivní nález "
+        "(naměřeno / zjištěno vyšetřením). Co je jen udávané, nepiš jako objektivní.\n"
+        "- Při rozporu v přepisu uveď obě verze a označ \u201Erozpor v přepisu\u201C.\n"
+        "- Přepis může obsahovat chyby z automatického rozpoznávání řeči \u2014 "
+        "interpretuj smysl, ne doslovný text.\n"
+        "- V přepisu se střídají repliky lékaře a pacienta. Otázky, pokyny "
+        "a diagnózy přiřaď lékaři. Odpovědi, stížnosti a subjektivní popisy "
+        "přiřaď pacientovi. Pokud není jasné, kdo mluví, uveď obsah bez přiřazení.\n"
+        "- U změn medikace nebo léčby zaznamenej, kdo změnu doporučil "
+        "(jiný lékař, specialista), pokud to v přepisu zazní.\n"
+    )
+
+
+def _build_sections_initial(today: str) -> str:
+    """Return full 13-section structure for initial / default visits."""
+    return (
+        f"DATUM NÁVŠTĚVY\n- Datum návštěvy vždy: {today}\n\n"
         "VÝSTUP \u2013 dodrž přesně strukturu, názvy a pořadí:\n"
         "Lékařská zpráva\n\n"
         "Identifikace pacienta:\n"
@@ -109,8 +139,22 @@ def _build_system_prompt(today: str) -> str:
         '- Pokud výslovně popřeno: uveď negaci relevantního symptomu.\n'
         '- Jinak \u201Eneuvedeno\u201C.\n\n'
         "SA (Sociální anamnéza):\n"
-        '- Kouření, alkohol, drogy, zaměstnání, pohyb, domácí situace \u2013 jen co zazní.\n'
-        '- Pokud výslovně popřeno: např. \u201Ekouření neguje\u201C.\n'
+        "- Kouření, alkohol, drogy \u2013 jen co zazní. Pokud výslovně popřeno: "
+        'např. \u201Ekouření neguje\u201C.\n'
+        "- Zaměstnání: typ a pracovní zátěž (směnný provoz, fyzická práce, cestování).\n"
+        "- Rodinná situace: péče o blízké, psychická a sociální zátěž.\n"
+        "- Pohyb a cvičení: typ, frekvence, změna oproti minulosti.\n"
+        "- Zaznamenej, jak sociální a pracovní faktory ovlivňují pacientův režim, "
+        "kompenzaci onemocnění nebo adherenci (např. nepravidelné stravování kvůli "
+        "cestování, nemožnost cvičit kvůli pracovní zátěži).\n"
+        '- Pokud se neřešilo: \u201Eneuvedeno\u201C.\n\n'
+        "Adherence a spolupráce pacienta:\n"
+        "- Zaznamenej, zda pacient dodržuje doporučený režim, léčbu a kontroly.\n"
+        "- Uveď, co pacient odmítá (rehabilitace, technologie, vyšetření) "
+        "a důvod odmítnutí, pokud zazněl.\n"
+        "- Uveď, co pacient nedodal (záznamy o jídlech, zprávy z vyšetření, výsledky).\n"
+        "- Pokud pacient nedodržuje dietu, pohyb nebo medikaci, zaznamenej konkrétně co a proč.\n"
+        '- Pokud je spolupráce dobrá: \u201Espolupráce dobrá\u201C / \u201Erežim dodržuje\u201C.\n'
         '- Pokud se neřešilo: \u201Eneuvedeno\u201C.\n\n'
         "Objektivní nález:\n"
         "- Pouze naměřené/zjištěné hodnoty a nálezy (TK, P, SpO2, TT, fyzikální nález).\n"
@@ -129,9 +173,98 @@ def _build_system_prompt(today: str) -> str:
         "Pokyny a plán kontrol:\n"
         '- Kontrola, varovné příznaky, návrat při zhoršení \u2013 pouze pokud zaznělo.\n'
         '- Jinak \u201Eneuvedeno\u201C.\n\n'
+    )
+
+
+def _build_sections_followup(today: str) -> str:
+    """Return a compact follow-up visit structure."""
+    return (
+        f"DATUM NÁVŠTĚVY\n- Datum návštěvy vždy: {today}\n\n"
+        "TYP NÁVŠTĚVY: Kontrolní návštěva\n"
+        "- Toto je kontrolní návštěva chronického pacienta.\n"
+        "- Zaměř se na změny od poslední kontroly, aktuální kompenzaci "
+        "a případné nové obtíže.\n"
+        "- Vynechej sekce, které nejsou relevantní (netiskni opakovaně "
+        '\u201Eneuvedeno\u201C u irelevantních sekcí).\n'
+        "- Pokud jde o nekomplikovanou kontrolu bez nálezů, vytvoř stručnou zprávu.\n\n"
+        "VÝSTUP \u2013 použij následující strukturu, vynechej prázdné sekce:\n"
+        "Kontrolní zpráva\n\n"
+        "Identifikace pacienta:\n"
+        '- Jméno: (pokud není, \u201Eneuvedeno\u201C)\n'
+        "- Věk / r. narození: (neuvedeno)\n"
+        f"- Datum kontroly: {today}\n\n"
+        "Subjektivní stav pacienta:\n"
+        "- Jak se pacient cítí, co udává, jaké má obtíže.\n"
+        "- Výslovně popřené obtíže zaznamenej jako negaci.\n\n"
+        "Průběh od poslední kontroly:\n"
+        "- Vývoj obtíží, změny stavu, nové příznaky.\n"
+        "- Změny medikace a důvod (včetně toho, kdo změnu doporučil).\n"
+        "- Hmotnostní změny.\n\n"
+        "Kompenzace onemocnění:\n"
+        "- Stabilita hladin (glykémie, TK, apod.).\n"
+        "- Hypoglykémie: četnost, závažnost, denní doba, zda je pacient pozná a zaléčí, "
+        "těžké hypoglykémie ano/ne.\n"
+        "- Používání technologií (pumpa, senzor, uzavřený okruh) a spokojenost.\n"
+        "- Preference pacienta ohledně technologií.\n\n"
+        "Režim a adherence:\n"
+        "- Dieta, pravidelnost stravy, odhad sacharidů.\n"
+        "- Pohyb a cvičení.\n"
+        "- Co pacient dodržuje, co odmítá, co nedodal.\n"
+        "- Sociální a pracovní zátěž ovlivňující kompenzaci.\n\n"
+        "Přidružené obtíže:\n"
+        "- Bolesti, neuropatie, závratě, jiné komorbidity.\n"
+        "- Probíhající odborná vyšetření.\n"
+        '- Pokud žádné: \u201Ebez dalších obtíží\u201C.\n\n'
+        "Objektivní nález:\n"
+        "- Naměřené hodnoty (TK, P, TT, SpO2, váha, laboratorní výsledky).\n"
+        '- Pokud není nic uvedeno: \u201Eneuvedeno\u201C.\n\n'
+        "Hodnocení:\n"
+        "- Závěr lékaře, pracovní diagnóza.\n"
+        '- Pokud nezaznělo: \u201Eneuvedeno\u201C.\n\n'
+        "Plán:\n"
+        "- Změny léčby, doporučená vyšetření, plán kontrol.\n"
+        "- Co pacient zatím nechce.\n"
+        "- Co je třeba doložit při další kontrole.\n"
+        '- Pokud nezaznělo: \u201Eneuvedeno\u201C.\n\n'
+    )
+
+
+def _build_system_prompt(today: str, visit_type: str = "default") -> str:
+    """Build the Czech medical report system prompt.
+
+    Args:
+        today: Formatted date string for the report.
+        visit_type: One of "default", "initial", "followup".
+    """
+    intro = (
+        "Jsi asistent pro tvorbu lékařské dokumentace. Z poskytnutého přepisu "
+        "návštěvy vytvoř formální lékařskou zprávu v češtině.\n\n"
+    )
+    rules = _build_base_rules()
+
+    if visit_type == "followup":
+        sections = _build_sections_followup(today)
+    elif visit_type == "initial":
+        sections = _build_sections_initial(today)
+    else:
+        # "default" — model decides; include both templates as guidance
+        sections = (
+            "AUTOMATICKÁ DETEKCE TYPU NÁVŠTĚVY\n"
+            "- Urči z přepisu, zda jde o vstupní vyšetření nebo kontrolní návštěvu "
+            "chronického pacienta.\n"
+            "- Vstupní vyšetření: obsáhlý odběr anamnézy, první kontakt.\n"
+            "- Kontrolní návštěva: pacient přichází opakovaně, řeší se kompenzace, "
+            "změny léčby, průběh od minula.\n"
+            "- Pokud nelze určit, použij strukturu vstupního vyšetření.\n\n"
+            + _build_sections_initial(today)
+        )
+
+    footer = (
         "JAZYK\n"
         "- Celý výstup musí být v češtině. Nepřidávej žádné komentáře mimo strukturu."
     )
+
+    return intro + rules + "\n" + sections + footer
 
 
 def verify_token(authorization: str = Header(...)) -> None:
@@ -145,6 +278,7 @@ class ReportRequest(BaseModel):
 
     transcript: str
     language: str = "cs"
+    visit_type: str = "default"
 
 
 @app.get("/health")
@@ -179,7 +313,7 @@ async def test_report_from_scenario(
     logger.info("Test-report for scenario: %s", scenario_name)
 
     today: str = date.today().strftime("%d. %m. %Y")
-    system_prompt = _build_system_prompt(today)
+    system_prompt = _build_system_prompt(today, "default")
 
     if MOCK_MODE:
         report = f"[MOCK — scenario: {scenario_name}]\n\n{transcript[:200]}..."
@@ -221,11 +355,12 @@ async def generate_report(
         raise HTTPException(status_code=400, detail="Empty transcript")
 
     today: str = date.today().strftime("%d. %m. %Y")
+    visit_type = data.visit_type if data.visit_type in VALID_VISIT_TYPES else "default"
 
     # NOTE: transcript and report content are deliberately NOT logged (GDPR).
-    logger.info("Report generation request received")
+    logger.info("Report generation request received (visit_type=%s)", visit_type)
 
-    system_prompt = _build_system_prompt(today)
+    system_prompt = _build_system_prompt(today, visit_type)
 
     if MOCK_MODE:
         logger.info("Returning mock report (MOCK_MODE=true)")

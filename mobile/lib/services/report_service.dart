@@ -49,14 +49,22 @@ class ReportService {
   }
 
   /// Generate a structured medical report from a transcript.
-  Future<String> generateReport(String transcript) async {
+  ///
+  /// [visitType] is sent to the backend as `visit_type` to control prompt
+  /// selection ("default", "initial", "followup").
+  Future<String> generateReport(String transcript,
+      {String visitType = 'default'}) async {
     final baseUrl = await _getBaseUrl();
     final token = await _getToken();
 
     try {
       final response = await _dio.post(
         '$baseUrl/report',
-        data: {'transcript': transcript, 'language': 'cs'},
+        data: {
+          'transcript': transcript,
+          'language': 'cs',
+          'visit_type': visitType,
+        },
         options: Options(
           headers: {
             'Authorization': 'Bearer ${token ?? ''}',

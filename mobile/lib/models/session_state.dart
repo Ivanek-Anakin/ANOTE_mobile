@@ -1,5 +1,53 @@
 enum RecordingStatus { idle, recording, processing, demoPlaying }
 
+/// Visit type mode — determines report structure.
+enum VisitType {
+  /// Model auto-detects from transcript.
+  defaultType,
+
+  /// First visit — full 13-section structure.
+  initial,
+
+  /// Follow-up — compact control report.
+  followup,
+}
+
+/// Map VisitType to backend API string value.
+extension VisitTypeApi on VisitType {
+  String get apiValue {
+    switch (this) {
+      case VisitType.defaultType:
+        return 'default';
+      case VisitType.initial:
+        return 'initial';
+      case VisitType.followup:
+        return 'followup';
+    }
+  }
+
+  String get label {
+    switch (this) {
+      case VisitType.defaultType:
+        return 'Výchozí';
+      case VisitType.initial:
+        return 'Vstupní';
+      case VisitType.followup:
+        return 'Kontrolní';
+    }
+  }
+
+  static VisitType fromString(String? value) {
+    switch (value) {
+      case 'initial':
+        return VisitType.initial;
+      case 'followup':
+        return VisitType.followup;
+      default:
+        return VisitType.defaultType;
+    }
+  }
+}
+
 class SessionState {
   final RecordingStatus status;
   final String transcript;
@@ -14,6 +62,12 @@ class SessionState {
   /// Name of the file currently being downloaded (e.g. 'small-encoder.int8.onnx').
   final String? modelDownloadFileName;
 
+  /// Current visit type used for last report generation.
+  final VisitType visitType;
+
+  /// True when visit type was changed after a report was already generated.
+  final bool visitTypeChanged;
+
   const SessionState({
     this.status = RecordingStatus.idle,
     this.transcript = '',
@@ -22,6 +76,8 @@ class SessionState {
     this.isModelLoaded = false,
     this.modelDownloadProgress,
     this.modelDownloadFileName,
+    this.visitType = VisitType.defaultType,
+    this.visitTypeChanged = false,
   });
 
   SessionState copyWith({
@@ -34,6 +90,8 @@ class SessionState {
     double? modelDownloadProgress,
     String? modelDownloadFileName,
     bool clearDownload = false,
+    VisitType? visitType,
+    bool? visitTypeChanged,
   }) {
     return SessionState(
       status: status ?? this.status,
@@ -47,6 +105,8 @@ class SessionState {
       modelDownloadFileName: clearDownload
           ? null
           : (modelDownloadFileName ?? this.modelDownloadFileName),
+      visitType: visitType ?? this.visitType,
+      visitTypeChanged: visitTypeChanged ?? this.visitTypeChanged,
     );
   }
 }
