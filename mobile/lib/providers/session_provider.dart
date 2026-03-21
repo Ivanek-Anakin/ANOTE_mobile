@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../config/constants.dart';
 import '../models/session_state.dart';
@@ -63,6 +65,11 @@ class SessionNotifier extends StateNotifier<SessionState> {
   StreamSubscription<List<double>>? _audioSubscription;
   StreamSubscription<String>? _transcriptSubscription;
   Timer? _reportTimer;
+
+  /// Tracks the transcript text that was last sent for report generation.
+  /// When the timer fires, we skip the API call if the transcript hasn't
+  /// changed since the last report request (avoids wasteful duplicate calls).
+  String _lastReportedTranscript = '';
 
   bool _isPreloading = false;
 
@@ -186,6 +193,71 @@ class SessionNotifier extends StateNotifier<SessionState> {
   }
 
   // ---------------------------------------------------------------------------
+  // Wake lock & foreground service helpers
+  // ---------------------------------------------------------------------------
+
+  /// Initialise the foreground task notification channel (call once).
+  static bool _foregroundTaskInitialised = false;
+
+  void _initForegroundTask() {
+    if (_foregroundTaskInitialised) return;
+    _foregroundTaskInitialised = true;
+    FlutterForegroundTask.init(
+      androidNotificationOptions: AndroidNotificationOptions(
+        channelId: 'anote_recording',
+        channelName: 'ANOTE nahrávání',
+        channelDescription: 'Probíhá nahrávání lékařské konzultace.',
+        channelImportance: NotificationChannelImportance.LOW,
+        priority: NotificationPriority.LOW,
+      ),
+      iosNotificationOptions: const IOSNotificationOptions(
+        showNotification: false,
+      ),
+      foregroundTaskOptions: ForegroundTaskOptions(
+        eventAction: ForegroundTaskEventAction.nothing(),
+        autoRunOnBoot: false,
+        allowWakeLock: true,
+        allowWifiLock: false,
+      ),
+    );
+  }
+
+  /// Keep the screen on and start a foreground service so recording survives
+  /// the screen turning off.
+  Future<void> _acquireWakeLockAndForeground() async {
+    try {
+      await WakelockPlus.enable();
+    } catch (e) {
+      WhisperService.debugLog('[SessionNotifier] WakeLock enable error: $e');
+    }
+    try {
+      _initForegroundTask();
+      await FlutterForegroundTask.startService(
+        notificationTitle: 'ANOTE — nahrávání',
+        notificationText: 'Probíhá nahrávání lékařské konzultace.',
+      );
+    } catch (e) {
+      WhisperService.debugLog(
+          '[SessionNotifier] ForegroundTask start error: $e');
+    }
+  }
+
+  /// Release wake lock and stop the foreground service.
+  Future<void> _releaseWakeLockAndForeground() async {
+    try {
+      await WakelockPlus.disable();
+    } catch (e) {
+      WhisperService.debugLog('[SessionNotifier] WakeLock disable error: $e');
+    }
+    try {
+      await FlutterForegroundTask.stopService();
+    } catch (e) {
+      WhisperService.debugLog(
+          '[SessionNotifier] ForegroundTask stop error: $e');
+    }
+  }
+
+  // ---------------------------------------------------------------------------
   // Recording pipeline
   // ---------------------------------------------------------------------------
 
@@ -264,6 +336,10 @@ class SessionNotifier extends StateNotifier<SessionState> {
       // waiting for loadModel() or audioService.start().
       if (!mounted || state.status != RecordingStatus.recording) return;
 
+      // Keep screen on and start foreground service so recording survives
+      // the screen turning off.
+      await _acquireWakeLockAndForeground();
+
       _audioSubscription = _audioService.audioStream.listen(
         (List<double> samples) => _whisperService.feedAudio(samples),
         onError: (Object error) {
@@ -290,6 +366,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
       );
     } catch (e) {
       if (!mounted) return;
+      await _releaseWakeLockAndForeground();
       state = state.copyWith(
         status: RecordingStatus.idle,
         errorMessage: e.toString(),
@@ -303,6 +380,9 @@ class SessionNotifier extends StateNotifier<SessionState> {
     if (transcript.isEmpty || state.status != RecordingStatus.recording) {
       return;
     }
+    // Skip if the transcript hasn't changed since the last report request.
+    if (transcript == _lastReportedTranscript) return;
+    _lastReportedTranscript = transcript;
     try {
       final vt = await _getVisitTypeApi();
       final String report =
@@ -335,6 +415,8 @@ class SessionNotifier extends StateNotifier<SessionState> {
     try {
       WhisperService.debugLog('[SessionNotifier] Stopping audio service...');
       await _audioService.stop();
+      // Release wake lock and foreground service now that audio capture is done.
+      await _releaseWakeLockAndForeground();
       if (!mounted) return;
 
       WhisperService.debugLog('[SessionNotifier] Running transcribeFull...');
@@ -396,12 +478,14 @@ class SessionNotifier extends StateNotifier<SessionState> {
         state.status == RecordingStatus.processing;
 
     _whisperService.reset();
+    _lastReportedTranscript = '';
     state = const SessionState();
 
     if (wasRunning) {
       // Fire-and-forget: we've already cleared state; we just want hardware to
       // stop.  Errors here are non-critical.
       _audioService.stop();
+      _releaseWakeLockAndForeground();
     }
   }
 
@@ -495,6 +579,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
     _reportTimer?.cancel();
     _audioSubscription?.cancel();
     _transcriptSubscription?.cancel();
+    _releaseWakeLockAndForeground();
     super.dispose();
   }
 }

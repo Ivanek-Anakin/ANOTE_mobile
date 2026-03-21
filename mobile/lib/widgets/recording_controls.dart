@@ -19,8 +19,8 @@ class RecordingControls extends ConsumerWidget {
 
     final canStart = isIdle;
     final canStop = isRecording;
-    final canClear = isIdle && (session.transcript.isNotEmpty ||
-        session.report.isNotEmpty);
+    final canClear =
+        isIdle && (session.transcript.isNotEmpty || session.report.isNotEmpty);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -31,8 +31,9 @@ class RecordingControls extends ConsumerWidget {
             children: [
               Expanded(
                 child: FilledButton.icon(
+                  key: const Key('btn_record'),
                   onPressed: canStart ? () => notifier.startRecording() : null,
-                  icon: const Text('�'),
+                  icon: const Text('🎙'),
                   label: const Text('Nahrávat'),
                   style: FilledButton.styleFrom(
                     backgroundColor: canStart
@@ -44,6 +45,7 @@ class RecordingControls extends ConsumerWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: FilledButton.icon(
+                  key: const Key('btn_stop'),
                   onPressed: canStop ? () => notifier.stopRecording() : null,
                   icon: const Text('⬛'),
                   label: const Text('Zastavit'),
@@ -61,6 +63,7 @@ class RecordingControls extends ConsumerWidget {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
+                  key: const Key('btn_clear'),
                   onPressed: canClear ? () => notifier.resetSession() : null,
                   icon: const Text('🗑'),
                   label: const Text('Vymazat vše'),

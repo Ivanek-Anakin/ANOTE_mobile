@@ -5,16 +5,48 @@ import '../models/session_state.dart';
 import '../providers/session_provider.dart';
 
 /// Collapsible report panel with close button and fullscreen option.
-class ReportPanel extends ConsumerWidget {
+class ReportPanel extends ConsumerStatefulWidget {
   final VoidCallback? onClose;
   final bool showCloseButton;
 
   const ReportPanel({super.key, this.onClose, this.showCloseButton = true});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ReportPanel> createState() => _ReportPanelState();
+}
+
+class _ReportPanelState extends ConsumerState<ReportPanel> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    final session = ref.read(sessionProvider);
+    _controller = TextEditingController(text: session.report);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final session = ref.watch(sessionProvider);
     final theme = Theme.of(context);
+
+    // Update controller text when report changes externally,
+    // but only if the text actually differs (preserves cursor position
+    // when the user is editing).
+    if (_controller.text != session.report) {
+      final selection = _controller.selection;
+      _controller.text = session.report;
+      // Try to restore cursor position if still valid
+      if (selection.isValid && selection.end <= _controller.text.length) {
+        _controller.selection = selection;
+      }
+    }
 
     return Card(
       child: Padding(
@@ -24,7 +56,7 @@ class ReportPanel extends ConsumerWidget {
           children: [
             Row(
               children: [
-                const Text('📋', style: TextStyle(fontSize: 20)),
+                const Icon(Icons.description, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -68,11 +100,11 @@ class ReportPanel extends ConsumerWidget {
                     ),
                   ),
                 // Close / collapse button
-                if (showCloseButton && onClose != null)
+                if (widget.showCloseButton && widget.onClose != null)
                   IconButton(
                     icon: const Icon(Icons.close, size: 20),
                     tooltip: 'Skrýt zprávu',
-                    onPressed: onClose,
+                    onPressed: widget.onClose,
                     visualDensity: VisualDensity.compact,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(
@@ -85,7 +117,7 @@ class ReportPanel extends ConsumerWidget {
             const SizedBox(height: 12),
             Expanded(
               child: TextField(
-                controller: TextEditingController(text: session.report),
+                controller: _controller,
                 maxLines: null,
                 expands: true,
                 readOnly: false,
@@ -120,6 +152,31 @@ class ReportPanel extends ConsumerWidget {
                           )
                         : const Icon(Icons.refresh, size: 18),
                     label: const Text('Přegenerovat zprávu'),
+                  ),
+                ),
+              ),
+            // Show regenerate button when report generation failed
+            // (error present + transcript exists) or transcript exists
+            // but report is empty (timeout / network error on stop).
+            if (!session.visitTypeChanged &&
+                session.transcript.isNotEmpty &&
+                session.report.isEmpty &&
+                session.status == RecordingStatus.idle)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    key: const Key('btn_regenerate_report'),
+                    onPressed: () {
+                      // Clear error before retrying
+                      ref.read(sessionProvider.notifier).regenerateReport();
+                    },
+                    icon: const Icon(Icons.refresh, size: 18),
+                    label: const Text('Vygenerovat zprávu'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                    ),
                   ),
                 ),
               ),
@@ -179,7 +236,14 @@ class _FullscreenReportViewState extends State<_FullscreenReportView> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('📋 Lékařská zpráva'),
+        title: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.description, size: 22),
+            SizedBox(width: 8),
+            Text('Lékařská zpráva'),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.copy),

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -7,25 +8,198 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path_provider/path_provider.dart';
 import 'package:sherpa_onnx/sherpa_onnx.dart' as sherpa;
 
+import 'whisper_isolate_worker.dart';
+
+// ---------------------------------------------------------------------------
+// Phase 2: Top-level function for one-shot isolate transcription.
+// Kept as a standalone utility; Phase 3's persistent worker handles
+// transcribeFull internally via the long-lived worker isolate.
+// ---------------------------------------------------------------------------
+
+/// Runs the full transcription pipeline in a **one-shot** isolate.
+///
+/// Can be used with [compute] as a fallback when the persistent worker is
+/// not available. Accepts model file paths and raw audio data.
+///
+/// Keys in [params]:
+/// - `audio` ([Float32List]) — raw PCM samples at 16 kHz
+/// - `encoderPath`, `decoderPath`, `tokensPath`, `vadModelPath` ([String])
+Future<String> transcribeFullInIsolate(Map<String, dynamic> params) async {
+  final Float32List audio = params['audio'] as Float32List;
+  final String encoderPath = params['encoderPath'] as String;
+  final String decoderPath = params['decoderPath'] as String;
+  final String tokensPath = params['tokensPath'] as String;
+  final String vadModelPath = params['vadModelPath'] as String;
+
+  const int sampleRate = 16000;
+
+  // Initialize sherpa bindings in this isolate (FFI state is per-isolate)
+  sherpa.initBindings();
+
+  // Extract speech segments using fresh VAD
+  final segments = _extractSpeechSegmentsStandalone(
+    audio.toList(),
+    vadModelPath,
+    sampleRate,
+  );
+  if (segments.isEmpty) return '';
+
+  final allSpeech = <double>[];
+  for (final seg in segments) {
+    allSpeech.addAll(seg.toList());
+  }
+
+  // Create recognizer (fresh — cannot reuse across isolate boundary)
+  final recognizer = sherpa.OfflineRecognizer(
+    sherpa.OfflineRecognizerConfig(
+      model: sherpa.OfflineModelConfig(
+        whisper: sherpa.OfflineWhisperModelConfig(
+          encoder: encoderPath,
+          decoder: decoderPath,
+          language: 'cs',
+          task: 'transcribe',
+          tailPaddings: -1,
+        ),
+        tokens: tokensPath,
+        numThreads: 4,
+        debug: false,
+        provider: 'cpu',
+      ),
+    ),
+  );
+
+  String transcribe(List<double> samples) {
+    final stream = recognizer.createStream();
+    stream.acceptWaveform(
+      samples: Float32List.fromList(samples),
+      sampleRate: sampleRate,
+    );
+    recognizer.decode(stream);
+    final result = recognizer.getResult(stream);
+    stream.free();
+    return result.text.trim();
+  }
+
+  try {
+    const int maxSinglePass = 30 * sampleRate;
+    if (allSpeech.length <= maxSinglePass) {
+      return transcribe(allSpeech);
+    }
+
+    const int chunkSize = 30 * sampleRate;
+    const int overlap = 5 * sampleRate;
+    final parts = <String>[];
+    String prevTail = '';
+
+    for (int start = 0;
+        start < allSpeech.length;
+        start += chunkSize - overlap) {
+      final int end = min(start + chunkSize, allSpeech.length);
+      final chunk = allSpeech.sublist(start, end);
+      try {
+        final text = transcribe(chunk);
+        if (text.isEmpty) continue;
+        final deduped = WhisperService.removeOverlap(prevTail, text);
+        if (deduped.isNotEmpty) parts.add(deduped);
+        prevTail = WhisperService.lastWords(text, 20);
+      } catch (_) {}
+    }
+
+    return parts.join(' ');
+  } finally {
+    recognizer.free();
+  }
+}
+
+/// Standalone VAD speech extraction for the Phase 2 one-shot isolate.
+List<Float32List> _extractSpeechSegmentsStandalone(
+  List<double> rawAudio,
+  String vadModelPath,
+  int sampleRate,
+) {
+  if (vadModelPath.isEmpty) {
+    return [Float32List.fromList(rawAudio)];
+  }
+
+  final segments = <Float32List>[];
+  try {
+    final vad = sherpa.VoiceActivityDetector(
+      config: sherpa.VadModelConfig(
+        sileroVad: sherpa.SileroVadModelConfig(
+          model: vadModelPath,
+          threshold: 0.45,
+          minSilenceDuration: 0.5,
+          minSpeechDuration: 0.25,
+          maxSpeechDuration: 30.0,
+          windowSize: 512,
+        ),
+        sampleRate: sampleRate,
+        numThreads: 1,
+        provider: 'cpu',
+        debug: false,
+      ),
+      bufferSizeInSeconds: 120.0,
+    );
+
+    const int windowSize = 512;
+    for (int i = 0; i < rawAudio.length; i += windowSize) {
+      final int end = min(i + windowSize, rawAudio.length);
+      final chunk = rawAudio.sublist(i, end);
+      final Float32List padded;
+      if (chunk.length < windowSize) {
+        padded = Float32List(windowSize);
+        for (int j = 0; j < chunk.length; j++) {
+          padded[j] = chunk[j];
+        }
+      } else {
+        padded = Float32List.fromList(chunk);
+      }
+      vad.acceptWaveform(padded);
+
+      while (!vad.isEmpty()) {
+        final segment = vad.front();
+        vad.pop();
+        if (segment.samples.isNotEmpty) {
+          segments.add(segment.samples);
+        }
+      }
+    }
+
+    vad.flush();
+    while (!vad.isEmpty()) {
+      final segment = vad.front();
+      vad.pop();
+      if (segment.samples.isNotEmpty) {
+        segments.add(segment.samples);
+      }
+    }
+
+    vad.free();
+  } catch (e) {
+    return [Float32List.fromList(rawAudio)];
+  }
+
+  return segments;
+}
+
 /// A function that transcribes a list of float32 audio samples to text.
 typedef AudioTranscriber = Future<String> Function(List<double> samples);
 
 /// Manages on-device speech transcription with sliding-window buffering.
 ///
-/// Uses sherpa_onnx (Whisper ONNX) on native platforms (Android/iOS/desktop).
-/// On web, transcription is unavailable (returns empty string).
+/// In production, all heavy work (VAD, Whisper decode) runs on a persistent
+/// background isolate spawned in [loadModel]. The main isolate stays free
+/// for UI rendering.
 ///
-/// Usage:
-/// 1. Call [loadModel] once to download and initialise the model.
-/// 2. Feed incoming audio via [feedAudio]; [transcriptStream] emits live updates.
-/// 3. On recording stop, call [transcribeFull] for a final high-quality pass.
-/// 4. Call [reset] between sessions and [dispose] when done.
+/// For unit tests, [WhisperService.withTranscriber] bypasses the worker
+/// isolate and uses an injected transcriber function with local buffers.
 class WhisperService {
   static const int _sampleRate = 16000;
 
   /// Number of new samples required before a window transcription is triggered.
-  /// Whisper needs longer context (10s+) for good Czech transcription.
-  static const int _windowInterval = 10 * _sampleRate; // 10 seconds
+  /// 5s windows keep per-call decode() freeze shorter while still giving
+  /// Whisper enough context for decent Czech transcription.
+  static const int _windowInterval = 5 * _sampleRate; // 5 seconds
 
   /// Overlap samples re-included in each window to preserve boundary words.
   static const int _overlapSamples = 3 * _sampleRate; // 3 seconds
@@ -53,27 +227,41 @@ class WhisperService {
     'silero_vad.onnx': 300 * 1024, // at least 300 KB
   };
 
-  /// Accumulated speech-only audio buffer (VAD-filtered).
+  // ---------------------------------------------------------------------------
+  // Worker isolate state (Phase 3 — production mode)
+  // ---------------------------------------------------------------------------
+
+  Isolate? _workerIsolate;
+  SendPort? _workerSendPort;
+  ReceivePort? _mainReceivePort;
+  StreamSubscription<dynamic>? _workerSubscription;
+  Completer<void>? _initCompleter;
+  Completer<String>? _transcribeFullCompleter;
+
+  // ---------------------------------------------------------------------------
+  // Local state (test mode via withTranscriber — no worker spawned)
+  // ---------------------------------------------------------------------------
+
+  /// Injectable transcribe function — set by [withTranscriber] for tests
+  /// or by [loadModel] for web (no-op).
+  AudioTranscriber? _transcriber;
+
+  /// Accumulated speech-only audio buffer (VAD-filtered). Test mode only.
   final List<double> _speechBuffer = [];
 
-  /// Raw audio buffer kept for transcribeFull() VAD re-processing.
+  /// Raw audio buffer kept for transcribeFull(). Test mode only.
   final List<double> _rawAudioBuffer = [];
 
-  /// Number of speech samples already transcribed in live windows.
+  /// Number of speech samples already transcribed in live windows. Test mode only.
   int _lastSpeechBoundary = 0;
 
   String _previousTailText = '';
   String _fullTranscript = '';
   bool _isTranscribing = false;
 
-  /// Injectable transcribe function — set by [loadModel] or supplied in tests.
-  AudioTranscriber? _transcriber;
-
-  /// Persistent recognizer instance (reused across transcription calls).
-  sherpa.OfflineRecognizer? _recognizer;
-
-  /// Silero VAD instance for voice activity detection.
-  sherpa.VoiceActivityDetector? _vad;
+  // ---------------------------------------------------------------------------
+  // Model paths (needed for download / verification on main isolate)
+  // ---------------------------------------------------------------------------
 
   /// Path to the VAD model file.
   String _vadModelPath = '';
@@ -90,13 +278,13 @@ class WhisperService {
   Stream<String> get transcriptStream => _transcriptController.stream;
 
   /// Whether the model is ready for transcription.
-  bool get isModelLoaded => _transcriber != null;
+  bool get isModelLoaded => _transcriber != null || _workerSendPort != null;
 
   /// Production constructor — call [loadModel] before use.
   WhisperService();
 
   /// Test constructor — injects a custom [transcriber] function to avoid
-  /// loading the real model in unit tests.
+  /// loading the real model in unit tests. Bypasses the worker isolate.
   WhisperService.withTranscriber(AudioTranscriber transcriber)
       : _transcriber = transcriber;
 
@@ -112,11 +300,11 @@ class WhisperService {
     final String modelDir = '${docsDir.path}/$_modelDirName';
     for (final entry in _expectedMinSizes.entries) {
       final file = File('$modelDir/${entry.key}');
-      if (!file.existsSync()) {
+      if (!await file.exists()) {
         debugLog('[WhisperService] File missing: ${entry.key}');
         return false;
       }
-      final size = file.lengthSync();
+      final size = await file.length();
       if (size < entry.value) {
         debugLog('[WhisperService] File too small: ${entry.key} '
             '($size bytes, expected >= ${entry.value})');
@@ -143,16 +331,16 @@ class WhisperService {
     bool allValid = true;
     for (final entry in _expectedMinSizes.entries) {
       final file = File('$modelDir/${entry.key}');
-      if (!file.existsSync()) {
+      if (!await file.exists()) {
         debugLog('[WhisperService] Missing: ${entry.key}');
         allValid = false;
         continue;
       }
-      final size = file.lengthSync();
+      final size = await file.length();
       if (size < entry.value) {
         debugLog('[WhisperService] Corrupted/partial ${entry.key}: '
             '$size bytes < ${entry.value} min. Deleting.');
-        file.deleteSync();
+        await file.delete();
         allValid = false;
       }
     }
@@ -169,6 +357,8 @@ class WhisperService {
   /// the transcription engine.
   ///
   /// On web this sets a no-op transcriber — on-device Whisper is not supported.
+  /// On native platforms, spawns a persistent worker isolate that owns all
+  /// sherpa_onnx FFI resources.
   Future<void> loadModel() async {
     if (kIsWeb) {
       _transcriber = (_) async => '';
@@ -176,13 +366,6 @@ class WhisperService {
     }
 
     debugLog('[WhisperService] loadModel() starting...');
-    try {
-      sherpa.initBindings();
-      debugLog('[WhisperService] initBindings() succeeded.');
-    } catch (e) {
-      debugLog('[WhisperService] initBindings() FAILED: $e');
-      rethrow;
-    }
 
     final Directory docsDir = await getApplicationDocumentsDirectory();
     final String modelDir = '${docsDir.path}/$_modelDirName';
@@ -205,97 +388,70 @@ class WhisperService {
       }
     }
 
-    debugLog('[WhisperService] Initializing recognizer...');
-    // Validate model files by creating a test recognizer
+    // --- Phase 3: Spawn persistent worker isolate ---
+    debugLog('[WhisperService] Spawning worker isolate...');
+    _mainReceivePort = ReceivePort();
+    _workerIsolate = await Isolate.spawn(
+      whisperWorkerEntryPoint,
+      _mainReceivePort!.sendPort,
+    );
+
+    final workerSendPortCompleter = Completer<SendPort>();
+    _initCompleter = Completer<void>();
+
+    _workerSubscription = _mainReceivePort!.listen((dynamic message) {
+      if (message is SendPort) {
+        workerSendPortCompleter.complete(message);
+        return;
+      }
+      _handleWorkerMessage(message);
+    });
+
+    _workerSendPort = await workerSendPortCompleter.future;
+
+    // Send init command with model paths
+    _workerSendPort!.send(<String, dynamic>{
+      'cmd': 'init',
+      'encoderPath': _encoderPath,
+      'decoderPath': _decoderPath,
+      'tokensPath': _tokensPath,
+      'vadModelPath': _vadModelPath,
+    });
+
     try {
-      final testRecognizer = sherpa.OfflineRecognizer(
-        _buildRecognizerConfig(),
-      );
-      testRecognizer.free();
-      debugLog('[WhisperService] Model validation passed.');
+      await _initCompleter!.future;
+      _initCompleter = null;
+      debugLog('[WhisperService] Worker isolate ready.');
     } catch (e) {
-      debugLog(
-          '[WhisperService] Model validation FAILED: $e — deleting files.');
+      debugLog('[WhisperService] Worker init FAILED: $e — killing isolate.');
+      _killWorker();
       await deleteModelFiles();
       throw Exception(
           'Model files corrupted, deleted. Restart to re-download. Error: $e');
     }
-
-    // Initialize Silero VAD
-    debugLog('[WhisperService] Initializing Silero VAD...');
-    try {
-      _vad = sherpa.VoiceActivityDetector(
-        config: sherpa.VadModelConfig(
-          sileroVad: sherpa.SileroVadModelConfig(
-            model: _vadModelPath,
-            threshold: 0.5,
-            minSilenceDuration: 0.5,
-            minSpeechDuration: 0.25,
-            maxSpeechDuration: 30.0,
-            windowSize: 512,
-          ),
-          sampleRate: _sampleRate,
-          numThreads: 1,
-          provider: 'cpu',
-          debug: false,
-        ),
-        bufferSizeInSeconds: 120.0,
-      );
-      debugLog('[WhisperService] Silero VAD initialized.');
-    } catch (e) {
-      debugLog(
-          '[WhisperService] VAD init FAILED: $e — continuing without VAD.');
-      _vad = null;
-    }
-
-    // Create a persistent recognizer for the session (reused across calls)
-    _recognizer = sherpa.OfflineRecognizer(_buildRecognizerConfig());
-    debugLog('[WhisperService] Persistent recognizer created.');
-
-    _transcriber = (List<double> samples) async {
-      final stream = _recognizer!.createStream();
-      stream.acceptWaveform(
-        samples: Float32List.fromList(samples),
-        sampleRate: _sampleRate,
-      );
-      _recognizer!.decode(stream);
-      final result = _recognizer!.getResult(stream);
-      stream.free();
-      return result.text.trim();
-    };
   }
 
   /// Accept new audio [samples] from the microphone stream.
   ///
-  /// Audio is passed through Silero VAD — only speech segments are buffered.
-  /// Triggers a sliding-window transcription when enough speech has
-  /// accumulated ([_windowInterval] samples since last transcription).
+  /// In production mode, samples are sent to the worker isolate via
+  /// [TransferableTypedData] for zero-copy transfer. The worker handles
+  /// VAD filtering, buffering, and sliding-window transcription.
+  ///
+  /// In test mode (via [withTranscriber]), samples are buffered locally.
   void feedAudio(List<double> samples) {
-    // Keep raw audio for final transcribeFull() pass
-    _rawAudioBuffer.addAll(samples);
-
-    if (_vad == null) {
-      // Fallback: no VAD, buffer everything (like before)
-      _speechBuffer.addAll(samples);
-    } else {
-      // Feed audio through VAD in 512-sample windows
-      final floatSamples = Float32List.fromList(
-        samples.map((s) => s.toDouble()).toList(),
-      );
-      _vad!.acceptWaveform(floatSamples);
-
-      // Extract any detected speech segments
-      while (!_vad!.isEmpty()) {
-        final segment = _vad!.front();
-        _vad!.pop();
-        if (segment.samples.isNotEmpty) {
-          _speechBuffer.addAll(segment.samples.toList());
-          debugLog('[WhisperService] VAD speech segment: '
-              '${segment.samples.length} samples '
-              '(${(segment.samples.length / _sampleRate).toStringAsFixed(2)}s)');
-        }
-      }
+    if (_workerSendPort != null) {
+      // --- Phase 3: send to persistent worker isolate ---
+      final float32 = Float32List.fromList(samples);
+      _workerSendPort!.send(<String, dynamic>{
+        'cmd': 'feedAudio',
+        'samples': TransferableTypedData.fromList([float32]),
+      });
+      return;
     }
+
+    // --- Test / web mode: local buffer management ---
+    _rawAudioBuffer.addAll(samples);
+    _speechBuffer.addAll(samples); // No VAD in test mode
 
     // Trigger transcription when enough speech has accumulated
     if (!_isTranscribing &&
@@ -306,198 +462,123 @@ class WhisperService {
 
   /// Transcribe all speech from the recording in a high-quality pass.
   ///
-  /// Called on recording stop. Re-processes the raw audio through a fresh
-  /// VAD instance to extract clean speech segments, then transcribes them
-  /// in chunks. This gives better results than the live streaming pass.
+  /// In production mode, the worker isolate already owns the raw audio
+  /// buffer. We simply send a command and await the result — the UI thread
+  /// stays completely unblocked.
+  ///
+  /// In test mode, the local transcriber is called directly.
   Future<String> transcribeFull() async {
-    if (_rawAudioBuffer.isEmpty) return '';
-    debugLog(
-        '[WhisperService] transcribeFull: ${_rawAudioBuffer.length} raw samples '
-        '(${(_rawAudioBuffer.length / _sampleRate).toStringAsFixed(1)}s)');
-
-    // Extract speech segments from raw audio using a fresh VAD pass
-    final List<Float32List> speechSegments =
-        _extractSpeechSegments(_rawAudioBuffer);
-
-    if (speechSegments.isEmpty) {
-      debugLog('[WhisperService] transcribeFull: no speech detected by VAD.');
-      return '';
-    }
-
-    // Calculate total speech duration
-    int totalSpeechSamples = 0;
-    for (final seg in speechSegments) {
-      totalSpeechSamples += seg.length;
-    }
-    debugLog(
-        '[WhisperService] transcribeFull: ${speechSegments.length} speech segments, '
-        '${(totalSpeechSamples / _sampleRate).toStringAsFixed(1)}s of speech');
-
-    // Concatenate all speech into one buffer
-    final List<double> allSpeech = [];
-    for (final seg in speechSegments) {
-      allSpeech.addAll(seg.toList());
-    }
-
-    // For short speech (< 30s), transcribe in one shot
-    const int maxSinglePass = 30 * _sampleRate;
-    if (allSpeech.length <= maxSinglePass) {
-      final result = await _runTranscriber(allSpeech);
-      debugLog('[WhisperService] transcribeFull done: ${result.length} chars');
-      return result;
-    }
-
-    // For longer speech, chunk it — use 30s (Whisper's max context)
-    const int chunkSize = 30 * _sampleRate; // 30s chunks
-    const int overlap = 5 * _sampleRate; // 5s overlap
-    final List<String> parts = [];
-    String prevTail = '';
-
-    for (int start = 0;
-        start < allSpeech.length;
-        start += chunkSize - overlap) {
-      final int end = min(start + chunkSize, allSpeech.length);
-      final chunk = allSpeech.sublist(start, end);
-
+    if (_workerSendPort != null) {
+      // --- Phase 3: ask worker isolate to transcribe ---
+      debugLog('[WhisperService] transcribeFull → sending to worker');
+      _transcribeFullCompleter = Completer<String>();
+      _workerSendPort!.send(<String, dynamic>{'cmd': 'transcribeFull'});
       try {
-        final String text = await _runTranscriber(chunk);
-        if (text.isEmpty) continue;
-        final String deduped = removeOverlap(prevTail, text);
-        if (deduped.isNotEmpty) parts.add(deduped);
-        prevTail = _lastWords(text, 20);
+        final result = await _transcribeFullCompleter!.future;
+        _transcribeFullCompleter = null;
+        debugLog(
+            '[WhisperService] transcribeFull done: ${result.length} chars');
+        return result;
       } catch (e) {
-        debugLog('[WhisperService] transcribeFull chunk error: $e');
-        // Continue with next chunk
+        _transcribeFullCompleter = null;
+        debugLog('[WhisperService] transcribeFull error: $e');
+        rethrow;
       }
     }
 
-    final result = parts.join(' ');
+    // --- Test / web mode: local transcription ---
+    if (_rawAudioBuffer.isEmpty) return '';
+    debugLog('[WhisperService] transcribeFull (local): '
+        '${_rawAudioBuffer.length} raw samples '
+        '(${(_rawAudioBuffer.length / _sampleRate).toStringAsFixed(1)}s)');
+
+    final result = await _runTranscriber(_rawAudioBuffer);
     debugLog('[WhisperService] transcribeFull done: ${result.length} chars');
     return result;
   }
 
   /// Clear all audio buffers and accumulated transcript state.
   void reset() {
+    if (_workerSendPort != null) {
+      _workerSendPort!.send(<String, dynamic>{'cmd': 'reset'});
+      return;
+    }
+    // Test mode: clear local buffers
     _speechBuffer.clear();
     _rawAudioBuffer.clear();
     _lastSpeechBoundary = 0;
     _previousTailText = '';
     _fullTranscript = '';
     _isTranscribing = false;
-    _vad?.reset();
   }
 
   /// Release all resources.
   void dispose() {
-    reset();
-    _recognizer?.free();
-    _recognizer = null;
-    _vad?.free();
-    _vad = null;
+    _killWorker();
+    // Clear test-mode buffers
+    _speechBuffer.clear();
+    _rawAudioBuffer.clear();
+    _lastSpeechBoundary = 0;
+    _previousTailText = '';
+    _fullTranscript = '';
+    _isTranscribing = false;
     if (!_transcriptController.isClosed) {
       _transcriptController.close();
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Internal helpers
-  // ---------------------------------------------------------------------------
-
-  /// Build a shared recognizer config for Whisper Small Czech.
-  /// tailPaddings: -1 (auto) avoids hallucinations from excessive silence padding.
-  /// numThreads: 4 for modern devices (iPhone 13+, recent Android).
-  sherpa.OfflineRecognizerConfig _buildRecognizerConfig() {
-    return sherpa.OfflineRecognizerConfig(
-      model: sherpa.OfflineModelConfig(
-        whisper: sherpa.OfflineWhisperModelConfig(
-          encoder: _encoderPath,
-          decoder: _decoderPath,
-          language: 'cs',
-          task: 'transcribe',
-          tailPaddings: -1,
-        ),
-        tokens: _tokensPath,
-        numThreads: 4,
-        debug: false,
-        provider: 'cpu',
-      ),
-    );
+  /// Terminate the worker isolate and clean up communication channels.
+  void _killWorker() {
+    if (_workerSendPort != null) {
+      try {
+        _workerSendPort!.send(<String, dynamic>{'cmd': 'dispose'});
+      } catch (_) {
+        // Worker may already be gone
+      }
+    }
+    _workerSubscription?.cancel();
+    _workerSubscription = null;
+    _workerIsolate?.kill(priority: Isolate.immediate);
+    _workerIsolate = null;
+    _workerSendPort = null;
+    _mainReceivePort?.close();
+    _mainReceivePort = null;
+    _initCompleter = null;
+    _transcribeFullCompleter = null;
   }
 
-  /// Extract speech segments from raw audio using a fresh VAD instance.
-  /// Used by transcribeFull() for a clean second pass over all audio.
-  List<Float32List> _extractSpeechSegments(List<double> rawAudio) {
-    if (_vadModelPath.isEmpty) {
-      // No VAD model — return entire audio as one segment
-      return [Float32List.fromList(rawAudio)];
+  /// Handle messages coming back from the worker isolate.
+  void _handleWorkerMessage(dynamic message) {
+    if (message is! Map) return;
+    final type = message['type'] as String?;
+    switch (type) {
+      case 'initDone':
+        _initCompleter?.complete();
+      case 'initError':
+        _initCompleter?.completeError(
+            Exception(message['error'] as String? ?? 'Unknown worker error'));
+      case 'transcript':
+        final text = message['text'] as String? ?? '';
+        if (!_transcriptController.isClosed) {
+          _transcriptController.add(text);
+        }
+      case 'transcribeFullDone':
+        _transcribeFullCompleter?.complete(message['text'] as String? ?? '');
+      case 'transcribeFullError':
+        _transcribeFullCompleter?.completeError(
+            Exception(message['error'] as String? ?? 'Unknown worker error'));
+      case 'resetDone':
+        break; // fire-and-forget
+      case 'disposeDone':
+        break;
     }
-
-    final List<Float32List> segments = [];
-    try {
-      final vad = sherpa.VoiceActivityDetector(
-        config: sherpa.VadModelConfig(
-          sileroVad: sherpa.SileroVadModelConfig(
-            model: _vadModelPath,
-            threshold:
-                0.45, // slightly lower for final pass — catch more speech
-            minSilenceDuration: 0.5,
-            minSpeechDuration: 0.25,
-            maxSpeechDuration: 30.0,
-            windowSize: 512,
-          ),
-          sampleRate: _sampleRate,
-          numThreads: 1,
-          provider: 'cpu',
-          debug: false,
-        ),
-        bufferSizeInSeconds: 120.0,
-      );
-
-      // Process in 512-sample windows (VAD requirement)
-      const int windowSize = 512;
-      for (int i = 0; i < rawAudio.length; i += windowSize) {
-        final int end = min(i + windowSize, rawAudio.length);
-        final chunk = rawAudio.sublist(i, end);
-        // Pad last chunk to windowSize if needed
-        final Float32List padded;
-        if (chunk.length < windowSize) {
-          padded = Float32List(windowSize);
-          for (int j = 0; j < chunk.length; j++) {
-            padded[j] = chunk[j];
-          }
-        } else {
-          padded = Float32List.fromList(chunk);
-        }
-        vad.acceptWaveform(padded);
-
-        while (!vad.isEmpty()) {
-          final segment = vad.front();
-          vad.pop();
-          if (segment.samples.isNotEmpty) {
-            segments.add(segment.samples);
-          }
-        }
-      }
-
-      // Flush remaining speech
-      vad.flush();
-      while (!vad.isEmpty()) {
-        final segment = vad.front();
-        vad.pop();
-        if (segment.samples.isNotEmpty) {
-          segments.add(segment.samples);
-        }
-      }
-
-      vad.free();
-    } catch (e) {
-      debugLog('[WhisperService] VAD extraction failed: $e — using raw audio.');
-      return [Float32List.fromList(rawAudio)];
-    }
-
-    return segments;
   }
 
+  // ---------------------------------------------------------------------------
+  // Internal helpers (test / web mode only)
+  // ---------------------------------------------------------------------------
+
+  /// Sliding-window transcription — only used in test mode (withTranscriber).
   Future<void> _transcribeWindow() async {
     if (_isTranscribing) return;
     if (_speechBuffer.length - _lastSpeechBoundary < _windowInterval) return;
@@ -525,7 +606,7 @@ class WhisperService {
             _fullTranscript.isEmpty ? deduped : '$_fullTranscript $deduped';
       }
 
-      _previousTailText = _lastWords(rawText, 20);
+      _previousTailText = lastWords(rawText, 20);
       _lastSpeechBoundary = windowEnd;
 
       if (!_transcriptController.isClosed) {
@@ -729,7 +810,7 @@ class WhisperService {
     return true;
   }
 
-  static String _lastWords(String text, int n) {
+  static String lastWords(String text, int n) {
     final List<String> words =
         text.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
     if (words.length <= n) return text;

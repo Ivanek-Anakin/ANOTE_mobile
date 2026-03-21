@@ -1,6 +1,6 @@
 # ANOTE Mobile
 
-Medical report generation from voice — on-device speech-to-text (Whisper + Silero VAD) with a Python/FastAPI backend for structured Czech medical report generation via Azure OpenAI (gpt-4.1-mini).
+Medical report generation from voice — on-device speech-to-text (Whisper + Silero VAD) with a Python/FastAPI backend for structured Czech medical report generation via Azure OpenAI (gpt-5-mini).
 
 ## Architecture
 
@@ -28,7 +28,7 @@ Medical report generation from voice — on-device speech-to-text (Whisper + Sil
 ┌──────────── Backend Server ───────────────────────────┐
 │                                                        │
 │  FastAPI (Python)                                      │
-│  POST /report → Azure OpenAI gpt-4.1-mini              │
+│  POST /report → Azure OpenAI gpt-5-mini                │
 │    → 13-section structured Czech medical report        │
 │                                                        │
 └────────────────────────────────────────────────────────┘
@@ -39,7 +39,7 @@ Medical report generation from voice — on-device speech-to-text (Whisper + Sil
 - **On-device transcription** — Whisper Small (INT8) via sherpa_onnx, no audio leaves the device
 - **Voice Activity Detection** — Silero VAD filters silence to prevent hallucinations
 - **Real-time transcription** — live transcript updates every ~3 seconds during recording
-- **Structured medical reports** — Azure OpenAI gpt-4.1-mini generates 13-section Czech medical report (NO, NA, RA, OA, FA, AA, GA, SA, objektivní nález, hodnocení, vyšetření, terapie, pokyny)
+- **Structured medical reports** — Azure OpenAI gpt-5-mini generates 13-section Czech medical report (NO, NA, RA, OA, FA, AA, GA, SA, objektivní nález, hodnocení, vyšetření, terapie, pokyny)
 - **GDPR-compliant** — Azure OpenAI in West Europe, no patient data leaves the EU
 - **Model auto-download** — Whisper + VAD models download on first launch with progress UI
 - **Collapsible panels** — report and transcript panels expand/collapse/fullscreen
@@ -115,6 +115,85 @@ All models are auto-downloaded on first launch (~250 MB total):
 | `small-tokens.txt` | ~500 KB | Whisper tokenizer vocabulary |
 | `silero_vad.onnx` | ~640 KB | Silero Voice Activity Detection |
 
+## Azure Deployment
+
+The backend runs on **Azure Container Apps** (Consumption tier, West Europe).
+
+### Prerequisites
+
+```bash
+# Azure CLI is installed in the project's .venv
+source /Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/.venv/bin/activate
+az login
+# Select: Visual Studio Ultimate with MSDN (8a3849cc-c762-4a9c-8874-6487046bc245)
+```
+
+### Azure Resources
+
+| Resource | Name | Details |
+|----------|------|---------|
+| Resource Group | `ANOTE` | West Europe |
+| Azure OpenAI | `anote-openai` | West Europe, Standard SKU |
+| Model Deployment | `gpt-5-mini` | gpt-5-mini (version 2025-08-07) |
+| Container App | `anote-api` | 0.5 CPU / 1 GB RAM, Consumption tier |
+| Container Registry | `cae82690c7c7acr` | Auto-created by `az containerapp up` |
+| Container App Env | `anote-api-env` | Managed environment |
+
+### Production URL
+
+```
+https://anote-api.politesmoke-02c93984.westeurope.azurecontainerapps.io
+```
+
+### Deploy / Redeploy
+
+```bash
+# 1. Build & push new image (from backend/ directory)
+cd backend
+az containerapp up \
+  --name anote-api \
+  --resource-group ANOTE \
+  --location westeurope \
+  --source .
+
+# 2. Rebind env vars + secrets (az containerapp up overwrites them)
+az containerapp update \
+  --name anote-api \
+  --resource-group ANOTE \
+  --set-env-vars \
+    MOCK_MODE=false \
+    AZURE_OPENAI_ENDPOINT=https://anote-openai.openai.azure.com \
+    AZURE_OPENAI_DEPLOYMENT=gpt-5-mini \
+    AZURE_OPENAI_KEY=secretref:azure-openai-key \
+    APP_API_TOKEN=secretref:app-api-token
+```
+
+### Secrets (persisted across redeployments)
+
+| Secret Name | Env Var | Description |
+|-------------|---------|-------------|
+| `azure-openai-key` | `AZURE_OPENAI_KEY` | Azure OpenAI API key |
+| `app-api-token` | `APP_API_TOKEN` | Bearer token for mobile app auth |
+
+To update a secret value:
+```bash
+az containerapp secret set --name anote-api --resource-group ANOTE \
+  --secrets azure-openai-key=NEW_KEY_VALUE
+```
+
+### Verify Deployment
+
+```bash
+# Health check
+curl https://anote-api.politesmoke-02c93984.westeurope.azurecontainerapps.io/health
+
+# Test report generation
+curl -X POST https://anote-api.politesmoke-02c93984.westeurope.azurecontainerapps.io/report \
+  -H "Authorization: Bearer <APP_API_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{"transcript": "Pacient přišel s bolestí hlavy.", "visit_type": "ambulance"}'
+```
+
 ## Backend — Local Development
 
 ```bash
@@ -124,7 +203,7 @@ pip install -r requirements.txt
 # Azure OpenAI (production)
 AZURE_OPENAI_KEY="..." \
 AZURE_OPENAI_ENDPOINT="https://anote-openai.openai.azure.com" \
-AZURE_OPENAI_DEPLOYMENT="gpt-4-1-mini" \
+AZURE_OPENAI_DEPLOYMENT="gpt-5-mini" \
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 # Plain OpenAI (dev fallback)

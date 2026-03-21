@@ -44,8 +44,7 @@ final _scenariosProvider = FutureProvider<List<DemoScenarioInfo>>((ref) async {
   final scenarios = <DemoScenarioInfo>[];
   for (final id in _scenarioFiles) {
     try {
-      final text =
-          await rootBundle.loadString('assets/demo_scenarios/$id.txt');
+      final text = await rootBundle.loadString('assets/demo_scenarios/$id.txt');
       final words = text.trim().split(RegExp(r'\s+'));
       scenarios.add(DemoScenarioInfo(
         id: id,
@@ -114,6 +113,7 @@ class _DemoPickerState extends ConsumerState<DemoPicker> {
                       final scenario = scenarios[index];
                       final isSelected = _selectedId == scenario.id;
                       return Card(
+                        key: Key('demo_scenario_${scenario.id}'),
                         margin: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         color: isSelected
@@ -122,8 +122,7 @@ class _DemoPickerState extends ConsumerState<DemoPicker> {
                         child: InkWell(
                           onTap: isDemoPlaying
                               ? null
-                              : () => setState(
-                                  () => _selectedId = scenario.id),
+                              : () => setState(() => _selectedId = scenario.id),
                           borderRadius: BorderRadius.circular(12),
                           child: Padding(
                             padding: const EdgeInsets.all(12),
@@ -172,6 +171,7 @@ class _DemoPickerState extends ConsumerState<DemoPicker> {
             padding: const EdgeInsets.all(8),
             child: isDemoPlaying
                 ? OutlinedButton.icon(
+                    key: const Key('btn_demo_stop'),
                     onPressed: () => notifier.cancelDemo(),
                     icon: const Text('⬛'),
                     label: const Text('Zastavit simulaci'),
@@ -180,6 +180,7 @@ class _DemoPickerState extends ConsumerState<DemoPicker> {
                     ),
                   )
                 : FilledButton.icon(
+                    key: const Key('btn_demo_start'),
                     onPressed: _selectedId != null
                         ? () => notifier.playDemo(_selectedId!)
                         : null,

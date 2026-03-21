@@ -107,7 +107,8 @@ void main() {
     final container = makeContainer();
     addTearDown(container.dispose);
 
-    when(mockReportService.generateReport(any))
+    when(mockReportService.generateReport(any,
+            visitType: anyNamed('visitType')))
         .thenAnswer((_) async => '');
 
     container.read(sessionProvider.notifier).startRecording();
@@ -135,7 +136,8 @@ void main() {
     final container = makeContainer();
     addTearDown(container.dispose);
 
-    when(mockReportService.generateReport(any))
+    when(mockReportService.generateReport(any,
+            visitType: anyNamed('visitType')))
         .thenAnswer((_) async => 'Lékařská zpráva');
 
     container.read(sessionProvider.notifier).startRecording();
@@ -182,4 +184,3 @@ class _BrokenAudioService extends AudioService {
   @override
   void dispose() {}
 }
-

@@ -18,8 +18,7 @@ void main() {
     mockStorage = MockFlutterSecureStorage();
     service = ReportService(dio: mockDio, storage: mockStorage);
 
-    when(mockStorage.read(key: anyNamed('key')))
-        .thenAnswer((_) async => null);
+    when(mockStorage.read(key: anyNamed('key'))).thenAnswer((_) async => null);
   });
 
   group('generateReport', () {
@@ -36,7 +35,8 @@ void main() {
         options: anyNamed('options'),
       )).thenAnswer((_) async => response);
 
-      final result = await service.generateReport('Pacient přišel s bolestí hlavy.');
+      final result =
+          await service.generateReport('Pacient přišel s bolestí hlavy.');
       expect(result, 'Strukturovaná lékařská zpráva...');
     });
 
@@ -89,14 +89,15 @@ void main() {
         data: {'status': 'ok'},
       );
 
-      when(mockDio.get(any)).thenAnswer((_) async => response);
+      when(mockDio.get(any, options: anyNamed('options')))
+          .thenAnswer((_) async => response);
 
       final result = await service.isBackendReachable();
       expect(result, isTrue);
     });
 
     test('returns false when health endpoint throws', () async {
-      when(mockDio.get(any)).thenThrow(
+      when(mockDio.get(any, options: anyNamed('options'))).thenThrow(
         DioException(
           requestOptions: RequestOptions(path: '/health'),
           type: DioExceptionType.connectionError,

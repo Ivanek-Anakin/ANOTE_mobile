@@ -47,7 +47,7 @@ else:
     logger.warning("MOCK_MODE is ON — OpenAI will not be called")
 
 CHAT_MODEL: str = os.environ.get("AZURE_OPENAI_DEPLOYMENT",
-                                  os.environ.get("OPENAI_CHAT_MODEL", "gpt-4-1-mini"))
+                                  os.environ.get("OPENAI_CHAT_MODEL", "gpt-5-mini"))
 API_TOKEN: str = os.environ.get("APP_API_TOKEN", "dev-token")
 
 # Path to demo scenario .txt files (relative to this file's location)
@@ -110,10 +110,9 @@ def _build_sections_initial(today: str) -> str:
         '- Jméno: (pokud není, \u201Eneuvedeno\u201C)\n'
         "- Věk / r. narození: (neuvedeno)\n"
         f"- Datum návštěvy: {today}\n\n"
-        "NO (Hlavní obtíže / důvod návštěvy):\n"
+        "NO (Nynější onemocnění):\n"
         "- Hlavní problém, proč pacient přichází, časový údaj, spouštěč.\n"
-        '- Pokud pacient důvod výslovně neřekl: \u201Eneuvedeno\u201C.\n\n'
-        "NA (Anamnéza nynějšího onemocnění):\n"
+        '- Pokud pacient důvod výslovně neřekl: \u201Eneuvedeno\u201C.\n'
         "- Průběh aktuálních potíží: začátek, trvání, lokalizace, intenzita, charakter, "
         "provokační/úlevové faktory, doprovodné příznaky.\n"
         "- Zahrň relevantní negativní symptomy, pokud byly výslovně negovány "
@@ -160,7 +159,7 @@ def _build_sections_initial(today: str) -> str:
         "- Pouze naměřené/zjištěné hodnoty a nálezy (TK, P, SpO2, TT, fyzikální nález).\n"
         '- Pokud není nic objektivně uvedeno: \u201Eneuvedeno\u201C.\n'
         "- Pokud pacient jen udává, že nemá horečku: nepiš jako objektivní TT, "
-        'ale dej do NA jako \u201Ezvýšenou teplotu neguje\u201C.\n\n'
+        'ale dej do NO jako \u201Ezvýšenou teplotu neguje\u201C.\n\n'
         "Hodnocení (pracovní diagnóza / klinický závěr):\n"
         "- Uveď jen to, co zaznělo od lékaře (diagnóza, suspektní stav).\n"
         '- Pokud nezaznělo: \u201Eneuvedeno\u201C.\n\n'
@@ -332,8 +331,7 @@ async def test_report_from_scenario(
                     ),
                 },
             ],
-            temperature=0.3,
-            max_tokens=2000,
+            max_completion_tokens=2000,
         )
         report = response.choices[0].message.content
         logger.info("Test-report completed for scenario: %s", scenario_name)
@@ -368,8 +366,8 @@ async def generate_report(
             "Lékařská zpráva\n\n"
             f"Identifikace pacienta:\n- Jméno: Testovací Pacient\n- Věk / r. narození: 45 let\n"
             f"- Datum návštěvy: {today}\n\n"
-            "NO (Hlavní obtíže / důvod návštěvy):\n[MOCK] Bolest hlavy trvající 3 dny.\n\n"
-            "NA (Anamnéza nynějšího onemocnění):\n[MOCK] Pulzující bolest, VAS 6/10. "
+            "NO (Nynější onemocnění):\n[MOCK] Bolest hlavy trvající 3 dny. "
+            "Pulzující bolest, VAS 6/10. "
             "Zvýšenou teplotu neguje.\n\n"
             "RA (Rodinná anamnéza):\nneuvedeno\n\n"
             "OA (Osobní anamnéza):\n[MOCK] Hypertenze.\n\n"
@@ -398,8 +396,7 @@ async def generate_report(
                     ),
                 },
             ],
-            temperature=0.3,
-            max_tokens=2000,
+            max_completion_tokens=2000,
         )
         logger.info("Report generation completed successfully")
         return {"report": response.choices[0].message.content}

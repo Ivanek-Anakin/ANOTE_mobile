@@ -27,9 +27,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('🩺 ANOTE'),
+        title: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.medical_services, size: 24),
+            SizedBox(width: 8),
+            Text('ANOTE'),
+          ],
+        ),
         actions: [
           IconButton(
+            key: const Key('btn_settings'),
             icon: const Icon(Icons.settings),
             tooltip: 'Nastavení',
             onPressed: () => Navigator.pushNamed(context, '/settings'),
@@ -137,6 +145,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                       ),
                     ),
+                  // Retry report generation after timeout / network error
+                  if (session.isModelLoaded &&
+                      session.transcript.isNotEmpty &&
+                      session.status == RecordingStatus.idle)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: SizedBox(
+                        height: 28,
+                        child: OutlinedButton.icon(
+                          onPressed: () => ref
+                              .read(sessionProvider.notifier)
+                              .regenerateReport(),
+                          icon: const Icon(Icons.refresh, size: 14),
+                          label: const Text('Zkusit znovu'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            textStyle: theme.textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                            foregroundColor: theme.colorScheme.error,
+                            side: BorderSide(color: theme.colorScheme.error),
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -172,7 +205,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   child: Row(
                     children: [
-                      const Text('📋', style: TextStyle(fontSize: 20)),
+                      const Icon(Icons.description, size: 20),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -237,8 +270,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         OutlinedButton.icon(
+          key: const Key('btn_demo_toggle'),
           onPressed: () => setState(() => _showDemo = !_showDemo),
-          icon: const Text('🎬'),
+          icon: const Icon(Icons.movie, size: 20),
           label: const Text('Demo / Prezentační režim'),
           style: OutlinedButton.styleFrom(
             side: BorderSide(

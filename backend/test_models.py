@@ -35,8 +35,7 @@ VÝSTUP – dodrž přesně strukturu:
 Lékařská zpráva
 
 Identifikace pacienta:
-NO (Hlavní obtíže / důvod návštěvy):
-NA (Anamnéza nynějšího onemocnění):
+NO (Nynější onemocnění):
 RA (Rodinná anamnéza):
 OA (Osobní anamnéza):
 FA (Farmakologická anamnéza):

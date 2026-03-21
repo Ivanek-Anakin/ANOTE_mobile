@@ -35,7 +35,12 @@ class ReportService {
   final FlutterSecureStorage _storage;
 
   ReportService({Dio? dio, FlutterSecureStorage? storage})
-      : _dio = dio ?? Dio(),
+      : _dio = dio ??
+            Dio(BaseOptions(
+              connectTimeout: const Duration(seconds: 10),
+              sendTimeout: const Duration(seconds: 10),
+              receiveTimeout: const Duration(seconds: 90),
+            )),
         _storage = storage ?? const FlutterSecureStorage();
 
   Future<String> _getBaseUrl() async {
@@ -101,7 +106,10 @@ class ReportService {
   Future<bool> isBackendReachable() async {
     final baseUrl = await _getBaseUrl();
     try {
-      final response = await _dio.get('$baseUrl/health');
+      final response = await _dio.get(
+        '$baseUrl/health',
+        options: Options(receiveTimeout: const Duration(seconds: 5)),
+      );
       return response.statusCode == 200;
     } catch (_) {
       return false;
