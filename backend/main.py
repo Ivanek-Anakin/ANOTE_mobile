@@ -331,9 +331,9 @@ async def test_report_from_scenario(
                     ),
                 },
             ],
-            max_completion_tokens=2000,
+            max_completion_tokens=4096,
         )
-        report = response.choices[0].message.content
+        report = response.choices[0].message.content or ""
         logger.info("Test-report completed for scenario: %s", scenario_name)
         return {"scenario": scenario_name, "transcript": transcript, "report": report}
     except Exception as e:
@@ -396,10 +396,11 @@ async def generate_report(
                     ),
                 },
             ],
-            max_completion_tokens=2000,
+            max_completion_tokens=4096,
         )
+        report = response.choices[0].message.content or ""
         logger.info("Report generation completed successfully")
-        return {"report": response.choices[0].message.content}
+        return {"report": report}
     except Exception as e:
         logger.error("OpenAI error occurred (details omitted for GDPR)")
         raise HTTPException(

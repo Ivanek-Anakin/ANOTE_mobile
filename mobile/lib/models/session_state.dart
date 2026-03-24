@@ -1,4 +1,4 @@
-enum RecordingStatus { idle, recording, processing, demoPlaying }
+enum RecordingStatus { idle, recording, processing }
 
 /// Visit type mode — determines report structure.
 enum VisitType {

@@ -64,7 +64,11 @@ ANOTE_mobile/
 │   ├── requirements.txt
 │   ├── Dockerfile
 │   └── tests/
-│       └── test_report_endpoint.py
+│       ├── test_report_endpoint.py       # Core endpoint unit tests
+│       ├── test_prompt_builder.py        # System prompt construction tests
+│       ├── test_endpoints_comprehensive.py # Edge cases, GDPR, auth, Unicode
+│       ├── test_report_quality.py        # Live report quality (structure, accuracy)
+│       └── test_transcription_quality.py # Scenario integrity, CER/WER, eval infra
 ├── testing_hurvinek/            # Czech audio + ASR transcripts for testing
 │   ├── *.mp3                    # Audio files (3 episodes)
 │   └── *.txt                    # UniScribe transcriptions
@@ -96,10 +100,13 @@ ANOTE_mobile/
     │   ├── demo_scenarios/              # Pre-recorded text scenarios
     │   └── models/                      # Auto-downloaded on first launch
     └── test/
+        ├── widget_test.dart
         ├── providers/
-        │   └── session_provider_test.dart
+        │   ├── session_provider_test.dart
+        │   └── session_provider_test.mocks.dart
         └── services/
             ├── report_service_test.dart
+            ├── report_service_test.mocks.dart
             ├── whisper_service_test.dart
             └── wav_encoder_test.dart
 ```
@@ -132,17 +139,18 @@ az login
 
 | Resource | Name | Details |
 |----------|------|---------|
-| Resource Group | `ANOTE` | West Europe |
+| Resource Group | `anote-rg` | Container Apps |
+| Resource Group | `ANOTE` | Azure OpenAI |
 | Azure OpenAI | `anote-openai` | West Europe, Standard SKU |
 | Model Deployment | `gpt-5-mini` | gpt-5-mini (version 2025-08-07) |
 | Container App | `anote-api` | 0.5 CPU / 1 GB RAM, Consumption tier |
-| Container Registry | `cae82690c7c7acr` | Auto-created by `az containerapp up` |
-| Container App Env | `anote-api-env` | Managed environment |
+| Container Registry | `ca859739e5daacr` | Auto-created by `az containerapp up` |
+| Container App Env | `anote-api-env` | West US 2 |
 
 ### Production URL
 
 ```
-https://anote-api.politesmoke-02c93984.westeurope.azurecontainerapps.io
+https://anote-api.gentleriver-a61d304a.westus2.azurecontainerapps.io
 ```
 
 ### Deploy / Redeploy
@@ -152,14 +160,13 @@ https://anote-api.politesmoke-02c93984.westeurope.azurecontainerapps.io
 cd backend
 az containerapp up \
   --name anote-api \
-  --resource-group ANOTE \
-  --location westeurope \
+  --resource-group anote-rg \
   --source .
 
 # 2. Rebind env vars + secrets (az containerapp up overwrites them)
 az containerapp update \
   --name anote-api \
-  --resource-group ANOTE \
+  --resource-group anote-rg \
   --set-env-vars \
     MOCK_MODE=false \
     AZURE_OPENAI_ENDPOINT=https://anote-openai.openai.azure.com \
@@ -177,7 +184,7 @@ az containerapp update \
 
 To update a secret value:
 ```bash
-az containerapp secret set --name anote-api --resource-group ANOTE \
+az containerapp secret set --name anote-api --resource-group anote-rg \
   --secrets azure-openai-key=NEW_KEY_VALUE
 ```
 
@@ -185,10 +192,10 @@ az containerapp secret set --name anote-api --resource-group ANOTE \
 
 ```bash
 # Health check
-curl https://anote-api.politesmoke-02c93984.westeurope.azurecontainerapps.io/health
+curl https://anote-api.gentleriver-a61d304a.westus2.azurecontainerapps.io/health
 
 # Test report generation
-curl -X POST https://anote-api.politesmoke-02c93984.westeurope.azurecontainerapps.io/report \
+curl -X POST https://anote-api.gentleriver-a61d304a.westus2.azurecontainerapps.io/report \
   -H "Authorization: Bearer <APP_API_TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{"transcript": "Pacient přišel s bolestí hlavy.", "visit_type": "ambulance"}'
@@ -275,8 +282,26 @@ xcrun devicectl device install app \
 
 ```bash
 cd backend
+
+# Unit tests only (fast, no network)
+python -m pytest tests/ -v --ignore=tests/test_report_quality.py
+
+# Full suite including live API quality tests (~3 min)
 python -m pytest tests/ -v
+
+# Skip live tests via env var
+SKIP_LIVE_TESTS=1 python -m pytest tests/ -v
 ```
+
+### Test Files
+
+| File | Tests | Description |
+|------|-------|-------------|
+| `test_report_endpoint.py` | 7 | Core endpoint unit tests (mocked OpenAI) |
+| `test_prompt_builder.py` | 25 | System prompt construction, sections, visit types |
+| `test_endpoints_comprehensive.py` | 20 | Edge cases, GDPR, auth, Unicode, visit routing |
+| `test_transcription_quality.py` | 24 | Scenario file integrity, CER/WER metrics, eval infra |
+| `test_report_quality.py` | 20 | **Live** report quality (structure, accuracy, negation, neuvedeno) |
 
 ## Azure OpenAI Model Comparison
 

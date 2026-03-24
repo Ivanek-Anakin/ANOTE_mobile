@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/session_state.dart';
+import '../providers/recording_history_provider.dart';
 import '../providers/session_provider.dart';
 
 /// Collapsible report panel with close button and fullscreen option.
@@ -17,35 +18,55 @@ class ReportPanel extends ConsumerStatefulWidget {
 
 class _ReportPanelState extends ConsumerState<ReportPanel> {
   late TextEditingController _controller;
+  bool _hasLocalEdits = false;
+  bool _isSaving = false;
+
+  /// Tracks the last session report value we synced into the controller.
+  /// Used to distinguish external report changes (auto-generate, load)
+  /// from local user edits.
+  String _lastSyncedReport = '';
 
   @override
   void initState() {
     super.initState();
     final session = ref.read(sessionProvider);
     _controller = TextEditingController(text: session.report);
+    _lastSyncedReport = session.report;
+    _controller.addListener(_onControllerChanged);
   }
 
   @override
   void dispose() {
+    _controller.removeListener(_onControllerChanged);
     _controller.dispose();
     super.dispose();
+  }
+
+  void _onControllerChanged() {
+    final hasEdits = _controller.text != _lastSyncedReport;
+    if (hasEdits != _hasLocalEdits) {
+      setState(() => _hasLocalEdits = hasEdits);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(sessionProvider);
     final theme = Theme.of(context);
+    final loadedId = ref.watch(loadedRecordingIdProvider);
 
-    // Update controller text when report changes externally,
-    // but only if the text actually differs (preserves cursor position
-    // when the user is editing).
-    if (_controller.text != session.report) {
+    // Sync controller only when the session report changes externally
+    // (e.g. auto-generated report, loading a recording).
+    // Local user edits must NOT be overwritten.
+    if (session.report != _lastSyncedReport) {
       final selection = _controller.selection;
       _controller.text = session.report;
       // Try to restore cursor position if still valid
       if (selection.isValid && selection.end <= _controller.text.length) {
         _controller.selection = selection;
       }
+      _lastSyncedReport = session.report;
+      _hasLocalEdits = false;
     }
 
     return Card(
@@ -180,6 +201,26 @@ class _ReportPanelState extends ConsumerState<ReportPanel> {
                   ),
                 ),
               ),
+            // ── Save changes button for loaded recordings ──
+            if (loadedId != null && _hasLocalEdits)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    key: const Key('btn_save_changes'),
+                    onPressed: _isSaving ? null : () => _saveChanges(loadedId),
+                    icon: _isSaving
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('💾'),
+                    label: const Text('Uložit změny'),
+                  ),
+                ),
+              ),
             if (session.report.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
@@ -194,6 +235,33 @@ class _ReportPanelState extends ConsumerState<ReportPanel> {
         ),
       ),
     );
+  }
+
+  Future<void> _saveChanges(String loadedId) async {
+    setState(() => _isSaving = true);
+    try {
+      final storage = ref.read(recordingStorageServiceProvider);
+      await storage.updateReport(loadedId, _controller.text);
+      await ref.read(recordingIndexProvider.notifier).refresh();
+      if (!mounted) return;
+      setState(() {
+        _lastSyncedReport = _controller.text;
+        _hasLocalEdits = false;
+        _isSaving = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Změny uloženy'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isSaving = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Chyba ukládání: $e')),
+      );
+    }
   }
 
   void _openFullscreen(BuildContext context, WidgetRef ref) {

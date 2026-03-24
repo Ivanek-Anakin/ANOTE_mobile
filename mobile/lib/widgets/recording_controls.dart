@@ -15,7 +15,6 @@ class RecordingControls extends ConsumerWidget {
     final isIdle = session.status == RecordingStatus.idle;
     final isRecording = session.status == RecordingStatus.recording;
     final isProcessing = session.status == RecordingStatus.processing;
-    final isDemoPlaying = session.status == RecordingStatus.demoPlaying;
 
     final canStart = isIdle;
     final canStop = isRecording;
@@ -79,7 +78,7 @@ class RecordingControls extends ConsumerWidget {
               ),
             ],
           ),
-          if (isProcessing || isDemoPlaying)
+          if (isProcessing)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Row(
@@ -92,7 +91,7 @@ class RecordingControls extends ConsumerWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    isProcessing ? 'Dokončování...' : 'Simulace...',
+                    'Dokončování...',
                     style: theme.textTheme.bodySmall,
                   ),
                 ],

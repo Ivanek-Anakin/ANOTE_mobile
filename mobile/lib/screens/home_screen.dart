@@ -5,7 +5,7 @@ import '../providers/session_provider.dart';
 import '../widgets/report_panel.dart';
 import '../widgets/transcript_panel.dart';
 import '../widgets/recording_controls.dart';
-import '../widgets/demo_picker.dart';
+import '../widgets/recording_history_list.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -15,7 +15,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  bool _showDemo = false;
   bool _reportExpanded = true;
 
   @override
@@ -228,7 +227,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           const SizedBox(height: 12),
           const RecordingControls(),
           const SizedBox(height: 12),
-          _buildDemoSection(theme),
+          const RecordingHistoryList(),
         ],
       ),
     );
@@ -255,37 +254,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   const SizedBox(height: 12),
                   const RecordingControls(),
                   const SizedBox(height: 12),
-                  _buildDemoSection(theme),
+                  const RecordingHistoryList(),
                 ],
               ),
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildDemoSection(ThemeData theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        OutlinedButton.icon(
-          key: const Key('btn_demo_toggle'),
-          onPressed: () => setState(() => _showDemo = !_showDemo),
-          icon: const Icon(Icons.movie, size: 20),
-          label: const Text('Demo / Prezentační režim'),
-          style: OutlinedButton.styleFrom(
-            side: BorderSide(
-              color: theme.colorScheme.outline,
-              style: BorderStyle.solid,
-            ),
-          ),
-        ),
-        if (_showDemo) ...[
-          const SizedBox(height: 8),
-          const DemoPicker(),
-        ],
-      ],
     );
   }
 }
@@ -342,8 +317,7 @@ class _StatusPillState extends State<_StatusPill>
   }
 
   void _updateAnimation() {
-    if (widget.status == RecordingStatus.recording ||
-        widget.status == RecordingStatus.demoPlaying) {
+    if (widget.status == RecordingStatus.recording) {
       _controller.repeat(reverse: true);
     } else {
       _controller.stop();
@@ -370,7 +344,6 @@ class _StatusPillState extends State<_StatusPill>
           Colors.green.shade600
         ),
       RecordingStatus.processing => ('Dokončování...', Colors.green.shade600),
-      RecordingStatus.demoPlaying => ('Simulace...', Colors.green.shade600),
     };
 
     return Padding(

@@ -21,8 +21,7 @@ class _TranscriptPanelState extends ConsumerState<TranscriptPanel> {
     final session = ref.watch(sessionProvider);
     final theme = Theme.of(context);
 
-    final isActive = session.status == RecordingStatus.recording ||
-        session.status == RecordingStatus.demoPlaying;
+    final isActive = session.status == RecordingStatus.recording;
     final hasContent = session.transcript.isNotEmpty;
 
     if (!isActive && !hasContent) {
