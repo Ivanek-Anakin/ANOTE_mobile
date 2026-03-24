@@ -33,3 +33,4 @@ flutter:
   assets:
     - assets/demo_scenarios/
     - assets/models/
+    - assets/hotwords_cs_medical.txt

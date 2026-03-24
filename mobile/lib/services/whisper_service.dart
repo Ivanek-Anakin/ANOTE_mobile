@@ -5,6 +5,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:sherpa_onnx/sherpa_onnx.dart' as sherpa;
 
@@ -266,6 +267,9 @@ class WhisperService {
   /// Path to the VAD model file.
   String _vadModelPath = '';
 
+  /// Path to the medical hotwords file.
+  String _hotwordsFilePath = '';
+
   /// Paths to model files (set during loadModel).
   String _encoderPath = '';
   String _decoderPath = '';
@@ -347,6 +351,19 @@ class WhisperService {
     return allValid;
   }
 
+  /// Copy the hotwords file from bundled assets to the model directory.
+  Future<void> _copyHotwordsFile(String modelDir) async {
+    final targetFile = File('$modelDir/hotwords_cs_medical.txt');
+    if (await targetFile.exists()) return;
+    try {
+      final data = await rootBundle.loadString('assets/hotwords_cs_medical.txt');
+      await targetFile.writeAsString(data);
+      debugLog('[WhisperService] Hotwords file copied to model dir.');
+    } catch (e) {
+      debugLog('[WhisperService] Failed to copy hotwords file: $e');
+    }
+  }
+
   /// Simple debug logger that works in both debug and release.
   static void debugLog(String message) {
     // ignore: avoid_print
@@ -374,6 +391,10 @@ class WhisperService {
     _decoderPath = '$modelDir/small-decoder.int8.onnx';
     _tokensPath = '$modelDir/small-tokens.txt';
     _vadModelPath = '$modelDir/silero_vad.onnx';
+    _hotwordsFilePath = '$modelDir/hotwords_cs_medical.txt';
+
+    // Copy hotwords file from assets to model directory
+    await _copyHotwordsFile(modelDir);
 
     // Verify existing files — delete corrupted/partial ones
     final bool intact = await _verifyAndCleanModel(modelDir);
@@ -416,6 +437,7 @@ class WhisperService {
       'decoderPath': _decoderPath,
       'tokensPath': _tokensPath,
       'vadModelPath': _vadModelPath,
+      'hotwordsFilePath': _hotwordsFilePath,
     });
 
     try {

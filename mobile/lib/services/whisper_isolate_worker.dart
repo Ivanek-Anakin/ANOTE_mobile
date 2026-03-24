@@ -48,6 +48,7 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
   sherpa.OfflineRecognizer? recognizer;
   sherpa.VoiceActivityDetector? vad;
   String vadModelPath = '';
+  String hotwordsFilePath = '';
 
   /// Raw audio buffer — capped at [maxBufferSamples] to prevent OOM.
   /// Oldest samples are discarded when the cap is reached.
@@ -209,27 +210,39 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
 
   /// High-quality full-pass transcription over all recorded audio.
   ///
-  /// Uses the already VAD-filtered [speechBuffer] directly instead of
-  /// re-running VAD on [rawAudioBuffer]. This avoids creating a redundant
-  /// VAD instance and re-processing all raw audio (saves seconds on long
-  /// recordings). Falls back to rawAudioBuffer only if speechBuffer is empty
-  /// but rawAudioBuffer has data (edge case: VAD filtered everything out).
+  /// Re-runs VAD at 0.45 threshold on the raw audio buffer to catch quiet
+  /// speech that the live VAD (0.5) may have missed. Falls back to
+  /// speechBuffer if rawAudioBuffer is empty.
   String doTranscribeFull() {
-    // Prefer speechBuffer (already VAD-filtered during live recording).
     final List<double> allSpeech;
-    if (speechBuffer.isNotEmpty) {
+    if (rawAudioBuffer.isNotEmpty) {
+      // Re-extract speech from raw audio at lower threshold (0.45)
+      final segments = extractSpeechSegments(rawAudioBuffer);
+      if (segments.isEmpty) {
+        workerLog('[Worker] transcribeFull: re-VAD returned no segments, '
+            'falling back to speechBuffer');
+        if (speechBuffer.isNotEmpty) {
+          allSpeech = speechBuffer;
+        } else {
+          return '';
+        }
+      } else {
+        final extracted = <double>[];
+        for (final seg in segments) {
+          extracted.addAll(seg);
+        }
+        allSpeech = extracted;
+        workerLog('[Worker] transcribeFull: re-VAD extracted '
+            '${allSpeech.length} samples '
+            '(${(allSpeech.length / sampleRate).toStringAsFixed(1)}s of speech) '
+            'from ${rawAudioBuffer.length} raw samples');
+      }
+    } else if (speechBuffer.isNotEmpty) {
       allSpeech = speechBuffer;
-      workerLog('[Worker] transcribeFull: using speechBuffer directly — '
+      workerLog('[Worker] transcribeFull: rawAudioBuffer empty, '
+          'using speechBuffer — '
           '${allSpeech.length} samples '
           '(${(allSpeech.length / sampleRate).toStringAsFixed(1)}s of speech)');
-    } else if (rawAudioBuffer.isNotEmpty) {
-      // Fallback: no speech segments detected during live recording.
-      // Use raw audio as-is (this path is rare).
-      allSpeech = rawAudioBuffer;
-      workerLog('[Worker] transcribeFull: speechBuffer empty, '
-          'falling back to rawAudioBuffer — '
-          '${allSpeech.length} samples '
-          '(${(allSpeech.length / sampleRate).toStringAsFixed(1)}s)');
     } else {
       return '';
     }
@@ -283,6 +296,7 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
           final decoderPath = message['decoderPath'] as String;
           final tokensPath = message['tokensPath'] as String;
           vadModelPath = message['vadModelPath'] as String;
+          hotwordsFilePath = (message['hotwordsFilePath'] as String?) ?? '';
 
           sherpa.initBindings();
 
@@ -302,6 +316,10 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
                 debug: false,
                 provider: 'cpu',
               ),
+              decodingMethod: 'modified_beam_search',
+              maxActivePaths: 4,
+              hotwordsFile: hotwordsFilePath,
+              hotwordsScore: 1.5,
             ),
           );
           sw.stop();
