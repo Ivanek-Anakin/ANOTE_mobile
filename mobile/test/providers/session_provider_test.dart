@@ -5,12 +5,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:anote_mobile/models/recording_entry.dart';
 import 'package:anote_mobile/models/session_state.dart';
 import 'package:anote_mobile/providers/recording_history_provider.dart';
 import 'package:anote_mobile/providers/session_provider.dart';
 import 'package:anote_mobile/services/audio_service.dart';
 import 'package:anote_mobile/services/recording_storage_service.dart';
+import 'package:anote_mobile/services/cloud_transcription_service.dart';
 import 'package:anote_mobile/services/report_service.dart';
 import 'package:anote_mobile/services/whisper_service.dart';
 
@@ -44,7 +46,7 @@ class _FakeWhisperService extends WhisperService {
   bool get isModelLoaded => true;
 
   @override
-  Future<void> loadModel() async {}
+  Future<void> loadModel({WhisperModelConfig? config}) async {}
 
   @override
   void feedAudio(List<double> samples) {}
@@ -62,22 +64,32 @@ class _FakeWhisperService extends WhisperService {
   void dispose() {}
 }
 
+class _FakeCloudTranscriptionService extends CloudTranscriptionService {
+  @override
+  Future<String> transcribe(List<double> samples) async => '';
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
 
 @GenerateMocks([ReportService])
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   late MockReportService mockReportService;
   late _FakeAudioService fakeAudioService;
   late _FakeWhisperService fakeWhisperService;
   late Directory tempDir;
   late RecordingStorageService storageService;
 
+  late _FakeCloudTranscriptionService fakeCloudService;
+
   setUp(() async {
+    SharedPreferences.setMockInitialValues({});
     mockReportService = MockReportService();
     fakeAudioService = _FakeAudioService();
     fakeWhisperService = _FakeWhisperService();
+    fakeCloudService = _FakeCloudTranscriptionService();
     tempDir = await Directory.systemTemp.createTemp('session_test_');
     storageService = RecordingStorageService(
       baseDirOverride: () async => tempDir,
@@ -97,6 +109,10 @@ void main() {
         audioServiceProvider.overrideWithValue(fakeAudioService),
         whisperServiceProvider.overrideWithValue(fakeWhisperService),
         recordingStorageServiceProvider.overrideWithValue(storageService),
+        cloudTranscriptionServiceProvider
+            .overrideWithValue(fakeCloudService),
+        transcriptionModelProvider.overrideWith(
+            (ref) => TranscriptionModelNotifier()),
       ],
     );
   }
@@ -173,6 +189,10 @@ void main() {
         audioServiceProvider.overrideWithValue(brokenAudio),
         whisperServiceProvider.overrideWithValue(fakeWhisperService),
         recordingStorageServiceProvider.overrideWithValue(storageService),
+        cloudTranscriptionServiceProvider
+            .overrideWithValue(fakeCloudService),
+        transcriptionModelProvider.overrideWith(
+            (ref) => TranscriptionModelNotifier()),
       ],
     );
     addTearDown(container.dispose);

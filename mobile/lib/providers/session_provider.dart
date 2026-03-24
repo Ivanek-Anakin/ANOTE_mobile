@@ -9,6 +9,7 @@ import '../config/constants.dart';
 import '../models/recording_entry.dart';
 import '../models/session_state.dart';
 import '../services/audio_service.dart';
+import '../services/cloud_transcription_service.dart';
 import '../services/recording_storage_service.dart';
 import '../services/report_service.dart';
 import '../services/whisper_service.dart';
@@ -25,6 +26,36 @@ final audioServiceProvider = Provider<AudioService>((ref) {
 final whisperServiceProvider = Provider<WhisperService>((ref) {
   return WhisperService();
 });
+
+final cloudTranscriptionServiceProvider =
+    Provider<CloudTranscriptionService>((ref) {
+  return CloudTranscriptionService();
+});
+
+/// Provides the persisted transcription model preference.
+final transcriptionModelProvider =
+    StateNotifierProvider<TranscriptionModelNotifier, TranscriptionModel>((ref) {
+  return TranscriptionModelNotifier();
+});
+
+class TranscriptionModelNotifier extends StateNotifier<TranscriptionModel> {
+  TranscriptionModelNotifier() : super(TranscriptionModel.small) {
+    _load();
+  }
+
+  Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString(AppConstants.transcriptionModelPrefKey);
+    state = TranscriptionModelApi.fromString(value);
+  }
+
+  Future<void> setModel(TranscriptionModel model) async {
+    state = model;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+        AppConstants.transcriptionModelPrefKey, model.prefValue);
+  }
+}
 
 /// Provides the persisted visit type preference.
 final visitTypeProvider =
@@ -433,13 +464,38 @@ class SessionNotifier extends StateNotifier<SessionState> {
       await _releaseWakeLockAndForeground();
       if (!mounted) return;
 
+      final selectedModel = _ref.read(transcriptionModelProvider);
+
       WhisperService.debugLog('[SessionNotifier] Running transcribeFull...');
       String fullTranscript = '';
-      try {
-        fullTranscript = await _whisperService.transcribeFull();
-      } catch (e) {
-        WhisperService.debugLog('[SessionNotifier] transcribeFull error: $e');
-        // Fall back to the live transcript instead of crashing
+
+      if (selectedModel == TranscriptionModel.cloud) {
+        // Cloud mode: use Azure OpenAI Whisper API
+        try {
+          final cloudService = _ref.read(cloudTranscriptionServiceProvider);
+          // Get raw audio from whisper service's buffer via transcribeFull
+          // The whisper service was still collecting audio for live preview
+          fullTranscript = await cloudService.transcribe(
+              _whisperService.getRawAudioBuffer());
+        } catch (e) {
+          WhisperService.debugLog(
+              '[SessionNotifier] Cloud transcription error: $e');
+          // Fall back to on-device transcription
+          try {
+            fullTranscript = await _whisperService.transcribeFull();
+          } catch (e2) {
+            WhisperService.debugLog(
+                '[SessionNotifier] On-device fallback error: $e2');
+          }
+        }
+      } else {
+        try {
+          fullTranscript = await _whisperService.transcribeFull();
+        } catch (e) {
+          WhisperService.debugLog(
+              '[SessionNotifier] transcribeFull error: $e');
+          // Fall back to the live transcript instead of crashing
+        }
       }
       if (!mounted) return;
 

@@ -11,6 +11,31 @@ import 'package:sherpa_onnx/sherpa_onnx.dart' as sherpa;
 
 import 'whisper_isolate_worker.dart';
 
+/// Configuration for a Whisper model variant.
+class WhisperModelConfig {
+  final String dirName;
+  final String encoderFile;
+  final String decoderFile;
+  final String tokensFile;
+  final String baseUrl;
+  final String displayName;
+  final String variant;
+  final int sizeMB;
+  final Map<String, int> expectedMinSizes;
+
+  const WhisperModelConfig({
+    required this.dirName,
+    required this.encoderFile,
+    required this.decoderFile,
+    required this.tokensFile,
+    required this.baseUrl,
+    required this.displayName,
+    required this.variant,
+    required this.sizeMB,
+    required this.expectedMinSizes,
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Phase 2: Top-level function for one-shot isolate transcription.
 // Kept as a standalone utility; Phase 3's persistent worker handles
@@ -205,28 +230,56 @@ class WhisperService {
   /// Overlap samples re-included in each window to preserve boundary words.
   static const int _overlapSamples = 3 * _sampleRate; // 3 seconds
 
-  /// Model directory name for sherpa_onnx whisper model files.
-  static const String _modelDirName = 'sherpa-onnx-whisper-small';
-
-  /// Human-readable model name (for UI display).
-  static const String modelDisplayName = 'Whisper Small';
-
-  /// Model variant/quantization info.
-  static const String modelVariant = 'INT8 (sherpa-onnx)';
-
   /// URL for Silero VAD model download.
   static const String _vadModelUrl =
       'https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/silero_vad.onnx';
 
-  /// Expected minimum file sizes in bytes for integrity verification.
-  /// Encoder ~120MB, Decoder ~130MB, Tokens ~100KB, VAD ~600KB.
-  /// We use conservative minimums (50% of typical) to catch truncated files.
-  static const Map<String, int> _expectedMinSizes = {
-    'small-encoder.int8.onnx': 50 * 1024 * 1024, // at least 50 MB
-    'small-decoder.int8.onnx': 50 * 1024 * 1024, // at least 50 MB
-    'small-tokens.txt': 10 * 1024, // at least 10 KB
-    'silero_vad.onnx': 300 * 1024, // at least 300 KB
-  };
+  /// Model configuration registry.
+  static const WhisperModelConfig smallConfig = WhisperModelConfig(
+    dirName: 'sherpa-onnx-whisper-small',
+    encoderFile: 'small-encoder.int8.onnx',
+    decoderFile: 'small-decoder.int8.onnx',
+    tokensFile: 'small-tokens.txt',
+    baseUrl:
+        'https://huggingface.co/csukuangfj/sherpa-onnx-whisper-small/resolve/main',
+    displayName: 'Whisper Small',
+    variant: 'INT8 (sherpa-onnx)',
+    sizeMB: 358,
+    expectedMinSizes: {
+      'small-encoder.int8.onnx': 50 * 1024 * 1024,
+      'small-decoder.int8.onnx': 50 * 1024 * 1024,
+      'small-tokens.txt': 10 * 1024,
+    },
+  );
+
+  static const WhisperModelConfig turboConfig = WhisperModelConfig(
+    dirName: 'sherpa-onnx-whisper-large-v3-turbo',
+    encoderFile: 'large-v3-turbo-encoder.int8.onnx',
+    decoderFile: 'large-v3-turbo-decoder.int8.onnx',
+    tokensFile: 'large-v3-turbo-tokens.txt',
+    baseUrl:
+        'https://huggingface.co/csukuangfj/sherpa-onnx-whisper-large-v3-turbo/resolve/main',
+    displayName: 'Whisper Large-v3-Turbo',
+    variant: 'INT8 (sherpa-onnx)',
+    sizeMB: 860,
+    expectedMinSizes: {
+      'large-v3-turbo-encoder.int8.onnx': 200 * 1024 * 1024,
+      'large-v3-turbo-decoder.int8.onnx': 50 * 1024 * 1024,
+      'large-v3-turbo-tokens.txt': 10 * 1024,
+    },
+  );
+
+  /// Current model configuration.
+  WhisperModelConfig _modelConfig = smallConfig;
+
+  /// Human-readable model name (for UI display).
+  static String get modelDisplayName => smallConfig.displayName;
+
+  /// Model variant/quantization info.
+  static String get modelVariant => smallConfig.variant;
+
+  /// Get the current model config.
+  WhisperModelConfig get modelConfig => _modelConfig;
 
   // ---------------------------------------------------------------------------
   // Worker isolate state (Phase 3 — production mode)
@@ -284,6 +337,11 @@ class WhisperService {
   /// Whether the model is ready for transcription.
   bool get isModelLoaded => _transcriber != null || _workerSendPort != null;
 
+  /// Get the raw audio buffer for cloud transcription (test mode only).
+  /// In production mode, the raw buffer lives in the worker isolate;
+  /// the main isolate only has the test-mode local buffer.
+  List<double> getRawAudioBuffer() => List<double>.unmodifiable(_rawAudioBuffer);
+
   /// Production constructor — call [loadModel] before use.
   WhisperService();
 
@@ -298,11 +356,18 @@ class WhisperService {
 
   /// Check whether all model files exist and meet minimum size requirements.
   /// Returns true if model is ready to use, false if download is needed.
-  static Future<bool> isModelDownloaded() async {
+  static Future<bool> isModelDownloaded({WhisperModelConfig? config}) async {
     if (kIsWeb) return true;
+    final c = config ?? smallConfig;
     final Directory docsDir = await getApplicationDocumentsDirectory();
-    final String modelDir = '${docsDir.path}/$_modelDirName';
-    for (final entry in _expectedMinSizes.entries) {
+    final String modelDir = '${docsDir.path}/${c.dirName}';
+    // Check VAD model separately
+    final vadFile = File('$modelDir/silero_vad.onnx');
+    if (!await vadFile.exists() || await vadFile.length() < 300 * 1024) {
+      debugLog('[WhisperService] VAD file missing or too small');
+      return false;
+    }
+    for (final entry in c.expectedMinSizes.entries) {
       final file = File('$modelDir/${entry.key}');
       if (!await file.exists()) {
         debugLog('[WhisperService] File missing: ${entry.key}');
@@ -319,10 +384,11 @@ class WhisperService {
   }
 
   /// Delete all model files (corrupted, partial, or outdated).
-  static Future<void> deleteModelFiles() async {
+  static Future<void> deleteModelFiles({WhisperModelConfig? config}) async {
     if (kIsWeb) return;
+    final c = config ?? smallConfig;
     final Directory docsDir = await getApplicationDocumentsDirectory();
-    final dir = Directory('${docsDir.path}/$_modelDirName');
+    final dir = Directory('${docsDir.path}/${c.dirName}');
     if (dir.existsSync()) {
       debugLog('[WhisperService] Deleting model directory: ${dir.path}');
       dir.deleteSync(recursive: true);
@@ -333,7 +399,17 @@ class WhisperService {
   /// Returns true if all files are intact, false if re-download is needed.
   Future<bool> _verifyAndCleanModel(String modelDir) async {
     bool allValid = true;
-    for (final entry in _expectedMinSizes.entries) {
+    // Verify VAD model
+    final vadFile = File('$modelDir/silero_vad.onnx');
+    if (!await vadFile.exists()) {
+      debugLog('[WhisperService] Missing: silero_vad.onnx');
+      allValid = false;
+    } else if (await vadFile.length() < 300 * 1024) {
+      debugLog('[WhisperService] Corrupted silero_vad.onnx. Deleting.');
+      await vadFile.delete();
+      allValid = false;
+    }
+    for (final entry in _modelConfig.expectedMinSizes.entries) {
       final file = File('$modelDir/${entry.key}');
       if (!await file.exists()) {
         debugLog('[WhisperService] Missing: ${entry.key}');
@@ -376,20 +452,23 @@ class WhisperService {
   /// On web this sets a no-op transcriber — on-device Whisper is not supported.
   /// On native platforms, spawns a persistent worker isolate that owns all
   /// sherpa_onnx FFI resources.
-  Future<void> loadModel() async {
+  Future<void> loadModel({WhisperModelConfig? config}) async {
     if (kIsWeb) {
       _transcriber = (_) async => '';
       return;
     }
 
-    debugLog('[WhisperService] loadModel() starting...');
+    if (config != null) _modelConfig = config;
+
+    debugLog('[WhisperService] loadModel() starting '
+        '(${_modelConfig.displayName})...');
 
     final Directory docsDir = await getApplicationDocumentsDirectory();
-    final String modelDir = '${docsDir.path}/$_modelDirName';
+    final String modelDir = '${docsDir.path}/${_modelConfig.dirName}';
 
-    _encoderPath = '$modelDir/small-encoder.int8.onnx';
-    _decoderPath = '$modelDir/small-decoder.int8.onnx';
-    _tokensPath = '$modelDir/small-tokens.txt';
+    _encoderPath = '$modelDir/${_modelConfig.encoderFile}';
+    _decoderPath = '$modelDir/${_modelConfig.decoderFile}';
+    _tokensPath = '$modelDir/${_modelConfig.tokensFile}';
     _vadModelPath = '$modelDir/silero_vad.onnx';
     _hotwordsFilePath = '$modelDir/hotwords_cs_medical.txt';
 
@@ -400,7 +479,8 @@ class WhisperService {
     final bool intact = await _verifyAndCleanModel(modelDir);
     if (!intact) {
       debugLog('[WhisperService] Model files incomplete, downloading...');
-      await _downloadModel(modelDir, onProgress: _onDownloadProgress);
+      await _downloadModel(modelDir,
+          config: _modelConfig, onProgress: _onDownloadProgress);
       // Verify again after download
       final bool ok = await _verifyAndCleanModel(modelDir);
       if (!ok) {
@@ -447,7 +527,7 @@ class WhisperService {
     } catch (e) {
       debugLog('[WhisperService] Worker init FAILED: $e — killing isolate.');
       _killWorker();
-      await deleteModelFiles();
+      await deleteModelFiles(config: _modelConfig);
       throw Exception(
           'Model files corrupted, deleted. Restart to re-download. Error: $e');
     }
@@ -547,6 +627,19 @@ class WhisperService {
     if (!_transcriptController.isClosed) {
       _transcriptController.close();
     }
+  }
+
+  /// Switch to a different on-device model. Kills the current worker
+  /// isolate and respawns with the new model config.
+  Future<void> switchModel(WhisperModelConfig config) async {
+    _killWorker();
+    _speechBuffer.clear();
+    _rawAudioBuffer.clear();
+    _lastSpeechBoundary = 0;
+    _previousTailText = '';
+    _fullTranscript = '';
+    _isTranscribing = false;
+    await loadModel(config: config);
   }
 
   /// Terminate the worker isolate and clean up communication channels.
@@ -656,11 +749,12 @@ class WhisperService {
     _onDownloadProgress = cb;
   }
 
-  /// Download whisper small model files from HuggingFace.
+  /// Download model files from HuggingFace.
   /// Downloads to a temp file first, then renames — so partial downloads
   /// never leave a "valid-looking" file on disk.
   static Future<void> _downloadModel(
     String modelDir, {
+    required WhisperModelConfig config,
     void Function(String fileName, double progress)? onProgress,
   }) async {
     final dir = Directory(modelDir);
@@ -668,13 +762,16 @@ class WhisperService {
       dir.createSync(recursive: true);
     }
 
-    const baseUrl =
-        'https://huggingface.co/csukuangfj/sherpa-onnx-whisper-small/resolve/main';
     final files = {
-      'small-encoder.int8.onnx': '$baseUrl/small-encoder.int8.onnx',
-      'small-decoder.int8.onnx': '$baseUrl/small-decoder.int8.onnx',
-      'small-tokens.txt': '$baseUrl/small-tokens.txt',
+      config.encoderFile: '${config.baseUrl}/${config.encoderFile}',
+      config.decoderFile: '${config.baseUrl}/${config.decoderFile}',
+      config.tokensFile: '${config.baseUrl}/${config.tokensFile}',
       'silero_vad.onnx': _vadModelUrl,
+    };
+
+    final expectedMinSizes = <String, int>{
+      ...config.expectedMinSizes,
+      'silero_vad.onnx': 300 * 1024,
     };
 
     final httpClient = HttpClient();
@@ -686,7 +783,7 @@ class WhisperService {
 
         // Skip if already downloaded and valid size
         if (file.existsSync()) {
-          final minSize = _expectedMinSizes[entry.key] ?? 0;
+          final minSize = expectedMinSizes[entry.key] ?? 0;
           if (file.lengthSync() >= minSize) {
             debugLog('[WhisperService] ${entry.key} already valid, skipping.');
             fileIndex++;
@@ -729,7 +826,7 @@ class WhisperService {
 
               // Verify downloaded size before renaming
               final downloadedSize = tmpFile.lengthSync();
-              final minSize = _expectedMinSizes[entry.key] ?? 0;
+              final minSize = expectedMinSizes[entry.key] ?? 0;
               if (downloadedSize < minSize) {
                 tmpFile.deleteSync();
                 throw Exception(

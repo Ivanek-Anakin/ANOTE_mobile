@@ -84,7 +84,7 @@ class FakeWhisperService extends WhisperService {
   bool get isModelLoaded => true;
 
   @override
-  Future<void> loadModel() async {
+  Future<void> loadModel({WhisperModelConfig? config}) async {
     // No-op: skip 250MB model download.
   }
 

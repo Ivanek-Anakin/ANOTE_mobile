@@ -32,7 +32,7 @@ class _FakeWhisperService extends WhisperService {
   @override
   bool get isModelLoaded => true;
   @override
-  Future<void> loadModel() async {}
+  Future<void> loadModel({WhisperModelConfig? config}) async {}
   @override
   void feedAudio(List<double> samples) {}
   @override

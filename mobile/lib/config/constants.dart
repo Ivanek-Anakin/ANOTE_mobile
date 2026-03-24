@@ -9,4 +9,7 @@ class AppConstants {
   static const String secureStorageKeyToken = 'api_bearer_token';
   static const String secureStorageKeyUrl = 'backend_url';
   static const String visitTypePrefKey = 'visit_type';
+  static const String transcriptionModelPrefKey = 'transcription_model';
+  static const String secureStorageKeyAzureWhisperUrl = 'azure_whisper_url';
+  static const String secureStorageKeyAzureWhisperKey = 'azure_whisper_key';
 }

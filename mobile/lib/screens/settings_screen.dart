@@ -6,7 +6,6 @@ import '../config/constants.dart';
 import '../models/session_state.dart';
 import '../providers/session_provider.dart';
 import '../services/report_service.dart';
-import '../services/whisper_service.dart';
 import 'home_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -20,6 +19,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   final _storage = const FlutterSecureStorage();
   final _urlController = TextEditingController();
   final _tokenController = TextEditingController();
+  final _azureWhisperUrlController = TextEditingController();
+  final _azureWhisperKeyController = TextEditingController();
 
   bool _isTestingConnection = false;
   String? _connectionStatus;
@@ -35,11 +36,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _loadSettings() async {
     final url = await _storage.read(key: AppConstants.secureStorageKeyUrl);
     final token = await _storage.read(key: AppConstants.secureStorageKeyToken);
+    final azureUrl =
+        await _storage.read(key: AppConstants.secureStorageKeyAzureWhisperUrl);
+    final azureKey =
+        await _storage.read(key: AppConstants.secureStorageKeyAzureWhisperKey);
     setState(() {
       _urlController.text =
           (url?.isEmpty ?? true) ? AppConstants.defaultBackendUrl : url!;
       _tokenController.text =
           (token?.isEmpty ?? true) ? AppConstants.defaultToken : token!;
+      _azureWhisperUrlController.text = azureUrl ?? '';
+      _azureWhisperKeyController.text = azureKey ?? '';
     });
   }
 
@@ -51,6 +58,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     await _storage.write(
       key: AppConstants.secureStorageKeyToken,
       value: _tokenController.text.trim(),
+    );
+    await _storage.write(
+      key: AppConstants.secureStorageKeyAzureWhisperUrl,
+      value: _azureWhisperUrlController.text.trim(),
+    );
+    await _storage.write(
+      key: AppConstants.secureStorageKeyAzureWhisperKey,
+      value: _azureWhisperKeyController.text.trim(),
     );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -79,6 +94,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   void dispose() {
     _urlController.dispose();
     _tokenController.dispose();
+    _azureWhisperUrlController.dispose();
+    _azureWhisperKeyController.dispose();
     super.dispose();
   }
 
@@ -208,13 +225,83 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 style: theme.textTheme.titleMedium
                     ?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
-            _InfoRow(label: 'Model', value: WhisperService.modelDisplayName),
-            const SizedBox(height: 4),
-            _InfoRow(label: 'Varianta', value: WhisperService.modelVariant),
-            const SizedBox(height: 4),
+            Consumer(
+              builder: (context, ref, _) {
+                final currentModel = ref.watch(transcriptionModelProvider);
+                final sessionState = ref.watch(sessionProvider);
+                final isRecording =
+                    sessionState.status == RecordingStatus.recording;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SegmentedButton<TranscriptionModel>(
+                      segments: [
+                        ButtonSegment(
+                          value: TranscriptionModel.small,
+                          label: Text(TranscriptionModel.small.label),
+                        ),
+                        ButtonSegment(
+                          value: TranscriptionModel.turbo,
+                          label: Text(TranscriptionModel.turbo.label),
+                        ),
+                        ButtonSegment(
+                          value: TranscriptionModel.cloud,
+                          label: Text(TranscriptionModel.cloud.label),
+                        ),
+                      ],
+                      selected: {currentModel},
+                      onSelectionChanged: isRecording
+                          ? null
+                          : (models) {
+                              final model = models.first;
+                              ref
+                                  .read(transcriptionModelProvider.notifier)
+                                  .setModel(model);
+                            },
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      currentModel.description,
+                      style: theme.textTheme.bodySmall,
+                    ),
+                    if (currentModel == TranscriptionModel.cloud) ...[
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: _azureWhisperUrlController,
+                        decoration: const InputDecoration(
+                          labelText: 'Azure Whisper URL',
+                          hintText:
+                              'https://{resource}.openai.azure.com/openai/deployments/{deployment}/audio/transcriptions?api-version=2024-06-01',
+                          border: OutlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.url,
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: _azureWhisperKeyController,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Azure Whisper API Key',
+                          hintText: 'Váš API klíč',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ],
+                    if (isRecording)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          'Nelze změnit model během nahrávání.',
+                          style: theme.textTheme.bodySmall
+                              ?.copyWith(color: theme.colorScheme.error),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 8),
             const _InfoRow(label: 'Jazyk', value: 'čeština (cs)'),
-            const SizedBox(height: 4),
-            const _InfoRow(label: 'Inference', value: 'on-device / CPU'),
             const Divider(height: 32),
             Text('O aplikaci',
                 style: theme.textTheme.titleMedium
