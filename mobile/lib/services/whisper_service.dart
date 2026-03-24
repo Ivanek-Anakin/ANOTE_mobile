@@ -291,6 +291,7 @@ class WhisperService {
   StreamSubscription<dynamic>? _workerSubscription;
   Completer<void>? _initCompleter;
   Completer<String>? _transcribeFullCompleter;
+  Completer<String>? _transcribeTailCompleter;
 
   // ---------------------------------------------------------------------------
   // Local state (test mode via withTranscriber — no worker spawned)
@@ -599,6 +600,42 @@ class WhisperService {
     return result;
   }
 
+  /// Transcribe using incremental chunks already decoded during recording,
+  /// plus the remaining tail that hasn't been finalized yet.
+  ///
+  /// In production mode, the worker isolate tracked finalized chunk
+  /// boundaries during recording. Only the un-finalized tail needs decoding
+  /// now, making this much faster than [transcribeFull] for long recordings.
+  ///
+  /// In test mode, falls back to transcribing the full raw audio buffer.
+  Future<String> transcribeTail() async {
+    if (_workerSendPort != null) {
+      debugLog('[WhisperService] transcribeTail → sending to worker');
+      _transcribeTailCompleter = Completer<String>();
+      _workerSendPort!.send(<String, dynamic>{'cmd': 'transcribeTail'});
+      try {
+        final result = await _transcribeTailCompleter!.future;
+        _transcribeTailCompleter = null;
+        debugLog(
+            '[WhisperService] transcribeTail done: ${result.length} chars');
+        return result;
+      } catch (e) {
+        _transcribeTailCompleter = null;
+        debugLog('[WhisperService] transcribeTail error: $e');
+        rethrow;
+      }
+    }
+
+    // Test mode: no incremental chunking, transcribe everything
+    if (_rawAudioBuffer.isEmpty) return '';
+    debugLog('[WhisperService] transcribeTail (local): '
+        '${_rawAudioBuffer.length} raw samples '
+        '(${(_rawAudioBuffer.length / _sampleRate).toStringAsFixed(1)}s)');
+    final result = await _runTranscriber(_rawAudioBuffer);
+    debugLog('[WhisperService] transcribeTail done: ${result.length} chars');
+    return result;
+  }
+
   /// Clear all audio buffers and accumulated transcript state.
   void reset() {
     if (_workerSendPort != null) {
@@ -660,6 +697,7 @@ class WhisperService {
     _mainReceivePort = null;
     _initCompleter = null;
     _transcribeFullCompleter = null;
+    _transcribeTailCompleter = null;
   }
 
   /// Handle messages coming back from the worker isolate.
@@ -682,6 +720,13 @@ class WhisperService {
       case 'transcribeFullError':
         _transcribeFullCompleter?.completeError(
             Exception(message['error'] as String? ?? 'Unknown worker error'));
+      case 'transcribeTailDone':
+        _transcribeTailCompleter?.complete(message['text'] as String? ?? '');
+      case 'transcribeTailError':
+        _transcribeTailCompleter?.completeError(
+            Exception(message['error'] as String? ?? 'Unknown worker error'));
+      case 'finalChunkDone':
+        break; // informational — could expose for UI progress indicator
       case 'resetDone':
         break; // fire-and-forget
       case 'disposeDone':

@@ -21,6 +21,7 @@ import 'whisper_service.dart' show WhisperService;
 /// | `init`           | `encoderPath`, `decoderPath`, `tokensPath`, `vadModelPath`|
 /// | `feedAudio`      | `samples` (`TransferableTypedData`)                       |
 /// | `transcribeFull` | —                                                         |
+/// | `transcribeTail` | —                                                         |
 /// | `reset`          | —                                                         |
 /// | `dispose`        | —                                                         |
 ///
@@ -36,6 +37,9 @@ import 'whisper_service.dart' show WhisperService;
 /// | `transcript`           | `text` (String)          |
 /// | `transcribeFullDone`   | `text` (String)          |
 /// | `transcribeFullError`  | `error` (String)         |
+/// | `transcribeTailDone`   | `text` (String)          |
+/// | `transcribeTailError`  | `error` (String)         |
+/// | `finalChunkDone`       | `chunkIndex` (int)       |
 /// | `resetDone`            | —                        |
 /// | `disposeDone`          | —                        |
 void whisperWorkerEntryPoint(SendPort mainSendPort) {
@@ -61,6 +65,16 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
   String previousTailText = '';
   String fullTranscript = '';
   bool isTranscribing = false;
+
+  // Phase 4: Incremental final-quality chunk state
+  /// Start index in speechBuffer for the next incremental final chunk.
+  int finalizedBoundary = 0;
+
+  /// Transcription results from completed incremental chunks.
+  final List<String> finalizedChunks = [];
+
+  /// Tail text of the last finalized chunk (for overlap deduplication).
+  String previousChunkTail = '';
 
   const int sampleRate = 16000;
   const int windowInterval = 5 * sampleRate; // 5 s (matches Phase 1)
@@ -282,6 +296,60 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
     return result;
   }
 
+  /// Phase 4: Transcribe only the un-finalized tail of the speech buffer,
+  /// then concatenate with already-finalized chunks.
+  ///
+  /// This is the fast path called after the user stops recording. Only the
+  /// remaining tail (typically < 30s) needs decoding — all earlier chunks
+  /// were already transcribed incrementally during recording.
+  String doTranscribeTail() {
+    const int chunkSize = 30 * sampleRate;
+    const int overlap = 5 * sampleRate;
+
+    String tailText = '';
+    if (finalizedBoundary < speechBuffer.length) {
+      final tail = speechBuffer.sublist(finalizedBoundary);
+      workerLog('[Worker] transcribeTail: ${tail.length} samples '
+          '(${(tail.length / sampleRate).toStringAsFixed(1)}s) remaining, '
+          '${finalizedChunks.length} finalized chunks');
+
+      if (tail.length <= chunkSize) {
+        final text = transcribe(tail);
+        tailText = WhisperService.removeOverlap(previousChunkTail, text);
+      } else {
+        // Tail longer than one chunk — split into sub-chunks
+        final parts = <String>[];
+        String prevTail = previousChunkTail;
+        for (int start = 0;
+            start < tail.length;
+            start += chunkSize - overlap) {
+          final int end = min(start + chunkSize, tail.length);
+          final chunk = tail.sublist(start, end);
+          try {
+            final text = transcribe(chunk);
+            if (text.isEmpty) continue;
+            final deduped = WhisperService.removeOverlap(prevTail, text);
+            if (deduped.isNotEmpty) parts.add(deduped);
+            prevTail = WhisperService.lastWords(text, 20);
+          } catch (e) {
+            workerLog('[Worker] transcribeTail chunk error: $e');
+          }
+        }
+        tailText = parts.join(' ');
+      }
+    } else {
+      workerLog('[Worker] transcribeTail: no tail samples, '
+          '${finalizedChunks.length} finalized chunks');
+    }
+
+    final allParts = [...finalizedChunks];
+    if (tailText.isNotEmpty) allParts.add(tailText);
+    final result = allParts.join(' ');
+    workerLog('[Worker] transcribeTail done: '
+        '${finalizedChunks.length} chunks + tail = ${result.length} chars');
+    return result;
+  }
+
   // ---------------------------------------------------------------------------
   // Message loop
   // ---------------------------------------------------------------------------
@@ -403,16 +471,52 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
           if (speechBuffer.length > maxSpeechBufferSamples) {
             final excess = speechBuffer.length - maxSpeechBufferSamples;
             speechBuffer.removeRange(0, excess);
-            // Adjust lastSpeechBoundary to account for removed samples.
+            // Adjust boundaries to account for removed samples.
             lastSpeechBoundary = max(0, lastSpeechBoundary - excess);
+            finalizedBoundary = max(0, finalizedBoundary - excess);
             workerLog('[Worker] speechBuffer capped: removed $excess '
                 'oldest samples (now ${speechBuffer.length})');
           }
 
-          // Trigger transcription when enough speech has accumulated
+          // Trigger live transcription when enough speech has accumulated
           if (!isTranscribing &&
               speechBuffer.length - lastSpeechBoundary >= windowInterval) {
             transcribeWindow();
+          }
+
+          // Phase 4: Incremental final-quality chunk during recording.
+          // Only attempt when not already transcribing (live window has
+          // priority) and enough new speech has accumulated.
+          const int finalChunkSize = 30 * sampleRate;
+          const int finalOverlap = 5 * sampleRate;
+          if (!isTranscribing &&
+              speechBuffer.length - finalizedBoundary >= finalChunkSize) {
+            isTranscribing = true;
+            try {
+              final chunk = speechBuffer.sublist(
+                  finalizedBoundary, finalizedBoundary + finalChunkSize);
+              final text = transcribe(chunk);
+              if (text.isNotEmpty) {
+                final deduped =
+                    WhisperService.removeOverlap(previousChunkTail, text);
+                if (deduped.isNotEmpty) {
+                  finalizedChunks.add(deduped);
+                }
+                previousChunkTail = WhisperService.lastWords(text, 20);
+              }
+              finalizedBoundary += finalChunkSize - finalOverlap;
+              workerLog('[Worker] Finalized chunk ${finalizedChunks.length}: '
+                  'boundary now at '
+                  '${(finalizedBoundary / sampleRate).toStringAsFixed(1)}s');
+              mainSendPort.send({
+                'type': 'finalChunkDone',
+                'chunkIndex': finalizedChunks.length,
+              });
+            } catch (e) {
+              workerLog('[Worker] finalChunk error: $e');
+            } finally {
+              isTranscribing = false;
+            }
           }
         } catch (e) {
           workerLog('[Worker] feedAudio error: $e');
@@ -427,6 +531,15 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
               .send({'type': 'transcribeFullError', 'error': e.toString()});
         }
 
+      case 'transcribeTail':
+        try {
+          final result = doTranscribeTail();
+          mainSendPort.send({'type': 'transcribeTailDone', 'text': result});
+        } catch (e) {
+          mainSendPort
+              .send({'type': 'transcribeTailError', 'error': e.toString()});
+        }
+
       case 'reset':
         speechBuffer.clear();
         rawAudioBuffer.clear();
@@ -434,6 +547,9 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
         previousTailText = '';
         fullTranscript = '';
         isTranscribing = false;
+        finalizedBoundary = 0;
+        finalizedChunks.clear();
+        previousChunkTail = '';
         vad?.reset();
         mainSendPort.send({'type': 'resetDone'});
 
@@ -444,6 +560,7 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
         vad = null;
         speechBuffer.clear();
         rawAudioBuffer.clear();
+        finalizedChunks.clear();
         mainSendPort.send({'type': 'disposeDone'});
         workerReceivePort.close();
     }

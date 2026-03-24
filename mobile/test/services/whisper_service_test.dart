@@ -160,4 +160,46 @@ void main() {
       expect(await service.transcribeFull(), '');
     });
   });
+
+  group('WhisperService.transcribeTail', () {
+    test('calls transcriber with entire audio buffer in test mode', () async {
+      List<double>? capturedSamples;
+      final service = WhisperService.withTranscriber((samples) async {
+        capturedSamples = samples;
+        return 'tail transcript';
+      });
+
+      final input = List<double>.filled(32000, 0.1);
+      service.feedAudio(input);
+
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+
+      final result = await service.transcribeTail();
+      expect(result, 'tail transcript');
+      expect(capturedSamples?.length, input.length);
+    });
+
+    test('returns empty string when no audio has been fed', () async {
+      final service = WhisperService.withTranscriber((samples) async => 'x');
+      expect(await service.transcribeTail(), '');
+    });
+
+    test('returns same result as transcribeFull in test mode', () async {
+      final service = WhisperService.withTranscriber((samples) async {
+        return 'consistent transcript';
+      });
+
+      service.feedAudio(List<double>.filled(48000, 0.5));
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+
+      final fullResult = await service.transcribeFull();
+      // Reset and re-feed to get clean state
+      service.reset();
+      service.feedAudio(List<double>.filled(48000, 0.5));
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+
+      final tailResult = await service.transcribeTail();
+      expect(tailResult, fullResult);
+    });
+  });
 }

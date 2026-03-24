@@ -58,6 +58,9 @@ class _FakeWhisperService extends WhisperService {
   Future<String> transcribeFull() async => '';
 
   @override
+  Future<String> transcribeTail() async => '';
+
+  @override
   void reset() {}
 
   @override

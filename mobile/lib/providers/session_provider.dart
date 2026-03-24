@@ -490,10 +490,10 @@ class SessionNotifier extends StateNotifier<SessionState> {
         }
       } else {
         try {
-          fullTranscript = await _whisperService.transcribeFull();
+          fullTranscript = await _whisperService.transcribeTail();
         } catch (e) {
           WhisperService.debugLog(
-              '[SessionNotifier] transcribeFull error: $e');
+              '[SessionNotifier] transcribeTail error: $e');
           // Fall back to the live transcript instead of crashing
         }
       }
