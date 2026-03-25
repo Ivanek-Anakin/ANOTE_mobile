@@ -320,9 +320,7 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
         // Tail longer than one chunk — split into sub-chunks
         final parts = <String>[];
         String prevTail = previousChunkTail;
-        for (int start = 0;
-            start < tail.length;
-            start += chunkSize - overlap) {
+        for (int start = 0; start < tail.length; start += chunkSize - overlap) {
           final int end = min(start + chunkSize, tail.length);
           final chunk = tail.sublist(start, end);
           try {
@@ -380,7 +378,7 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
                   tailPaddings: -1,
                 ),
                 tokens: tokensPath,
-                numThreads: 4,
+                numThreads: 2,
                 debug: false,
                 provider: 'cpu',
               ),

@@ -341,7 +341,8 @@ class WhisperService {
   /// Get the raw audio buffer for cloud transcription (test mode only).
   /// In production mode, the raw buffer lives in the worker isolate;
   /// the main isolate only has the test-mode local buffer.
-  List<double> getRawAudioBuffer() => List<double>.unmodifiable(_rawAudioBuffer);
+  List<double> getRawAudioBuffer() =>
+      List<double>.unmodifiable(_rawAudioBuffer);
 
   /// Production constructor — call [loadModel] before use.
   WhisperService();
@@ -433,7 +434,8 @@ class WhisperService {
     final targetFile = File('$modelDir/hotwords_cs_medical.txt');
     if (await targetFile.exists()) return;
     try {
-      final data = await rootBundle.loadString('assets/hotwords_cs_medical.txt');
+      final data =
+          await rootBundle.loadString('assets/hotwords_cs_medical.txt');
       await targetFile.writeAsString(data);
       debugLog('[WhisperService] Hotwords file copied to model dir.');
     } catch (e) {

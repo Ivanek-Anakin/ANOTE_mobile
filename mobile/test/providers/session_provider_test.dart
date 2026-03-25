@@ -112,10 +112,9 @@ void main() {
         audioServiceProvider.overrideWithValue(fakeAudioService),
         whisperServiceProvider.overrideWithValue(fakeWhisperService),
         recordingStorageServiceProvider.overrideWithValue(storageService),
-        cloudTranscriptionServiceProvider
-            .overrideWithValue(fakeCloudService),
-        transcriptionModelProvider.overrideWith(
-            (ref) => TranscriptionModelNotifier()),
+        cloudTranscriptionServiceProvider.overrideWithValue(fakeCloudService),
+        transcriptionModelProvider
+            .overrideWith((ref) => TranscriptionModelNotifier()),
       ],
     );
   }
@@ -192,10 +191,9 @@ void main() {
         audioServiceProvider.overrideWithValue(brokenAudio),
         whisperServiceProvider.overrideWithValue(fakeWhisperService),
         recordingStorageServiceProvider.overrideWithValue(storageService),
-        cloudTranscriptionServiceProvider
-            .overrideWithValue(fakeCloudService),
-        transcriptionModelProvider.overrideWith(
-            (ref) => TranscriptionModelNotifier()),
+        cloudTranscriptionServiceProvider.overrideWithValue(fakeCloudService),
+        transcriptionModelProvider
+            .overrideWith((ref) => TranscriptionModelNotifier()),
       ],
     );
     addTearDown(container.dispose);

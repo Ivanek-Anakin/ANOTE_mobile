@@ -34,7 +34,8 @@ final cloudTranscriptionServiceProvider =
 
 /// Provides the persisted transcription model preference.
 final transcriptionModelProvider =
-    StateNotifierProvider<TranscriptionModelNotifier, TranscriptionModel>((ref) {
+    StateNotifierProvider<TranscriptionModelNotifier, TranscriptionModel>(
+        (ref) {
   return TranscriptionModelNotifier();
 });
 
@@ -102,6 +103,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
   StreamSubscription<List<double>>? _audioSubscription;
   StreamSubscription<String>? _transcriptSubscription;
   Timer? _reportTimer;
+  Timer? _preloadTimer;
 
   /// Tracks the transcript text that was last sent for report generation.
   /// When the timer fires, we skip the API call if the transcript hasn't
@@ -120,10 +122,13 @@ class SessionNotifier extends StateNotifier<SessionState> {
     this._storageService,
     this._ref,
   ) : super(const SessionState()) {
-    // Defer model preload to next event loop so the UI renders first.
-    // This prevents a native crash in sherpa_onnx from killing the app
-    // before any UI is visible.
-    Future.microtask(() => _preloadModel());
+    // Delay model preload so the UI fully renders and settles first.
+    // The sherpa-onnx model allocates ~560 MB of native memory which
+    // causes fatal memory pressure on low-RAM devices (4 GB Samsung S8)
+    // if it overlaps with the first frame render.
+    _preloadTimer = Timer(const Duration(seconds: 3), () {
+      if (mounted) _preloadModel();
+    });
   }
 
   /// Read the current visit type API string from SharedPreferences.
@@ -475,8 +480,8 @@ class SessionNotifier extends StateNotifier<SessionState> {
           final cloudService = _ref.read(cloudTranscriptionServiceProvider);
           // Get raw audio from whisper service's buffer via transcribeFull
           // The whisper service was still collecting audio for live preview
-          fullTranscript = await cloudService.transcribe(
-              _whisperService.getRawAudioBuffer());
+          fullTranscript = await cloudService
+              .transcribe(_whisperService.getRawAudioBuffer());
         } catch (e) {
           WhisperService.debugLog(
               '[SessionNotifier] Cloud transcription error: $e');
@@ -492,8 +497,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
         try {
           fullTranscript = await _whisperService.transcribeTail();
         } catch (e) {
-          WhisperService.debugLog(
-              '[SessionNotifier] transcribeTail error: $e');
+          WhisperService.debugLog('[SessionNotifier] transcribeTail error: $e');
           // Fall back to the live transcript instead of crashing
         }
       }
@@ -663,6 +667,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
 
   @override
   void dispose() {
+    _preloadTimer?.cancel();
     _reportTimer?.cancel();
     _audioSubscription?.cancel();
     _transcriptSubscription?.cancel();

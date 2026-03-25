@@ -26,10 +26,10 @@ class CloudTranscriptionService {
   /// [samples] — raw PCM Float32 samples at 16 kHz.
   /// Returns the transcribed text.
   Future<String> transcribe(List<double> samples) async {
-    final endpoint = await _storage.read(
-        key: AppConstants.secureStorageKeyAzureWhisperUrl);
-    final apiKey = await _storage.read(
-        key: AppConstants.secureStorageKeyAzureWhisperKey);
+    final endpoint =
+        await _storage.read(key: AppConstants.secureStorageKeyAzureWhisperUrl);
+    final apiKey =
+        await _storage.read(key: AppConstants.secureStorageKeyAzureWhisperKey);
 
     if (endpoint == null || endpoint.isEmpty) {
       throw Exception('Azure Whisper URL is not configured.');
@@ -43,7 +43,8 @@ class CloudTranscriptionService {
 
     // Build multipart request
     final uri = Uri.parse(endpoint);
-    final boundary = '----DartFormBoundary${DateTime.now().millisecondsSinceEpoch}';
+    final boundary =
+        '----DartFormBoundary${DateTime.now().millisecondsSinceEpoch}';
 
     final bodyParts = <List<int>>[];
 
@@ -77,8 +78,8 @@ class CloudTranscriptionService {
     try {
       final request = await httpClient.postUrl(uri);
       request.headers.set('api-key', apiKey);
-      request.headers.set(
-          'Content-Type', 'multipart/form-data; boundary=$boundary');
+      request.headers
+          .set('Content-Type', 'multipart/form-data; boundary=$boundary');
       request.contentLength = bodyBytes.length;
       request.add(bodyBytes);
 

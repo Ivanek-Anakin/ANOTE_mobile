@@ -122,7 +122,8 @@ void main() {
     test('sends correct headers and body format', () async {
       final fakeClient = _FakeHttpClient();
       final fakeStorage = _FakeSecureStorage({
-        'azure_whisper_url': 'https://test.openai.azure.com/openai/deployments/whisper/audio/transcriptions?api-version=2024-06-01',
+        'azure_whisper_url':
+            'https://test.openai.azure.com/openai/deployments/whisper/audio/transcriptions?api-version=2024-06-01',
         'azure_whisper_key': 'test-api-key-123',
       });
 
@@ -136,7 +137,8 @@ void main() {
 
       expect(result, 'test transcript');
       expect(fakeClient.capturedRequest, isNotNull);
-      expect(fakeClient.capturedRequest!.capturedHeaders['api-key'], 'test-api-key-123');
+      expect(fakeClient.capturedRequest!.capturedHeaders['api-key'],
+          'test-api-key-123');
       expect(
         fakeClient.capturedRequest!.capturedHeaders['Content-Type'],
         contains('multipart/form-data'),
