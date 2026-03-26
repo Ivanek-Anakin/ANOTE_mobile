@@ -524,15 +524,19 @@ class WhisperService {
     });
 
     try {
-      await _initCompleter!.future;
+      await _initCompleter!.future.timeout(const Duration(seconds: 30));
       _initCompleter = null;
       debugLog('[WhisperService] Worker isolate ready.');
+    } on TimeoutException {
+      debugLog('[WhisperService] Worker init TIMED OUT — killing isolate.');
+      _killWorker();
+      throw Exception('Model init timed out (30s). Device may be low on memory.');
     } catch (e) {
       debugLog('[WhisperService] Worker init FAILED: $e — killing isolate.');
       _killWorker();
-      await deleteModelFiles(config: _modelConfig);
-      throw Exception(
-          'Model files corrupted, deleted. Restart to re-download. Error: $e');
+      // Don't delete model files — they may be intact; the failure
+      // is likely transient (OOM / memory pressure).
+      throw Exception('Model init failed: $e');
     }
   }
 

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -122,12 +123,14 @@ class SessionNotifier extends StateNotifier<SessionState> {
     this._storageService,
     this._ref,
   ) : super(const SessionState()) {
-    // Delay model preload so the UI fully renders and settles first.
-    // The sherpa-onnx model allocates ~560 MB of native memory which
-    // causes fatal memory pressure on low-RAM devices (4 GB Samsung S8)
-    // if it overlaps with the first frame render.
-    _preloadTimer = Timer(const Duration(seconds: 3), () {
-      if (mounted) _preloadModel();
+    // Wait for the first frame to finish rendering, then add an extra
+    // delay before loading the ~560 MB sherpa-onnx model.  On low-RAM
+    // devices (4 GB Samsung S8) loading during the first frame causes a
+    // Skia "check(fUnicode)" crash from memory pressure.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _preloadTimer = Timer(const Duration(seconds: 2), () {
+        if (mounted) _preloadModel();
+      });
     });
   }
 
@@ -182,18 +185,18 @@ class SessionNotifier extends StateNotifier<SessionState> {
           '[SessionNotifier] Model load error (attempt $attempt): $e');
       if (!mounted) return;
 
-      // Auto-retry on network errors with exponential backoff
-      final bool isNetworkError = _isNetworkException(e);
-      if (isNetworkError && attempt < _maxPreloadRetries) {
+      // Auto-retry with exponential backoff on any recoverable error
+      // (network errors, OOM, native init failure).
+      if (attempt < _maxPreloadRetries) {
         final delay =
             Duration(seconds: 5 * (1 << (attempt - 1))); // 5s, 10s, 20s
         WhisperService.debugLog(
-            '[SessionNotifier] Network error — retrying in ${delay.inSeconds}s '
+            '[SessionNotifier] Preload error — retrying in ${delay.inSeconds}s '
             '(attempt ${attempt + 1}/$_maxPreloadRetries)...');
         state = state.copyWith(
           clearDownload: true,
           errorMessage:
-              'Stahování přerušeno. Automatický pokus za ${delay.inSeconds}s...',
+              'Načítání modelu selhalo. Automatický pokus za ${delay.inSeconds}s...',
         );
         _isPreloading = false;
         await Future<void>.delayed(delay);
@@ -203,6 +206,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
         return _preloadModel(attempt: attempt + 1);
       }
 
+      final bool isNetworkError = _isNetworkException(e);
       state = state.copyWith(
         clearDownload: true,
         errorMessage: isNetworkError
@@ -672,6 +676,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
     _audioSubscription?.cancel();
     _transcriptSubscription?.cancel();
     _releaseWakeLockAndForeground();
+    _whisperService.dispose();
     super.dispose();
   }
 }
