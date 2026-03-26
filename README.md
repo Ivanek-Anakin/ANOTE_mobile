@@ -260,6 +260,88 @@ dart run build_runner build --delete-conflicting-outputs
 flutter test
 ```
 
+### Integration Tests (E2E on Android Emulator)
+
+The project includes end-to-end integration tests that run on an Android emulator (or device). All heavy services (audio, whisper, report) are replaced with fakes — no microphone, model files, or network access required.
+
+#### Test Files
+
+| File | Tests | Description |
+|------|-------|-------------|
+| `integration_test/app_e2e_test.dart` | 15 | Full app flow — launch, recording, clear, settings, errors, theme, performance |
+| `integration_test/recording_history_test.dart` | 2 | Recording history — empty state, record→save→load→edit |
+
+#### What They Cover
+
+**app_e2e_test.dart:**
+- **App Launch** (3) — home screen UI elements, report placeholder, transcript hidden when empty
+- **Recording History** (1) — empty state message visible on home screen
+- **Recording Flow** (3) — start→live transcript→stop→report, stop button disabled when idle, record button disabled while recording
+- **Clear Session** (2) — clear resets transcript/report, clear button disabled when no content
+- **Settings Screen** (1) — navigate to settings, verify UI fields (URL, token, visit type), navigate back
+- **Performance** (2) — report generation under 10s, first frame render under 3s
+- **Error Handling** (1) — network error during report generation shows error message
+- **Theme Toggle** (1) — dark/light mode switch
+- **Transcript Panel** (1) — "Probíhá..." status badge during recording
+
+**recording_history_test.dart:**
+- **Full flow** (1) — empty state → record → stop → history entry appears with preview
+- **Load & edit** (1) — pre-populated entry loads transcript + report into panels
+
+#### Setup: Samsung Galaxy S8 Emulator (API 28)
+
+The emulator matches Jan Brož's physical device (Samsung Galaxy S8, Android 9, API 28).
+
+```bash
+# 1. Install API 28 system image (one-time)
+yes | sdkmanager "platforms;android-28" "system-images;android-28;google_apis;x86_64"
+
+# 2. Create AVD (one-time)
+echo "no" | avdmanager create avd \
+  --name "Samsung_Galaxy_S8_API28" \
+  --package "system-images;android-28;google_apis;x86_64" \
+  --device "pixel" --force
+
+# 3. (Optional) Customize config to match S8 hardware:
+#    ~/.android/avd/Samsung_Galaxy_S8_API28.avd/config.ini
+#    hw.lcd.density=320, hw.lcd.width=720, hw.lcd.height=1480, hw.ramSize=4096M
+
+# 4. Boot emulator
+$HOME/Library/Android/sdk/emulator/emulator -avd Samsung_Galaxy_S8_API28 -gpu host -no-audio &
+
+# 5. Wait for boot
+adb wait-for-device && adb shell 'while [ "$(getprop init.svc.bootanim)" != "stopped" ]; do sleep 2; done'
+```
+
+#### Run Tests
+
+```bash
+cd mobile
+
+# Run main e2e tests
+flutter test integration_test/app_e2e_test.dart -d emulator-5554
+
+# Run recording history tests
+flutter test integration_test/recording_history_test.dart -d emulator-5554
+```
+
+#### Results (26 March 2026 — Samsung Galaxy S8 emulator, API 28)
+
+```
+app_e2e_test.dart:            15/15 passed ✅
+recording_history_test.dart:   2/2  passed ✅
+```
+
+Performance metrics (on emulator, Intel Mac):
+
+| Metric | Time |
+|--------|------|
+| App launch | 2,313 ms |
+| First frame render | 268 ms |
+| Recording flow (record→stop→report) | 5,345 ms |
+| Report generation (fast fake) | 4,582 ms |
+| Settings navigation | 759 ms |
+
 ### Build for physical iPhone
 
 ```bash
