@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/widgets.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -122,17 +121,11 @@ class SessionNotifier extends StateNotifier<SessionState> {
     this._whisperService,
     this._storageService,
     this._ref,
-  ) : super(const SessionState()) {
-    // Wait for the first frame to finish rendering, then add an extra
-    // delay before loading the ~560 MB sherpa-onnx model.  On low-RAM
-    // devices (4 GB Samsung S8) loading during the first frame causes a
-    // Skia "check(fUnicode)" crash from memory pressure.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _preloadTimer = Timer(const Duration(seconds: 2), () {
-        if (mounted) _preloadModel();
-      });
-    });
-  }
+  ) : super(const SessionState());
+  // Model is loaded on-demand when the user starts recording.
+  // Preloading at startup causes SIGSEGV / SIGABRT on 4 GB devices
+  // because the 358 MB native allocation triggers the OOM killer which
+  // reclaims mapped Skia pages from the UI thread.
 
   /// Read the current visit type API string from SharedPreferences.
   Future<String> _getVisitTypeApi() async {

@@ -72,6 +72,12 @@ class _FakeWhisperService extends WhisperService {
   }
 
   @override
+  Future<String> transcribeTail() async {
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    return transcribeFullResult;
+  }
+
+  @override
   void reset() {
     transcribeFullResult = '';
   }
@@ -150,8 +156,10 @@ void main() {
 
     // 1. Scroll down to verify empty history state
     await tester.drag(
-        find.byType(SingleChildScrollView), const Offset(0, -300));
-    await tester.pumpAndSettle();
+        find.byType(SingleChildScrollView).first, const Offset(0, -300));
+    for (int i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
 
     expect(find.text('Historie nahrávek'), findsOneWidget);
     expect(find.text('Zatím žádné nahrávky.'), findsOneWidget);
@@ -160,23 +168,34 @@ void main() {
     fakeWhisper.transcribeFullResult =
         'Pacient přichází s bolestí hlavy trvající 3 dny.';
 
-    // Tap record
-    await tester.tap(find.byKey(const Key('btn_record')));
-    await tester.pumpAndSettle();
+    // Scroll back to record button and tap
+    final recordBtn = find.byKey(const Key('btn_record'));
+    await tester.ensureVisible(recordBtn);
+    await tester.tap(recordBtn);
+    // Don't use pumpAndSettle during recording — animations keep running
+    await tester.pump(const Duration(milliseconds: 200));
 
     // Emit a live transcript update
     fakeWhisper.emitTranscript('Pacient přichází s bolestí hlavy');
     await tester.pump(const Duration(milliseconds: 200));
 
-    // Tap stop
-    await tester.tap(find.byKey(const Key('btn_stop')));
-    // Wait for the stop pipeline: transcribeFull + generateReport + autoSave
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    // Tap stop — scroll into view first
+    final stopBtn = find.byKey(const Key('btn_stop'));
+    await tester.ensureVisible(stopBtn);
+    await tester.tap(stopBtn);
+    // Wait for the stop pipeline: transcribeTail + generateReport + autoSave
+    // Use pump loop instead of pumpAndSettle to avoid timeout from animations
+    for (int i = 0; i < 30; i++) {
+      await tester.pump(const Duration(milliseconds: 200));
+    }
 
     // 3. Scroll down to history — entry should now exist
     await tester.drag(
-        find.byType(SingleChildScrollView), const Offset(0, -300));
-    await tester.pumpAndSettle();
+        find.byType(SingleChildScrollView).first, const Offset(0, -300));
+    // Use pump loop to let the scroll settle
+    for (int i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
 
     // The empty state should be gone
     expect(find.text('Zatím žádné nahrávky.'), findsNothing);
@@ -202,21 +221,28 @@ void main() {
 
     // Scroll to history
     await tester.drag(
-        find.byType(SingleChildScrollView), const Offset(0, -300));
-    await tester.pumpAndSettle();
+        find.byType(SingleChildScrollView).first, const Offset(0, -300));
+    for (int i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
 
     // Verify entry is visible
     final itemFinder = find.byKey(const Key('history_item_pre-existing'));
     // Entry may need further scrolling
     if (itemFinder.evaluate().isEmpty) {
       await tester.drag(
-          find.byType(SingleChildScrollView), const Offset(0, -200));
-      await tester.pumpAndSettle();
+          find.byType(SingleChildScrollView).first, const Offset(0, -200));
+      for (int i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
     }
 
     // Tap to load
+    await tester.ensureVisible(itemFinder);
     await tester.tap(itemFinder);
-    await tester.pumpAndSettle();
+    for (int i = 0; i < 15; i++) {
+      await tester.pump(const Duration(milliseconds: 200));
+    }
 
     // Verify the transcript + report are loaded into the panels
     final container = ProviderScope.containerOf(

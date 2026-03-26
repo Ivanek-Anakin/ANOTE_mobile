@@ -11,11 +11,14 @@
 //
 // Test scenarios:
 // 1. App launches and shows the home screen with correct initial state.
-// 2. Demo mode: select a scenario, run it, verify transcript + report appear.
+// 2. Recording history: verify history list is present.
 // 3. Recording flow: start → simulated audio + transcript → stop → report.
 // 4. Clear/reset: after content is generated, clear everything.
 // 5. Settings navigation: open settings, verify UI elements, go back.
 // 6. Performance metrics: measure latency of key operations.
+// 7. Error handling: verify error messages on report generation failure.
+// 8. Theme toggle: verify dark/light mode switch.
+// 9. Transcript panel: verify status badge during recording.
 
 import 'dart:async';
 
@@ -74,7 +77,7 @@ class FakeWhisperService extends WhisperService {
   final StreamController<String> _transcriptCtrl =
       StreamController<String>.broadcast();
 
-  /// The text that [transcribeFull] will return.
+  /// The text that [transcribeFull] / [transcribeTail] will return.
   String transcribeFullResult = '';
 
   /// Count of feedAudio calls (for verification).
@@ -106,6 +109,12 @@ class FakeWhisperService extends WhisperService {
   @override
   Future<String> transcribeFull() async {
     // Simulate a small processing delay.
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    return transcribeFullResult;
+  }
+
+  @override
+  Future<String> transcribeTail() async {
     await Future<void>.delayed(const Duration(milliseconds: 50));
     return transcribeFullResult;
   }
@@ -280,8 +289,11 @@ void main() {
       // Report panel title
       expect(find.textContaining('Lékařská zpráva'), findsWidgets);
 
-      // Demo toggle button
-      expect(find.byKey(const Key('btn_demo_toggle')), findsOneWidget);
+      // Stop button
+      expect(find.byKey(const Key('btn_stop')), findsOneWidget);
+
+      // Clear button
+      expect(find.byKey(const Key('btn_clear')), findsOneWidget);
     });
 
     testWidgets('report panel shows placeholder text when empty',
@@ -304,69 +316,19 @@ void main() {
   });
 
   // -----------------------------------------------------------------------
-  // 2. Demo Mode Flow
+  // 2. Recording History (replaced Demo Mode)
   // -----------------------------------------------------------------------
-  group('Demo Mode', () {
-    testWidgets(
-        'select scenario, run demo, verify transcript and report appear',
-        (tester) async {
-      final fakes = await pumpTestApp(tester);
-
-      // Tap the demo toggle to expand the demo picker
-      await tester.tap(find.byKey(const Key('btn_demo_toggle')));
-      await tester.pumpAndSettle();
-
-      // Verify scenarios are listed — look for the first Czech scenario
-      expect(find.textContaining('Kardiální nehoda'), findsOneWidget);
-
-      // Scroll to make the scenario visible and tap it
-      final scenarioCard =
-          find.byKey(const Key('demo_scenario_cz_kardialni_nahoda'));
-      await tester.ensureVisible(scenarioCard);
-      await tester.tap(scenarioCard);
-      await tester.pumpAndSettle();
-
-      // The start button should now be enabled
-      final startBtn = find.byKey(const Key('btn_demo_start'));
-      expect(startBtn, findsOneWidget);
-
-      // Tap "Spustit simulaci" — scroll into view first (may be below fold)
-      await tester.ensureVisible(startBtn);
-      final sw = Stopwatch()..start();
-      await tester.tap(startBtn);
-
-      // Wait for the demo to complete (transcript load + report generation).
-      // FakeReportService has 100ms latency.
-      await tester.pumpAndSettle(const Duration(seconds: 2));
-      sw.stop();
-      recordMetric('demo_flow_total', sw.elapsed);
-
-      // Verify report was generated
-      expect(fakes.report.generateCallCount, equals(1));
-
-      // The report panel should contain generated report text
-      expect(find.textContaining('Anamneza'), findsWidgets);
-
-      // The transcript panel should now be visible with scenario content
-      expect(find.textContaining('Přepis řeči'), findsOneWidget);
-
-      // Status should return to idle
-      expect(find.textContaining('Připraveno'), findsOneWidget);
-    });
-
-    testWidgets('demo start button is disabled when no scenario selected',
+  group('Recording History', () {
+    testWidgets('recording history area shows empty state on home screen',
         (tester) async {
       await pumpTestApp(tester);
 
-      // Open demo picker
-      await tester.tap(find.byKey(const Key('btn_demo_toggle')));
-      await tester.pumpAndSettle();
-
-      // Find the start button — it should be present but disabled
-      final startBtn = find.byKey(const Key('btn_demo_start'));
-      expect(startBtn, findsOneWidget);
-      final button = tester.widget<FilledButton>(startBtn);
-      expect(button.onPressed, isNull);
+      // When no recordings exist, the empty state text should be visible
+      final emptyText =
+          find.textContaining('Zat\u00edm \u017e\u00e1dn\u00e9 nahr\u00e1vky');
+      await tester.scrollUntilVisible(emptyText, 200,
+          scrollable: find.byType(Scrollable).first);
+      expect(emptyText, findsOneWidget);
     });
   });
 
@@ -383,9 +345,13 @@ void main() {
       fakes.whisper.transcribeFullResult =
           'Pacient prichazi s bolesti na hrudi, tlak 140/90.';
 
+      // Scroll to record button (may be off-screen on small devices)
+      final recordBtn = find.byKey(const Key('btn_record'));
+      await tester.ensureVisible(recordBtn);
+
       // Tap record
       final sw = Stopwatch()..start();
-      await tester.tap(find.byKey(const Key('btn_record')));
+      await tester.tap(recordBtn);
       await tester.pump();
 
       // Status should change to recording
@@ -406,8 +372,10 @@ void main() {
       fakes.whisper.emitTranscript('Pacient prichazi s bolesti na hrudi');
       await tester.pump(const Duration(milliseconds: 100));
 
-      // Now stop recording
-      await tester.tap(find.byKey(const Key('btn_stop')));
+      // Scroll to stop button and tap
+      final stopBtn = find.byKey(const Key('btn_stop'));
+      await tester.ensureVisible(stopBtn);
+      await tester.tap(stopBtn);
       await tester.pumpAndSettle(const Duration(seconds: 2));
       sw.stop();
       recordMetric('recording_flow_total', sw.elapsed);
@@ -426,26 +394,35 @@ void main() {
       await pumpTestApp(tester);
 
       final stopBtn = find.byKey(const Key('btn_stop'));
+      await tester.ensureVisible(stopBtn);
       expect(stopBtn, findsOneWidget);
       final button = tester.widget<FilledButton>(stopBtn);
       expect(button.onPressed, isNull);
     });
 
     testWidgets('record button is disabled while recording', (tester) async {
-      await pumpTestApp(tester);
+      final fakes = await pumpTestApp(tester);
+      fakes.whisper.transcribeFullResult = 'Test.';
 
-      // Start recording
-      await tester.tap(find.byKey(const Key('btn_record')));
+      // Scroll to and start recording
+      final recordBtn = find.byKey(const Key('btn_record'));
+      await tester.ensureVisible(recordBtn);
+      await tester.tap(recordBtn);
       await tester.pump(const Duration(milliseconds: 100));
 
       // Record button should now be disabled
-      final recordBtn = find.byKey(const Key('btn_record'));
-      final button = tester.widget<FilledButton>(recordBtn);
-      expect(button.onPressed, isNull);
+      final button2 = tester.widget<FilledButton>(recordBtn);
+      expect(button2.onPressed, isNull);
 
-      // Stop to clean up
-      await tester.tap(find.byKey(const Key('btn_stop')));
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      // Stop to clean up — scroll to stop button, then wait with pump
+      final stopBtn = find.byKey(const Key('btn_stop'));
+      await tester.ensureVisible(stopBtn);
+      await tester.tap(stopBtn);
+      // Use pump with duration instead of pumpAndSettle to avoid timeout
+      // from recording/processing animation
+      for (int i = 0; i < 30; i++) {
+        await tester.pump(const Duration(milliseconds: 200));
+      }
     });
   });
 
@@ -456,19 +433,23 @@ void main() {
     testWidgets('clear button resets transcript and report', (tester) async {
       final fakes = await pumpTestApp(tester);
 
-      // Run a demo to populate content
-      await tester.tap(find.byKey(const Key('btn_demo_toggle')));
-      await tester.pumpAndSettle();
+      // Populate content via recording flow
+      fakes.whisper.transcribeFullResult =
+          'Pacient prichazi s bolesti na hrudi.';
 
-      final scenarioCard =
-          find.byKey(const Key('demo_scenario_cz_respiracni_infekce'));
-      await tester.ensureVisible(scenarioCard);
-      await tester.tap(scenarioCard);
-      await tester.pumpAndSettle();
+      final recordBtn = find.byKey(const Key('btn_record'));
+      await tester.ensureVisible(recordBtn);
+      await tester.tap(recordBtn);
+      await tester.pump();
 
-      final demoStartBtn = find.byKey(const Key('btn_demo_start'));
-      await tester.ensureVisible(demoStartBtn);
-      await tester.tap(demoStartBtn);
+      // Simulate transcript
+      fakes.whisper.emitTranscript('Pacient prichazi s bolesti na hrudi.');
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Stop recording to trigger report generation
+      final stopBtn = find.byKey(const Key('btn_stop'));
+      await tester.ensureVisible(stopBtn);
+      await tester.tap(stopBtn);
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
       // Verify content exists
@@ -496,6 +477,7 @@ void main() {
       await pumpTestApp(tester);
 
       final clearBtn = find.byKey(const Key('btn_clear'));
+      await tester.ensureVisible(clearBtn);
       final button = tester.widget<OutlinedButton>(clearBtn);
       expect(button.onPressed, isNull);
     });
@@ -539,83 +521,41 @@ void main() {
   });
 
   // -----------------------------------------------------------------------
-  // 6. Multiple Demo Scenarios
-  // -----------------------------------------------------------------------
-  group('Multiple Demo Scenarios', () {
-    for (final scenario in [
-      ('cz_kardialni_nahoda', 'Kardiální nehoda'),
-      ('cz_respiracni_infekce', 'Respirační infekce'),
-      ('cz_detska_prohlidka', 'Dětská prohlídka'),
-      ('cz_otrava_jidlem', 'Otrava jídlem'),
-    ]) {
-      testWidgets('demo scenario: ${scenario.$2}', (tester) async {
-        final fakes = await pumpTestApp(tester);
-
-        // Open demo picker
-        await tester.tap(find.byKey(const Key('btn_demo_toggle')));
-        await tester.pumpAndSettle();
-
-        // Select scenario
-        final card = find.byKey(Key('demo_scenario_${scenario.$1}'));
-        await tester.ensureVisible(card);
-        await tester.tap(card);
-        await tester.pumpAndSettle();
-
-        // Run simulation
-        final sw = Stopwatch()..start();
-        final demoStart = find.byKey(const Key('btn_demo_start'));
-        await tester.ensureVisible(demoStart);
-        await tester.tap(demoStart);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
-        sw.stop();
-        recordMetric('demo_${scenario.$1}', sw.elapsed);
-
-        // Verify report was generated
-        expect(fakes.report.generateCallCount, equals(1));
-
-        // Verify transcript appeared (panel should be visible)
-        expect(find.textContaining('Přepis řeči'), findsOneWidget);
-
-        // Verify report content in UI
-        expect(find.textContaining('Anamneza'), findsWidgets);
-      });
-    }
-  });
-
-  // -----------------------------------------------------------------------
   // 7. Performance: Report Generation Latency
   // -----------------------------------------------------------------------
   group('Performance', () {
-    testWidgets('report generation latency under 500ms with fake backend',
+    testWidgets('report generation latency under 10s with fake backend',
         (tester) async {
       final fakes = await pumpTestApp(tester);
 
       // Use a very fast fake
       fakes.report.latency = const Duration(milliseconds: 10);
+      fakes.whisper.transcribeFullResult = 'Pacient prichazi s bolesti.';
 
-      // Open demo, select scenario, run
-      await tester.tap(find.byKey(const Key('btn_demo_toggle')));
-      await tester.pumpAndSettle();
-
-      final card = find.byKey(const Key('demo_scenario_cz_kardialni_nahoda'));
-      await tester.ensureVisible(card);
-      await tester.tap(card);
-      await tester.pumpAndSettle();
+      // Record and stop to trigger report generation
+      final recordBtn = find.byKey(const Key('btn_record'));
+      await tester.ensureVisible(recordBtn);
 
       final sw = Stopwatch()..start();
-      final perfStartBtn = find.byKey(const Key('btn_demo_start'));
-      await tester.ensureVisible(perfStartBtn);
-      await tester.tap(perfStartBtn);
+      await tester.tap(recordBtn);
+      await tester.pump();
+
+      fakes.whisper.emitTranscript('Pacient prichazi s bolesti.');
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final stopBtn = find.byKey(const Key('btn_stop'));
+      await tester.ensureVisible(stopBtn);
+      await tester.tap(stopBtn);
       await tester.pumpAndSettle(const Duration(seconds: 2));
       sw.stop();
 
       recordMetric('report_generation_fast', sw.elapsed);
 
-      // The total time (asset load + report + UI render) should be reasonable
+      // The total time (record + stop + report + UI render) should be reasonable
       // Note: on emulator this is much slower than real device, so allow 10s
       expect(sw.elapsed.inMilliseconds, lessThan(10000),
           reason:
-              'Demo flow should complete in under 10s with fast fake on emulator');
+              'Recording flow should complete in under 10s with fast fake on emulator');
     });
 
     testWidgets('app renders initial frame quickly', (tester) async {
@@ -649,24 +589,26 @@ void main() {
   // 8. Error Handling UI
   // -----------------------------------------------------------------------
   group('Error Handling', () {
-    testWidgets('report error in demo mode shows error message',
+    testWidgets('report error during recording shows error message',
         (tester) async {
       final fakes = await pumpTestApp(tester);
       fakes.report.errorToThrow =
           const ReportNetworkException('Server nedostupny');
+      fakes.whisper.transcribeFullResult = 'Test transcript.';
 
-      // Open demo
-      await tester.tap(find.byKey(const Key('btn_demo_toggle')));
-      await tester.pumpAndSettle();
+      // Start recording
+      final recordBtn = find.byKey(const Key('btn_record'));
+      await tester.ensureVisible(recordBtn);
+      await tester.tap(recordBtn);
+      await tester.pump();
 
-      final card = find.byKey(const Key('demo_scenario_cz_kardialni_nahoda'));
-      await tester.ensureVisible(card);
-      await tester.tap(card);
-      await tester.pumpAndSettle();
+      fakes.whisper.emitTranscript('Test transcript.');
+      await tester.pump(const Duration(milliseconds: 100));
 
-      final errStartBtn = find.byKey(const Key('btn_demo_start'));
-      await tester.ensureVisible(errStartBtn);
-      await tester.tap(errStartBtn);
+      // Stop recording — this triggers report generation which will throw
+      final stopBtn = find.byKey(const Key('btn_stop'));
+      await tester.ensureVisible(stopBtn);
+      await tester.tap(stopBtn);
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
       // Error should be displayed
@@ -710,23 +652,22 @@ void main() {
         (tester) async {
       await pumpTestApp(tester);
 
-      // Start recording to make transcript panel appear
-      await tester.tap(find.byKey(const Key('btn_record')));
+      // Scroll to and start recording to make transcript panel appear
+      final recordBtn = find.byKey(const Key('btn_record'));
+      await tester.ensureVisible(recordBtn);
+      await tester.tap(recordBtn);
       await tester.pump(const Duration(milliseconds: 100));
 
-      // TranscriptPanel still hidden if transcript is empty and not recording...
-      // Actually, during recording status, the panel IS shown.
-      // The panel shows when isActive (recording/demoPlaying) OR hasContent.
-      // Let's emit a transcript to ensure it appears.
-      // Actually looking at the code: isActive = recording || demoPlaying
-      // if !isActive && !hasContent → hidden. If isActive → shown.
-      // So during recording it should show.
+      // During recording, the transcript panel is shown.
+      // The panel shows when isActive (recording) OR hasContent.
 
       // Check for the "Probíhá..." badge
       expect(find.textContaining('Probíhá'), findsOneWidget);
 
       // Stop recording
-      await tester.tap(find.byKey(const Key('btn_stop')));
+      final stopBtn = find.byKey(const Key('btn_stop'));
+      await tester.ensureVisible(stopBtn);
+      await tester.tap(stopBtn);
       await tester.pumpAndSettle(const Duration(seconds: 2));
     });
   });
