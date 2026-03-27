@@ -237,6 +237,77 @@ class SessionNotifier extends StateNotifier<SessionState> {
     _preloadModel();
   }
 
+  /// Switch to a different on-device model. Downloads if needed, then loads.
+  ///
+  /// Called from the settings screen when the user selects a different model.
+  /// For cloud mode, just unloads the on-device model (no download needed).
+  Future<void> switchToModel(TranscriptionModel model) async {
+    if (state.status == RecordingStatus.recording ||
+        state.status == RecordingStatus.processing) {
+      return; // Don't switch while recording
+    }
+    if (_isPreloading) return;
+
+    if (model == TranscriptionModel.cloud) {
+      // Cloud mode doesn't need an on-device model loaded
+      state = state.copyWith(isModelLoaded: true, clearDownload: true, clearError: true);
+      return;
+    }
+
+    final config = model == TranscriptionModel.turbo
+        ? WhisperService.turboConfig
+        : WhisperService.smallConfig;
+
+    // If this model is already loaded, nothing to do
+    if (_whisperService.isModelLoaded &&
+        _whisperService.modelConfig.dirName == config.dirName) {
+      return;
+    }
+
+    _isPreloading = true;
+    state = state.copyWith(
+      isModelLoaded: false,
+      modelDownloadProgress: 0.0,
+      modelDownloadFileName: 'kontrola modelu...',
+      clearError: true,
+    );
+
+    _whisperService.onDownloadProgress = (String fileName, double progress) {
+      if (!mounted) return;
+      state = state.copyWith(
+        modelDownloadProgress: progress,
+        modelDownloadFileName: fileName,
+      );
+    };
+
+    try {
+      if (_whisperService.isModelLoaded) {
+        await _whisperService.switchModel(config);
+      } else {
+        await _whisperService.loadModel(config: config);
+      }
+      _whisperService.onDownloadProgress = null;
+      if (!mounted) return;
+      WhisperService.debugLog(
+          '[SessionNotifier] Switched to ${config.displayName}');
+      state = state.copyWith(isModelLoaded: true, clearDownload: true);
+    } catch (e) {
+      _whisperService.onDownloadProgress = null;
+      WhisperService.debugLog(
+          '[SessionNotifier] Model switch error: $e');
+      if (!mounted) return;
+      final isNetwork = _isNetworkException(e);
+      state = state.copyWith(
+        clearDownload: true,
+        errorMessage: isNetwork
+            ? 'Stahování modelu selhalo. Zkontrolujte internet.'
+            : 'Chyba modelu: $e',
+      );
+    } finally {
+      _isPreloading = false;
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Wake lock & foreground service helpers
   // ---------------------------------------------------------------------------
@@ -329,52 +400,67 @@ class SessionNotifier extends StateNotifier<SessionState> {
 
   Future<void> _startRecordingAsync() async {
     try {
-      if (!_whisperService.isModelLoaded) {
-        // Model is still downloading from preload — wait for it.
-        // If preload hasn't started (shouldn't happen), kick it off.
-        if (!_isPreloading) {
-          _isPreloading = true;
-          _whisperService.onDownloadProgress =
-              (String fileName, double progress) {
-            if (!mounted) return;
-            state = state.copyWith(
-              modelDownloadProgress: progress,
-              modelDownloadFileName: fileName,
-            );
-          };
-          try {
-            await _whisperService.loadModel();
-          } catch (e) {
+      final selectedModel = _ref.read(transcriptionModelProvider);
+
+      // Cloud mode doesn't need on-device model
+      if (selectedModel != TranscriptionModel.cloud) {
+        final config = selectedModel == TranscriptionModel.turbo
+            ? WhisperService.turboConfig
+            : WhisperService.smallConfig;
+
+        // Check if the correct model is loaded
+        final needsSwitch = _whisperService.isModelLoaded &&
+            _whisperService.modelConfig.dirName != config.dirName;
+
+        if (needsSwitch || !_whisperService.isModelLoaded) {
+          if (!_isPreloading) {
+            _isPreloading = true;
+            _whisperService.onDownloadProgress =
+                (String fileName, double progress) {
+              if (!mounted) return;
+              state = state.copyWith(
+                modelDownloadProgress: progress,
+                modelDownloadFileName: fileName,
+              );
+            };
+            try {
+              if (needsSwitch) {
+                await _whisperService.switchModel(config);
+              } else {
+                await _whisperService.loadModel(config: config);
+              }
+            } catch (e) {
+              _whisperService.onDownloadProgress = null;
+              _isPreloading = false;
+              if (!mounted) return;
+              final isNetwork = _isNetworkException(e);
+              state = state.copyWith(
+                status: RecordingStatus.idle,
+                clearDownload: true,
+                errorMessage: isNetwork
+                    ? 'Model nelze stáhnout. Zkontrolujte připojení k internetu.'
+                    : 'Chyba modelu: $e',
+              );
+              return;
+            }
             _whisperService.onDownloadProgress = null;
             _isPreloading = false;
             if (!mounted) return;
-            final isNetwork = _isNetworkException(e);
-            state = state.copyWith(
-              status: RecordingStatus.idle,
-              clearDownload: true,
-              errorMessage: isNetwork
-                  ? 'Model nelze stáhnout. Zkontrolujte připojení k internetu.'
-                  : 'Chyba modelu: $e',
-            );
-            return;
-          }
-          _whisperService.onDownloadProgress = null;
-          _isPreloading = false;
-          if (!mounted) return;
-          state = state.copyWith(isModelLoaded: true, clearDownload: true);
-        } else {
-          // Wait for the ongoing preload to finish.
-          while (_isPreloading && mounted) {
-            await Future<void>.delayed(const Duration(milliseconds: 200));
-          }
-          if (!mounted || !_whisperService.isModelLoaded) {
-            if (mounted) {
-              state = state.copyWith(
-                status: RecordingStatus.idle,
-                errorMessage: 'Model se nepodařilo načíst. Zkuste to znovu.',
-              );
+            state = state.copyWith(isModelLoaded: true, clearDownload: true);
+          } else {
+            // Wait for the ongoing preload to finish.
+            while (_isPreloading && mounted) {
+              await Future<void>.delayed(const Duration(milliseconds: 200));
             }
-            return;
+            if (!mounted || !_whisperService.isModelLoaded) {
+              if (mounted) {
+                state = state.copyWith(
+                  status: RecordingStatus.idle,
+                  errorMessage: 'Model se nepodařilo načíst. Zkuste to znovu.',
+                );
+              }
+              return;
+            }
           }
         }
       }

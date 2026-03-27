@@ -261,6 +261,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               ref
                                   .read(transcriptionModelProvider.notifier)
                                   .setModel(model);
+                              // Trigger download/load of the selected model
+                              ref
+                                  .read(sessionProvider.notifier)
+                                  .switchToModel(model);
                             },
                     ),
                     const SizedBox(height: 8),
