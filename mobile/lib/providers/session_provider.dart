@@ -574,6 +574,37 @@ class SessionNotifier extends StateNotifier<SessionState> {
   // Session management
   // ---------------------------------------------------------------------------
 
+  /// Save the current session to history (if it has content) and start fresh.
+  ///
+  /// If the session was loaded from history, updates that entry's report.
+  /// If it's a new unsaved session, creates a new history entry.
+  /// Then resets to a clean state.
+  Future<void> startNewRecording() async {
+    final transcript = state.transcript;
+    final report = state.report;
+    final loadedId = _ref.read(loadedRecordingIdProvider);
+
+    if (transcript.isNotEmpty || report.isNotEmpty) {
+      try {
+        if (loadedId != null) {
+          // Already in history — update the report in case it was edited
+          if (report.isNotEmpty) {
+            await _storageService.updateReport(loadedId, report);
+            _ref.read(recordingIndexProvider.notifier).refresh();
+          }
+        } else {
+          // New session not yet in history — save it
+          await _autoSaveRecording();
+        }
+      } catch (e) {
+        WhisperService.debugLog(
+            '[SessionNotifier] Save before new recording failed: $e');
+      }
+    }
+
+    resetSession();
+  }
+
   /// Clear all session state and stop any running audio/timers.
   void resetSession() {
     _reportTimer?.cancel();

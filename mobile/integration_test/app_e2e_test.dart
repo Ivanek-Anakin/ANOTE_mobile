@@ -292,8 +292,8 @@ void main() {
       // Stop button
       expect(find.byKey(const Key('btn_stop')), findsOneWidget);
 
-      // Clear button
-      expect(find.byKey(const Key('btn_clear')), findsOneWidget);
+      // New recording button
+      expect(find.byKey(const Key('btn_new_recording')), findsOneWidget);
     });
 
     testWidgets('report panel shows placeholder text when empty',
@@ -455,10 +455,10 @@ void main() {
       // Verify content exists
       expect(fakes.report.generateCallCount, greaterThan(0));
 
-      // Now tap clear
-      final clearBtn = find.byKey(const Key('btn_clear'));
-      await tester.ensureVisible(clearBtn);
-      await tester.tap(clearBtn);
+      // Now tap new recording
+      final newRecBtn = find.byKey(const Key('btn_new_recording'));
+      await tester.ensureVisible(newRecBtn);
+      await tester.tap(newRecBtn);
       await tester.pumpAndSettle();
 
       // Report placeholder should reappear
@@ -472,13 +472,13 @@ void main() {
       expect(find.textContaining('Přepis řeči'), findsNothing);
     });
 
-    testWidgets('clear button is disabled when no content exists',
+    testWidgets('new recording button is disabled when no content exists',
         (tester) async {
       await pumpTestApp(tester);
 
-      final clearBtn = find.byKey(const Key('btn_clear'));
-      await tester.ensureVisible(clearBtn);
-      final button = tester.widget<OutlinedButton>(clearBtn);
+      final newRecBtn = find.byKey(const Key('btn_new_recording'));
+      await tester.ensureVisible(newRecBtn);
+      final button = tester.widget<OutlinedButton>(newRecBtn);
       expect(button.onPressed, isNull);
     });
   });

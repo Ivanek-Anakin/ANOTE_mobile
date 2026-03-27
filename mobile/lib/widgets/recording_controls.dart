@@ -62,15 +62,16 @@ class RecordingControls extends ConsumerWidget {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  key: const Key('btn_clear'),
-                  onPressed: canClear ? () => notifier.resetSession() : null,
-                  icon: const Text('🗑'),
-                  label: const Text('Vymazat vše'),
+                  key: const Key('btn_new_recording'),
+                  onPressed:
+                      canClear ? () => notifier.startNewRecording() : null,
+                  icon: const Text('📝'),
+                  label: const Text('Nová nahrávka'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: theme.colorScheme.error,
+                    foregroundColor: theme.colorScheme.primary,
                     side: BorderSide(
                       color: canClear
-                          ? theme.colorScheme.error
+                          ? theme.colorScheme.primary
                           : theme.colorScheme.outline,
                     ),
                   ),
