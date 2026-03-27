@@ -616,8 +616,8 @@ class SessionNotifier extends StateNotifier<SessionState> {
         Object? lastError;
         for (int attempt = 1; attempt <= 3; attempt++) {
           try {
-            report = await _reportService.generateReport(
-                finalTranscript, visitType: vt);
+            report = await _reportService.generateReport(finalTranscript,
+                visitType: vt);
             break;
           } catch (e) {
             lastError = e;

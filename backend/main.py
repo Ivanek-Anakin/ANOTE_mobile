@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from openai import AzureOpenAI, OpenAI
+import httpx
 from pydantic import BaseModel
 
 load_dotenv()
@@ -36,11 +37,15 @@ if not MOCK_MODE:
             api_key=os.environ["AZURE_OPENAI_KEY"],
             api_version="2025-04-01-preview",
             azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
+            timeout=httpx.Timeout(60.0, connect=10.0),
         )
         logger.info("Using Azure OpenAI at %s", os.environ["AZURE_OPENAI_ENDPOINT"])
     else:
         # Dev fallback — plain OpenAI
-        client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+        client = OpenAI(
+            api_key=os.environ["OPENAI_API_KEY"],
+            timeout=httpx.Timeout(60.0, connect=10.0),
+        )
         logger.info("Using plain OpenAI (dev fallback)")
 else:
     client = None  # type: ignore[assignment]
@@ -332,6 +337,7 @@ async def test_report_from_scenario(
                 },
             ],
             max_completion_tokens=4096,
+            timeout=60.0,
         )
         report = response.choices[0].message.content or ""
         logger.info("Test-report completed for scenario: %s", scenario_name)
@@ -341,6 +347,7 @@ async def test_report_from_scenario(
         raise HTTPException(
             status_code=502, detail=f"OpenAI error: {str(e)}"
         ) from e
+
 
 
 @app.post("/report")
@@ -397,6 +404,7 @@ async def generate_report(
                 },
             ],
             max_completion_tokens=4096,
+            timeout=60.0,
         )
         report = response.choices[0].message.content or ""
         logger.info("Report generation completed successfully")
