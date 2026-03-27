@@ -52,7 +52,7 @@ else:
     logger.warning("MOCK_MODE is ON — OpenAI will not be called")
 
 CHAT_MODEL: str = os.environ.get("AZURE_OPENAI_DEPLOYMENT",
-                                  os.environ.get("OPENAI_CHAT_MODEL", "gpt-5-mini"))
+                                  os.environ.get("OPENAI_CHAT_MODEL", "gpt-4-1-mini"))
 API_TOKEN: str = os.environ.get("APP_API_TOKEN", "dev-token")
 
 # Path to demo scenario .txt files (relative to this file's location)
