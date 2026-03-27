@@ -825,7 +825,9 @@ class WhisperService {
       'silero_vad.onnx': 300 * 1024,
     };
 
-    final httpClient = HttpClient();
+    final httpClient = HttpClient()
+      ..connectionTimeout = const Duration(seconds: 30)
+      ..idleTimeout = const Duration(seconds: 30);
     try {
       int fileIndex = 0;
       for (final entry in files.entries) {
@@ -864,7 +866,10 @@ class WhisperService {
               final sink = tmpFile.openWrite();
               int received = 0;
 
-              await for (final chunk in response) {
+              // Use a timeout-per-chunk approach: if no data arrives
+              // within 60s the download is considered stalled.
+              await for (final chunk
+                  in response.timeout(const Duration(seconds: 60))) {
                 sink.add(chunk);
                 received += chunk.length;
                 if (onProgress != null && contentLength > 0) {

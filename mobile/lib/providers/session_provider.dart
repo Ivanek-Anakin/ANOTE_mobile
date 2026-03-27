@@ -121,11 +121,12 @@ class SessionNotifier extends StateNotifier<SessionState> {
     this._whisperService,
     this._storageService,
     this._ref,
-  ) : super(const SessionState());
-  // Model is loaded on-demand when the user starts recording.
-  // Preloading at startup causes SIGSEGV / SIGABRT on 4 GB devices
-  // because the 358 MB native allocation triggers the OOM killer which
-  // reclaims mapped Skia pages from the UI thread.
+  ) : super(const SessionState()) {
+    // Kick off model download / load immediately so it's ready when the
+    // user presses record.  The OOM crashes were caused by beam search
+    // (now removed), not by the preload timing.
+    _preloadModel();
+  }
 
   /// Read the current visit type API string from SharedPreferences.
   Future<String> _getVisitTypeApi() async {

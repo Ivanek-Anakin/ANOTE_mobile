@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';
@@ -364,6 +365,18 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
           vadModelPath = message['vadModelPath'] as String;
           hotwordsFilePath = (message['hotwordsFilePath'] as String?) ?? '';
 
+          // Log paths and verify files exist before creating recognizer
+          workerLog('[Worker] encoder: $encoderPath '
+              '(exists: ${File(encoderPath).existsSync()}, '
+              'size: ${File(encoderPath).existsSync() ? File(encoderPath).lengthSync() : 0})');
+          workerLog('[Worker] decoder: $decoderPath '
+              '(exists: ${File(decoderPath).existsSync()}, '
+              'size: ${File(decoderPath).existsSync() ? File(decoderPath).lengthSync() : 0})');
+          workerLog('[Worker] tokens: $tokensPath '
+              '(exists: ${File(tokensPath).existsSync()})');
+          workerLog('[Worker] hotwords: $hotwordsFilePath '
+              '(exists: ${hotwordsFilePath.isNotEmpty && File(hotwordsFilePath).existsSync()})');
+
           sherpa.initBindings();
 
           final sw = Stopwatch()..start();
@@ -382,8 +395,6 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
                 debug: false,
                 provider: 'cpu',
               ),
-              hotwordsFile: hotwordsFilePath,
-              hotwordsScore: 1.5,
             ),
           );
           sw.stop();
