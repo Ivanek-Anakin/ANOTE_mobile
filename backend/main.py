@@ -52,7 +52,8 @@ else:
     logger.warning("MOCK_MODE is ON — OpenAI will not be called")
 
 CHAT_MODEL: str = os.environ.get("AZURE_OPENAI_DEPLOYMENT",
-                                  os.environ.get("OPENAI_CHAT_MODEL", "gpt-4-1-mini"))
+                                  os.environ.get("OPENAI_CHAT_MODEL", "gpt-5-mini"))
+FALLBACK_MODEL: str = os.environ.get("AZURE_OPENAI_FALLBACK_DEPLOYMENT", "gpt-4-1-mini")
 API_TOKEN: str = os.environ.get("APP_API_TOKEN", "dev-token")
 
 # Path to demo scenario .txt files (relative to this file's location)
@@ -323,30 +324,34 @@ async def test_report_from_scenario(
         report = f"[MOCK — scenario: {scenario_name}]\n\n{transcript[:200]}..."
         return {"scenario": scenario_name, "transcript": transcript, "report": report}
 
-    try:
-        response = client.chat.completions.create(
-            model=CHAT_MODEL,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {
-                    "role": "user",
-                    "content": (
-                        "Převeď tento přepis do strukturované lékařské zprávy"
-                        f" v češtině:\n\n{transcript}"
-                    ),
-                },
-            ],
-            max_completion_tokens=4096,
-            timeout=60.0,
-        )
-        report = response.choices[0].message.content or ""
-        logger.info("Test-report completed for scenario: %s", scenario_name)
-        return {"scenario": scenario_name, "transcript": transcript, "report": report}
-    except Exception as e:
-        logger.error("OpenAI error on test-report (details omitted for GDPR)")
-        raise HTTPException(
-            status_code=502, detail=f"OpenAI error: {str(e)}"
-        ) from e
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {
+            "role": "user",
+            "content": (
+                "Převeď tento přepis do strukturované lékařské zprávy"
+                f" v češtině:\n\n{transcript}"
+            ),
+        },
+    ]
+
+    for model in (CHAT_MODEL, FALLBACK_MODEL):
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=messages,
+                max_completion_tokens=4096,
+                timeout=60.0,
+            )
+            report = response.choices[0].message.content or ""
+            logger.info("Test-report completed for scenario: %s (model=%s)", scenario_name, model)
+            return {"scenario": scenario_name, "transcript": transcript, "report": report}
+        except Exception as e:
+            logger.warning("Model %s failed for test-report: %s", model, e)
+            if model == FALLBACK_MODEL:
+                raise HTTPException(
+                    status_code=502, detail=f"OpenAI error: {str(e)}"
+                ) from e
 
 
 
@@ -390,27 +395,31 @@ async def generate_report(
         )
         return {"report": mock_report}
 
-    try:
-        response = client.chat.completions.create(
-            model=CHAT_MODEL,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {
-                    "role": "user",
-                    "content": (
-                        "Převeď tento přepis do strukturované lékařské zprávy"
-                        f" v češtině:\n\n{transcript}"
-                    ),
-                },
-            ],
-            max_completion_tokens=4096,
-            timeout=60.0,
-        )
-        report = response.choices[0].message.content or ""
-        logger.info("Report generation completed successfully")
-        return {"report": report}
-    except Exception as e:
-        logger.error("OpenAI error occurred (details omitted for GDPR)")
-        raise HTTPException(
-            status_code=502, detail=f"OpenAI error: {str(e)}"
-        ) from e
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {
+            "role": "user",
+            "content": (
+                "Převeď tento přepis do strukturované lékařské zprávy"
+                f" v češtině:\n\n{transcript}"
+            ),
+        },
+    ]
+
+    for model in (CHAT_MODEL, FALLBACK_MODEL):
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=messages,
+                max_completion_tokens=4096,
+                timeout=60.0,
+            )
+            report = response.choices[0].message.content or ""
+            logger.info("Report generation completed successfully (model=%s)", model)
+            return {"report": report}
+        except Exception as e:
+            logger.warning("Model %s failed for report: %s", model, e)
+            if model == FALLBACK_MODEL:
+                raise HTTPException(
+                    status_code=502, detail=f"OpenAI error: {str(e)}"
+                ) from e
