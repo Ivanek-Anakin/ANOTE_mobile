@@ -612,11 +612,29 @@ class SessionNotifier extends StateNotifier<SessionState> {
       if (finalTranscript.isNotEmpty) {
         WhisperService.debugLog('[SessionNotifier] Generating report...');
         final vt = await _getVisitTypeApi();
-        final String report =
-            await _reportService.generateReport(finalTranscript, visitType: vt);
+        String? report;
+        Object? lastError;
+        for (int attempt = 1; attempt <= 3; attempt++) {
+          try {
+            report = await _reportService.generateReport(
+                finalTranscript, visitType: vt);
+            break;
+          } catch (e) {
+            lastError = e;
+            WhisperService.debugLog(
+                '[SessionNotifier] Report attempt $attempt failed: $e');
+            if (attempt < 3) {
+              await Future<void>.delayed(Duration(seconds: attempt * 3));
+            }
+          }
+        }
         if (!mounted) return;
-        state = state.copyWith(report: report, visitTypeChanged: false);
-        WhisperService.debugLog('[SessionNotifier] Report generated OK.');
+        if (report != null && report.isNotEmpty) {
+          state = state.copyWith(report: report, visitTypeChanged: false);
+          WhisperService.debugLog('[SessionNotifier] Report generated OK.');
+        } else if (lastError != null) {
+          state = state.copyWith(errorMessage: lastError.toString());
+        }
       }
 
       // --- Auto-save to recording history ---
@@ -803,6 +821,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
   }
 
   /// Regenerate the report using the current transcript and visit type.
+  /// Retries up to 3 times with backoff to handle cold starts.
   Future<void> regenerateReport() async {
     final transcript = state.transcript;
     if (transcript.isEmpty) return;
@@ -813,22 +832,32 @@ class SessionNotifier extends StateNotifier<SessionState> {
       visitTypeChanged: false,
     );
 
-    try {
-      final vt = await _getVisitTypeApi();
-      final String report =
-          await _reportService.generateReport(transcript, visitType: vt);
-      if (!mounted) return;
-      state = state.copyWith(
-        status: RecordingStatus.idle,
-        report: report,
-      );
-    } catch (e) {
-      if (!mounted) return;
-      state = state.copyWith(
-        status: RecordingStatus.idle,
-        errorMessage: e.toString(),
-      );
+    final vt = await _getVisitTypeApi();
+    Object? lastError;
+    for (int attempt = 1; attempt <= 3; attempt++) {
+      try {
+        final String report =
+            await _reportService.generateReport(transcript, visitType: vt);
+        if (!mounted) return;
+        state = state.copyWith(
+          status: RecordingStatus.idle,
+          report: report,
+        );
+        return;
+      } catch (e) {
+        lastError = e;
+        WhisperService.debugLog(
+            '[SessionNotifier] regenerateReport attempt $attempt failed: $e');
+        if (attempt < 3) {
+          await Future<void>.delayed(Duration(seconds: attempt * 3));
+        }
+      }
     }
+    if (!mounted) return;
+    state = state.copyWith(
+      status: RecordingStatus.idle,
+      errorMessage: lastError.toString(),
+    );
   }
 
   @override

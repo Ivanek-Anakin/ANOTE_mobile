@@ -55,6 +55,29 @@ class _ReportPanelState extends ConsumerState<ReportPanel> {
     final theme = Theme.of(context);
     final loadedId = ref.watch(loadedRecordingIdProvider);
 
+    // Show snackbar when report generation fails
+    ref.listen<SessionState>(sessionProvider, (prev, next) {
+      if (prev?.errorMessage == null &&
+          next.errorMessage != null &&
+          next.report.isEmpty &&
+          next.status == RecordingStatus.idle) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Generování zprávy selhalo: ${next.errorMessage}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            duration: const Duration(seconds: 5),
+            action: SnackBarAction(
+              label: 'Zkusit znovu',
+              textColor: Colors.white,
+              onPressed: () {
+                ref.read(sessionProvider.notifier).regenerateReport();
+              },
+            ),
+          ),
+        );
+      }
+    });
+
     // Sync controller only when the session report changes externally
     // (e.g. auto-generated report, loading a recording).
     // Local user edits must NOT be overwritten.
@@ -190,7 +213,6 @@ class _ReportPanelState extends ConsumerState<ReportPanel> {
                   child: FilledButton.icon(
                     key: const Key('btn_regenerate_report'),
                     onPressed: () {
-                      // Clear error before retrying
                       ref.read(sessionProvider.notifier).regenerateReport();
                     },
                     icon: const Icon(Icons.refresh, size: 18),

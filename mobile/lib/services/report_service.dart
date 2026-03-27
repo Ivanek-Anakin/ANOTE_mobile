@@ -37,7 +37,7 @@ class ReportService {
   ReportService({Dio? dio, FlutterSecureStorage? storage})
       : _dio = dio ??
             Dio(BaseOptions(
-              connectTimeout: const Duration(seconds: 10),
+              connectTimeout: const Duration(seconds: 30),
               sendTimeout: const Duration(seconds: 10),
               receiveTimeout: const Duration(seconds: 90),
             )),
@@ -103,16 +103,22 @@ class ReportService {
   }
 
   /// Check if the backend is reachable.
+  /// Retries up to 3 times with backoff to handle Azure cold starts.
   Future<bool> isBackendReachable() async {
     final baseUrl = await _getBaseUrl();
-    try {
-      final response = await _dio.get(
-        '$baseUrl/health',
-        options: Options(receiveTimeout: const Duration(seconds: 5)),
-      );
-      return response.statusCode == 200;
-    } catch (_) {
-      return false;
+    for (int attempt = 1; attempt <= 3; attempt++) {
+      try {
+        final response = await _dio.get(
+          '$baseUrl/health',
+          options: Options(receiveTimeout: const Duration(seconds: 15)),
+        );
+        if (response.statusCode == 200) return true;
+      } catch (_) {
+        if (attempt < 3) {
+          await Future<void>.delayed(Duration(seconds: attempt * 2));
+        }
+      }
     }
+    return false;
   }
 }
