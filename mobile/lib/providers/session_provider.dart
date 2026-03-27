@@ -104,11 +104,15 @@ class SessionNotifier extends StateNotifier<SessionState> {
   StreamSubscription<String>? _transcriptSubscription;
   Timer? _reportTimer;
   Timer? _preloadTimer;
+  Timer? _autoSaveTimer;
 
   /// Tracks the transcript text that was last sent for report generation.
   /// When the timer fires, we skip the API call if the transcript hasn't
   /// changed since the last report request (avoids wasteful duplicate calls).
   String _lastReportedTranscript = '';
+
+  /// Tracks the last auto-saved transcript to avoid redundant writes.
+  String _lastAutoSavedTranscript = '';
 
   bool _isPreloading = false;
 
@@ -250,7 +254,8 @@ class SessionNotifier extends StateNotifier<SessionState> {
 
     if (model == TranscriptionModel.cloud) {
       // Cloud mode doesn't need an on-device model loaded
-      state = state.copyWith(isModelLoaded: true, clearDownload: true, clearError: true);
+      state = state.copyWith(
+          isModelLoaded: true, clearDownload: true, clearError: true);
       return;
     }
 
@@ -293,8 +298,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
       state = state.copyWith(isModelLoaded: true, clearDownload: true);
     } catch (e) {
       _whisperService.onDownloadProgress = null;
-      WhisperService.debugLog(
-          '[SessionNotifier] Model switch error: $e');
+      WhisperService.debugLog('[SessionNotifier] Model switch error: $e');
       if (!mounted) return;
       final isNetwork = _isNetworkException(e);
       state = state.copyWith(
@@ -498,6 +502,13 @@ class SessionNotifier extends StateNotifier<SessionState> {
         AppConstants.reportGenerationInterval,
         (_) => _generateReportPreview(),
       );
+
+      // Periodic auto-save every 10s so data survives app closure
+      _lastAutoSavedTranscript = '';
+      _autoSaveTimer = Timer.periodic(
+        const Duration(seconds: 10),
+        (_) => _periodicAutoSave(),
+      );
     } catch (e) {
       if (!mounted) return;
       await _releaseWakeLockAndForeground();
@@ -534,6 +545,9 @@ class SessionNotifier extends StateNotifier<SessionState> {
   void stopRecording() {
     _reportTimer?.cancel();
     _reportTimer = null;
+
+    _autoSaveTimer?.cancel();
+    _autoSaveTimer = null;
 
     _audioSubscription?.cancel();
     _audioSubscription = null;
@@ -623,7 +637,11 @@ class SessionNotifier extends StateNotifier<SessionState> {
   }
 
   /// Persist the current session to on-device storage if transcript is
-  /// non-empty.  Called automatically at the end of [_stopRecordingAsync].
+  /// non-empty.  Called automatically at the end of [_stopRecordingAsync]
+  /// and periodically during recording.
+  ///
+  /// If the session was already saved (loadedRecordingIdProvider is set),
+  /// updates the existing entry instead of creating a new one.
   Future<void> _autoSaveRecording() async {
     if (!mounted) return;
     final transcript = state.transcript;
@@ -634,26 +652,56 @@ class SessionNotifier extends StateNotifier<SessionState> {
           ? DateTime.now().difference(_recordingStartTime!).inSeconds
           : 0;
       final vt = await _getVisitTypeApi();
-      final entry = RecordingEntry(
-        id: RecordingStorageService.generateId(),
-        createdAt: _recordingStartTime ?? DateTime.now(),
-        transcript: transcript,
-        report: state.report,
-        visitType: vt,
-        durationSeconds: durationSeconds,
-        wordCount: transcript.trim().split(RegExp(r'\s+')).length,
-      );
-      await _storageService.saveEntry(entry);
-      // Refresh the index so the UI list updates
-      _ref.read(recordingIndexProvider.notifier).refresh();
-      // Track the saved recording as currently loaded
-      _ref.read(loadedRecordingIdProvider.notifier).state = entry.id;
-      WhisperService.debugLog(
-          '[SessionNotifier] Recording auto-saved: ${entry.id}');
+      final existingId = _ref.read(loadedRecordingIdProvider);
+
+      if (existingId != null) {
+        // Update existing entry
+        final existing = await _storageService.loadEntry(existingId);
+        final updated = RecordingEntry(
+          id: existingId,
+          createdAt: existing.createdAt,
+          transcript: transcript,
+          report: state.report,
+          visitType: vt,
+          durationSeconds: durationSeconds,
+          wordCount: transcript.trim().split(RegExp(r'\s+')).length,
+          updatedAt: DateTime.now(),
+        );
+        await _storageService.saveEntry(updated);
+        _ref.read(recordingIndexProvider.notifier).refresh();
+        WhisperService.debugLog(
+            '[SessionNotifier] Recording updated: $existingId');
+      } else {
+        // Create new entry
+        final entry = RecordingEntry(
+          id: RecordingStorageService.generateId(),
+          createdAt: _recordingStartTime ?? DateTime.now(),
+          transcript: transcript,
+          report: state.report,
+          visitType: vt,
+          durationSeconds: durationSeconds,
+          wordCount: transcript.trim().split(RegExp(r'\s+')).length,
+        );
+        await _storageService.saveEntry(entry);
+        _ref.read(recordingIndexProvider.notifier).refresh();
+        _ref.read(loadedRecordingIdProvider.notifier).state = entry.id;
+        WhisperService.debugLog(
+            '[SessionNotifier] Recording auto-saved: ${entry.id}');
+      }
     } catch (e) {
       WhisperService.debugLog('[SessionNotifier] Auto-save failed: $e');
-      // Non-fatal — don't overwrite any existing error message
     }
+  }
+
+  /// Called every 10s during recording to persist progress.
+  Future<void> _periodicAutoSave() async {
+    if (!mounted || state.status != RecordingStatus.recording) return;
+    final transcript = state.transcript;
+    if (transcript.isEmpty) return;
+    // Skip if nothing changed since last save
+    if (transcript == _lastAutoSavedTranscript) return;
+    _lastAutoSavedTranscript = transcript;
+    await _autoSaveRecording();
   }
 
   // ---------------------------------------------------------------------------
@@ -695,6 +743,9 @@ class SessionNotifier extends StateNotifier<SessionState> {
   void resetSession() {
     _reportTimer?.cancel();
     _reportTimer = null;
+
+    _autoSaveTimer?.cancel();
+    _autoSaveTimer = null;
 
     _audioSubscription?.cancel();
     _audioSubscription = null;

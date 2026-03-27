@@ -63,12 +63,12 @@ class CloudTranscriptionService {
 
     // Prompt field — guides Whisper toward Czech medical terminology
     bodyParts.add(utf8.encode('--$boundary\r\n'));
-    bodyParts.add(utf8.encode(
-        'Content-Disposition: form-data; name="prompt"\r\n\r\n'
-        'Lékařská prohlídka, anamnéza pacienta. '
-        'Diagnóza, terapie, medikace, vyšetření. '
-        'Krevní tlak, saturace, EKG, glykémie, BMI. '
-        'Pacient, pacientka, doktor, ordinace.\r\n'));
+    bodyParts
+        .add(utf8.encode('Content-Disposition: form-data; name="prompt"\r\n\r\n'
+            'Lékařská prohlídka, anamnéza pacienta. '
+            'Diagnóza, terapie, medikace, vyšetření. '
+            'Krevní tlak, saturace, EKG, glykémie, BMI. '
+            'Pacient, pacientka, doktor, ordinace.\r\n'));
 
     // Response format field
     bodyParts.add(utf8.encode('--$boundary\r\n'));
