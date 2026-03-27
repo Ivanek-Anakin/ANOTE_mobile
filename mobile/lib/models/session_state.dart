@@ -5,7 +5,7 @@ enum TranscriptionModel {
   /// On-device Whisper Small INT8 (~358 MB)
   small,
 
-  /// On-device Whisper Large-v3-Turbo INT8 (~860 MB)
+  /// On-device Whisper Large-v3-Turbo INT8 (~1036 MB)
   turbo,
 
   /// Azure OpenAI Whisper cloud API
@@ -40,7 +40,7 @@ extension TranscriptionModelApi on TranscriptionModel {
       case TranscriptionModel.small:
         return '358 MB · On-device · Bez internetu';
       case TranscriptionModel.turbo:
-        return '860 MB · On-device · Bez internetu';
+        return '~1 GB · On-device · Bez internetu';
       case TranscriptionModel.cloud:
         return 'Azure OpenAI · Vyžaduje internet';
     }

@@ -25,9 +25,9 @@ void main() {
 
     test('turboConfig has correct file names', () {
       final c = WhisperService.turboConfig;
-      expect(c.encoderFile, 'large-v3-turbo-encoder.int8.onnx');
-      expect(c.decoderFile, 'large-v3-turbo-decoder.int8.onnx');
-      expect(c.tokensFile, 'large-v3-turbo-tokens.txt');
+      expect(c.encoderFile, 'turbo-encoder.int8.onnx');
+      expect(c.decoderFile, 'turbo-decoder.int8.onnx');
+      expect(c.tokensFile, 'turbo-tokens.txt');
     });
 
     test('turboConfig dir and URL are set', () {

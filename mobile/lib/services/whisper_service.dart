@@ -253,19 +253,19 @@ class WhisperService {
   );
 
   static const WhisperModelConfig turboConfig = WhisperModelConfig(
-    dirName: 'sherpa-onnx-whisper-large-v3-turbo',
-    encoderFile: 'large-v3-turbo-encoder.int8.onnx',
-    decoderFile: 'large-v3-turbo-decoder.int8.onnx',
-    tokensFile: 'large-v3-turbo-tokens.txt',
+    dirName: 'sherpa-onnx-whisper-turbo',
+    encoderFile: 'turbo-encoder.int8.onnx',
+    decoderFile: 'turbo-decoder.int8.onnx',
+    tokensFile: 'turbo-tokens.txt',
     baseUrl:
-        'https://huggingface.co/csukuangfj/sherpa-onnx-whisper-large-v3-turbo/resolve/main',
+        'https://huggingface.co/csukuangfj/sherpa-onnx-whisper-turbo/resolve/main',
     displayName: 'Whisper Large-v3-Turbo',
     variant: 'INT8 (sherpa-onnx)',
-    sizeMB: 860,
+    sizeMB: 1036,
     expectedMinSizes: {
-      'large-v3-turbo-encoder.int8.onnx': 200 * 1024 * 1024,
-      'large-v3-turbo-decoder.int8.onnx': 50 * 1024 * 1024,
-      'large-v3-turbo-tokens.txt': 10 * 1024,
+      'turbo-encoder.int8.onnx': 200 * 1024 * 1024,
+      'turbo-decoder.int8.onnx': 50 * 1024 * 1024,
+      'turbo-tokens.txt': 10 * 1024,
     },
   );
 
