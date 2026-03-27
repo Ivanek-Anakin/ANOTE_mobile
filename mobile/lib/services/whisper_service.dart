@@ -530,7 +530,8 @@ class WhisperService {
     } on TimeoutException {
       debugLog('[WhisperService] Worker init TIMED OUT — killing isolate.');
       _killWorker();
-      throw Exception('Model init timed out (30s). Device may be low on memory.');
+      throw Exception(
+          'Model init timed out (30s). Device may be low on memory.');
     } catch (e) {
       debugLog('[WhisperService] Worker init FAILED: $e — killing isolate.');
       _killWorker();

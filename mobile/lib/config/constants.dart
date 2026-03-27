@@ -12,4 +12,10 @@ class AppConstants {
   static const String transcriptionModelPrefKey = 'transcription_model';
   static const String secureStorageKeyAzureWhisperUrl = 'azure_whisper_url';
   static const String secureStorageKeyAzureWhisperKey = 'azure_whisper_key';
+
+  // Azure OpenAI Whisper (cloud transcription)
+  static const String defaultAzureWhisperUrl =
+      'https://anote-openai.openai.azure.com/openai/deployments/whisper/audio/transcriptions?api-version=2024-06-01';
+  static const String defaultAzureWhisperKey =
+      'REDACTED_KEY';
 }

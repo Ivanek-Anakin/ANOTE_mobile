@@ -45,8 +45,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           (url?.isEmpty ?? true) ? AppConstants.defaultBackendUrl : url!;
       _tokenController.text =
           (token?.isEmpty ?? true) ? AppConstants.defaultToken : token!;
-      _azureWhisperUrlController.text = azureUrl ?? '';
-      _azureWhisperKeyController.text = azureKey ?? '';
+      _azureWhisperUrlController.text =
+          (azureUrl?.isEmpty ?? true) ? AppConstants.defaultAzureWhisperUrl : azureUrl!;
+      _azureWhisperKeyController.text =
+          (azureKey?.isEmpty ?? true) ? AppConstants.defaultAzureWhisperKey : azureKey!;
     });
   }
 

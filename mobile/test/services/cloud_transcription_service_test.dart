@@ -155,7 +155,7 @@ void main() {
       expect(bodyStr, contains('json'));
     });
 
-    test('throws when Azure URL is not configured', () async {
+    test('uses default URL when storage is empty', () async {
       final fakeStorage = _FakeSecureStorage({
         'azure_whisper_url': '',
         'azure_whisper_key': 'some-key',
@@ -166,13 +166,12 @@ void main() {
         httpClientFactory: () => _FakeHttpClient(),
       );
 
-      expect(
-        () => service.transcribe([0.0, 0.1]),
-        throwsA(isA<Exception>()),
-      );
+      // Should not throw — falls back to default URL
+      final result = await service.transcribe([0.0, 0.1]);
+      expect(result, isA<String>());
     });
 
-    test('throws when Azure API key is not configured', () async {
+    test('uses default API key when storage is empty', () async {
       final fakeStorage = _FakeSecureStorage({
         'azure_whisper_url': 'https://test.openai.azure.com/test',
         'azure_whisper_key': '',
@@ -183,10 +182,9 @@ void main() {
         httpClientFactory: () => _FakeHttpClient(),
       );
 
-      expect(
-        () => service.transcribe([0.0, 0.1]),
-        throwsA(isA<Exception>()),
-      );
+      // Should not throw — falls back to default key
+      final result = await service.transcribe([0.0, 0.1]);
+      expect(result, isA<String>());
     });
 
     test('throws on non-2xx response', () async {

@@ -26,17 +26,17 @@ class CloudTranscriptionService {
   /// [samples] — raw PCM Float32 samples at 16 kHz.
   /// Returns the transcribed text.
   Future<String> transcribe(List<double> samples) async {
-    final endpoint =
+    final storedEndpoint =
         await _storage.read(key: AppConstants.secureStorageKeyAzureWhisperUrl);
-    final apiKey =
+    final storedKey =
         await _storage.read(key: AppConstants.secureStorageKeyAzureWhisperKey);
 
-    if (endpoint == null || endpoint.isEmpty) {
-      throw Exception('Azure Whisper URL is not configured.');
-    }
-    if (apiKey == null || apiKey.isEmpty) {
-      throw Exception('Azure Whisper API key is not configured.');
-    }
+    final endpoint = (storedEndpoint?.isEmpty ?? true)
+        ? AppConstants.defaultAzureWhisperUrl
+        : storedEndpoint!;
+    final apiKey = (storedKey?.isEmpty ?? true)
+        ? AppConstants.defaultAzureWhisperKey
+        : storedKey!;
 
     // Encode PCM to WAV
     final Uint8List wavBytes = WavEncoder.encode(samples, sampleRate: 16000);
