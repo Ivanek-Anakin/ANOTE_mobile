@@ -1,7 +1,7 @@
 class AppConstants {
-  // Production: Azure Container Apps (West Europe)
+  // Production: Azure Container Apps (West US 2)
   static const String defaultBackendUrl =
-      'https://anote-api.politesmoke-02c93984.westeurope.azurecontainerapps.io';
+      'https://anote-api.gentleriver-a61d304a.westus2.azurecontainerapps.io';
   static const String defaultToken =
       '_lZNhJDgaoneVaztSf2tJnf-rZMEQV5ZCLBPRAyC38I';
   static const Duration reportGenerationInterval = Duration(seconds: 15);
@@ -12,6 +12,10 @@ class AppConstants {
   static const String transcriptionModelPrefKey = 'transcription_model';
   static const String secureStorageKeyAzureWhisperUrl = 'azure_whisper_url';
   static const String secureStorageKeyAzureWhisperKey = 'azure_whisper_key';
+
+  // Email report settings
+  static const String emailReportEnabledPrefKey = 'email_report_enabled';
+  static const String emailReportAddressPrefKey = 'email_report_address';
 
   // Azure OpenAI Whisper (cloud transcription)
   static const String defaultAzureWhisperUrl =

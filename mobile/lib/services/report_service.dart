@@ -102,6 +102,32 @@ class ReportService {
     }
   }
 
+  /// Send a generated report to the configured email address.
+  /// Fire-and-forget from the caller's perspective.
+  Future<void> sendReportEmail({
+    required String report,
+    required String email,
+    String visitType = 'default',
+  }) async {
+    final baseUrl = await _getBaseUrl();
+    final token = await _getToken();
+
+    await _dio.post(
+      '$baseUrl/send-report-email',
+      data: {
+        'report': report,
+        'email': email,
+        'visit_type': visitType,
+      },
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer ${token ?? ''}',
+          'Content-Type': 'application/json',
+        },
+      ),
+    );
+  }
+
   /// Check if the backend is reachable.
   /// Retries up to 3 times with backoff to handle Azure cold starts.
   Future<bool> isBackendReachable() async {

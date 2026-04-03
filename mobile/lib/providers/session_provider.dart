@@ -58,6 +58,52 @@ class TranscriptionModelNotifier extends StateNotifier<TranscriptionModel> {
   }
 }
 
+/// Whether automatic email report sending is enabled.
+final emailReportEnabledProvider =
+    StateNotifierProvider<EmailReportEnabledNotifier, bool>((ref) {
+  return EmailReportEnabledNotifier();
+});
+
+class EmailReportEnabledNotifier extends StateNotifier<bool> {
+  EmailReportEnabledNotifier() : super(false) {
+    _load();
+  }
+
+  Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+    state = prefs.getBool(AppConstants.emailReportEnabledPrefKey) ?? false;
+  }
+
+  Future<void> setEnabled(bool enabled) async {
+    state = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(AppConstants.emailReportEnabledPrefKey, enabled);
+  }
+}
+
+/// The email address to send reports to.
+final emailReportAddressProvider =
+    StateNotifierProvider<EmailReportAddressNotifier, String>((ref) {
+  return EmailReportAddressNotifier();
+});
+
+class EmailReportAddressNotifier extends StateNotifier<String> {
+  EmailReportAddressNotifier() : super('') {
+    _load();
+  }
+
+  Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+    state = prefs.getString(AppConstants.emailReportAddressPrefKey) ?? '';
+  }
+
+  Future<void> setAddress(String address) async {
+    state = address;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(AppConstants.emailReportAddressPrefKey, address);
+  }
+}
+
 /// Provides the persisted visit type preference.
 final visitTypeProvider =
     StateNotifierProvider<VisitTypeNotifier, VisitType>((ref) {
@@ -632,6 +678,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
         if (report != null && report.isNotEmpty) {
           state = state.copyWith(report: report, visitTypeChanged: false);
           WhisperService.debugLog('[SessionNotifier] Report generated OK.');
+          _sendEmailIfEnabled(report);
         } else if (lastError != null) {
           state = state.copyWith(errorMessage: lastError.toString());
         }
@@ -843,6 +890,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
           status: RecordingStatus.idle,
           report: report,
         );
+        _sendEmailIfEnabled(report);
         return;
       } catch (e) {
         lastError = e;
@@ -858,6 +906,28 @@ class SessionNotifier extends StateNotifier<SessionState> {
       status: RecordingStatus.idle,
       errorMessage: lastError.toString(),
     );
+  }
+
+  /// Send report via email if the feature is enabled and configured.
+  /// Fire-and-forget — errors are logged, never shown to user.
+  Future<void> _sendEmailIfEnabled(String report) async {
+    try {
+      final enabled = _ref.read(emailReportEnabledProvider);
+      if (!enabled) return;
+
+      final email = _ref.read(emailReportAddressProvider);
+      if (email.isEmpty) return;
+
+      final vt = await _getVisitTypeApi();
+      await _reportService.sendReportEmail(
+        report: report,
+        email: email,
+        visitType: vt,
+      );
+      WhisperService.debugLog('[SessionNotifier] Report email sent to $email');
+    } catch (e) {
+      WhisperService.debugLog('[SessionNotifier] Email send failed: $e');
+    }
   }
 
   @override

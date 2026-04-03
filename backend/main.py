@@ -2,7 +2,10 @@
 
 import logging
 import os
+import re
+import smtplib
 from datetime import date
+from email.mime.text import MIMEText
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -62,7 +65,29 @@ SCENARIOS_DIR: Path = (
 )
 
 
-VALID_VISIT_TYPES = {"default", "initial", "followup"}
+VALID_VISIT_TYPES = {"default", "initial", "followup", "gastroscopy", "colonoscopy", "ultrasound"}
+
+VISIT_TYPE_LABELS: dict[str, str] = {
+    "default": "Automatická detekce",
+    "initial": "Vstupní vyšetření",
+    "followup": "Kontrolní návštěva",
+    "gastroscopy": "Gastroskopie",
+    "colonoscopy": "Koloskopie",
+    "ultrasound": "Ultrazvuk",
+}
+
+# SMTP configuration (all optional — feature disabled if SMTP_HOST is unset)
+SMTP_HOST: str | None = os.environ.get("SMTP_HOST")
+SMTP_PORT: int = int(os.environ.get("SMTP_PORT", "587"))
+SMTP_USER: str = os.environ.get("SMTP_USER", "")
+SMTP_PASSWORD: str = os.environ.get("SMTP_PASSWORD", "")
+SMTP_FROM_EMAIL: str = os.environ.get("SMTP_FROM_EMAIL", "noreply@anote.cz")
+SMTP_USE_TLS: bool = os.environ.get("SMTP_USE_TLS", "true").lower() == "true"
+
+if SMTP_HOST:
+    logger.info("SMTP configured: host=%s port=%d from=%s", SMTP_HOST, SMTP_PORT, SMTP_FROM_EMAIL)
+else:
+    logger.info("SMTP not configured — email sending disabled")
 
 
 def _build_base_rules() -> str:
@@ -234,23 +259,224 @@ def _build_sections_followup(today: str) -> str:
     )
 
 
+def _build_sections_gastroscopy(today: str) -> str:
+    """Return structure for a gastroscopy (gastroskopie) report."""
+    return (
+        f"DATUM VYŠETŘENÍ\n- Datum vyšetření vždy: {today}\n\n"
+        "TYP VYŠETŘENÍ: Gastroskopie (ezofagogastroduodenoskopie)\n\n"
+        "VÝSTUP – dodrž přesně strukturu, názvy a pořadí:\n"
+        "Gastroskopie\n\n"
+        "Indikace:\n"
+        "- Důvod vyšetření (anémie, dyspepsie, reflux, screening apod.).\n"
+        '- Pokud nezaznělo: „neuvedeno".\n\n'
+        "Odesílající lékař:\n"
+        '- Jméno odesílajícího lékaře. Pokud nezaznělo: „neuvedeno".\n\n'
+        "Premedikace:\n"
+        "- Typ premedikace (např. Lidocain spray 10% lokálně, sedace apod.).\n"
+        "- Kdo aplikoval.\n"
+        '- Pokud nezaznělo: „neuvedeno".\n\n'
+        "Přístroj:\n"
+        "- Název a sériové číslo gastroskopického přístroje.\n"
+        "- Zdroj (procesor, světelný zdroj), oplachová pumpa, odsávačka, monitor – "
+        "včetně výrobních čísel, pokud zazněla.\n"
+        '- Pokud nezaznělo: „neuvedeno".\n\n'
+        "Asistence:\n"
+        '- Jména sester / asistujícího personálu. Pokud nezaznělo: „neuvedeno".\n\n'
+        "Čas:\n"
+        '- Čas začátku a konce výkonu. Pokud nezaznělo: „neuvedeno".\n\n'
+        "Informovaný souhlas:\n"
+        "- Zaznamenej, zda pacient/pacientka podepsal/a informovaný souhlas.\n"
+        "- Použij správný rod (pacient podepsal / pacientka podepsala).\n"
+        "- U hospitalizovaných: kopie ponechána v dokumentaci lůžkového oddělení.\n"
+        "- Pacient/ka poučen/a o svých právech, měl/a možnost klást doplňující otázky.\n"
+        '- Pokud nezaznělo: „neuvedeno".\n\n'
+        "Popis výkonu:\n"
+        "- Podrobný popis celého průběhu gastroskopie:\n"
+        "  • Poloha pacienta (na levém boku).\n"
+        "  • Jícen: stav sliznice, kardie (vzdálenost v cm), těsnost.\n"
+        "  • Žaludek: sliznice, řasy, jezírko (čiré/kalné/s obsahem).\n"
+        "  • Inverze: kardie a fundus.\n"
+        "  • Angulární řasa, antrum.\n"
+        "  • Pylorus: průchodnost.\n"
+        "  • Bulbus duodena a D2.\n"
+        "  • Případné patologie: eroze, vředy, polypy, varixe, Barrett, hiátová hernie.\n"
+        "  • Provedené intervence: biopsie (odkud, počet vzorků), polypektomie, "
+        "hemostáza, dilatace.\n"
+        '- Pokud nezaznělo: „neuvedeno".\n\n'
+        "Závěr:\n"
+        "- Stručný klinický závěr z gastroskopie.\n"
+        "- Diagnóza / makroskopický nález.\n"
+        '- Pokud nezaznělo: „neuvedeno".\n\n'
+        "Doporučení:\n"
+        "- Medikace (inhibitor protonové pumpy – název, dávka, délka podávání).\n"
+        "- Informace o histologii (za kolik dní, kam bude odeslána, kontaktní telefon).\n"
+        "- Dietní a režimová opatření (nejíst a nepít 1 hodinu od výkonu apod.).\n"
+        '- Pokud nezaznělo: „neuvedeno".\n\n'
+        "Stav po výkonu:\n"
+        "- Výkon bez komplikací / s komplikacemi (popsat).\n"
+        "- Stav pacienta po výkonu (stabilizovaný, KP kompenzovaný).\n"
+        "- Kam pacient odchází / je předán.\n"
+        '- Pokud nezaznělo: „neuvedeno".\n\n'
+    )
+
+
+def _build_sections_colonoscopy(today: str) -> str:
+    """Return structure for a colonoscopy (koloskopie) report."""
+    return (
+        f"DATUM VYŠETŘENÍ\n- Datum vyšetření vždy: {today}\n\n"
+        "TYP VYŠETŘENÍ: Koloskopie\n\n"
+        "VÝSTUP – dodrž přesně strukturu, názvy a pořadí:\n"
+        "Koloskopie\n\n"
+        "Indikace:\n"
+        "- Důvod vyšetření (screening, FOBT+, krvácení, sledování polypů, IBD apod.).\n"
+        '- Pokud nezaznělo: „neuvedeno".\n\n'
+        "Odesílající lékař:\n"
+        '- Jméno odesílajícího lékaře. Pokud nezaznělo: „neuvedeno".\n\n'
+        "Premedikace:\n"
+        "- Typ premedikace (viz záznam KAR / Propofol / bez sedace apod.).\n"
+        '- Pokud nezaznělo: „neuvedeno".\n\n'
+        "Přístroj:\n"
+        "- Název a sériové číslo koloskopického přístroje.\n"
+        "- Zdroj, odsávačka, oplachová pumpa, monitor – včetně výrobních čísel.\n"
+        '- Pokud nezaznělo: „neuvedeno".\n\n'
+        "Asistence:\n"
+        '- Jména sester / asistujícího personálu. Pokud nezaznělo: „neuvedeno".\n\n'
+        "Čas:\n"
+        '- Čas začátku a konce výkonu. Pokud nezaznělo: „neuvedeno".\n\n'
+        "Informovaný souhlas:\n"
+        "- Zaznamenej, zda pacient/pacientka podepsal/a informovaný souhlas.\n"
+        "- Použij správný rod (pacient podepsal / pacientka podepsala).\n"
+        "- U hospitalizovaných: kopie ponechána v dokumentaci lůžkového oddělení.\n"
+        "- Pacient/ka poučen/a o svých právech, měl/a možnost klást doplňující otázky.\n"
+        '- Pokud nezaznělo: „neuvedeno".\n\n'
+        "Popis výkonu:\n"
+        "- Podrobný popis celého průběhu koloskopie:\n"
+        "  • Poloha pacienta (na levém boku).\n"
+        "  • Zevní nález a per rectum.\n"
+        "  • Dosažený rozsah (dno céka, terminální ileum – ano/ne).\n"
+        "  • Bauhinská chlopeň – vzhled.\n"
+        "  • Terminální ileum – intaktní / patologie.\n"
+        "  • Sliznice tlustého střeva v celém rozsahu – vzhled, cévní kresba.\n"
+        "  • Patologie: polypy (lokalizace, velikost, počet, morfologie), divertikly, "
+        "zánětlivé změny, stenózy, tumory.\n"
+        "  • Provedené intervence: biopsie (odkud, počet), polypektomie (metoda, "
+        "lokalizace), hemostáza.\n"
+        "  • Nález při vysouvání přístroje.\n"
+        "  • Hemoroidy (stupeň).\n"
+        '- Pokud nezaznělo: „neuvedeno".\n\n'
+        "Závěr:\n"
+        "- Stručný klinický závěr z koloskopie.\n"
+        "- Totální / parciální koloskopie.\n"
+        "- Hlavní diagnózy a nálezy.\n"
+        '- Pokud nezaznělo: „neuvedeno".\n\n'
+        "Stav po výkonu:\n"
+        "- Pacient/ka ve stabilizovaném stavu, předán/a na dospávací pokoj.\n"
+        "- Po odeznění premedikace dále dle KAR.\n"
+        '- Pokud nezaznělo: „neuvedeno".\n\n'
+        "Doporučení:\n"
+        "- Režim po výkonu (klid na lůžku, tekutiny, dietní opatření, vláknina).\n"
+        "- Kontrola s výsledkem u odesílajícího lékaře.\n"
+        "- Histologie – za kolik dní bude hotová, kam bude odeslána, kontaktní telefon.\n"
+        "- Kontrolní koloskopie – za kolik let, event. dříve dle histologie.\n"
+        "- Případná polypektomie: termín hospitalizace, příprava střeva, "
+        "vysazení antikoagulancií / LMWH, kontrolní odběry.\n"
+        "- Varovné příznaky: bolesti břicha, zvracení, krvácení z konečníku, "
+        "teplota, zimnice → vyhledat lékařskou péči / linka 155.\n"
+        '- Pokud nezaznělo: „neuvedeno".\n\n'
+    )
+
+
+def _build_sections_ultrasound(today: str) -> str:
+    """Return structure for an abdominal ultrasound (ultrazvuk břicha) report."""
+    return (
+        f"DATUM VYŠETŘENÍ\n- Datum vyšetření vždy: {today}\n\n"
+        "TYP VYŠETŘENÍ: Ultrazvuk břicha\n\n"
+        "VÝSTUP – dodrž přesně strukturu, názvy a pořadí:\n"
+        "Ultrazvuk břicha\n\n"
+        "Indikace:\n"
+        "- Důvod vyšetření.\n"
+        '- Pokud nezaznělo: „neuvedeno".\n\n'
+        "Odesílající lékař:\n"
+        '- Jméno odesílajícího lékaře. Pokud nezaznělo: „neuvedeno".\n\n'
+        "Přístroj:\n"
+        "- Název a sériové číslo UZ přístroje a použitých sond.\n"
+        "- FibroScan (pokud byl proveden) – typ a sériové číslo.\n"
+        '- Pokud nezaznělo: „neuvedeno".\n\n'
+        "Popis nálezu:\n"
+        "- Podrobný popis jednotlivých orgánů:\n\n"
+        "  Játra:\n"
+        "  - Velikost (zvětšena / nezvětšena).\n"
+        "  - Parenchym (homogenní / nehomogenní, echogenita).\n"
+        "  - Cévy (pravidelné / nepravidelné).\n"
+        "  - Povrch (hladký / nerovný).\n"
+        "  - Ložiskové změny (popis / nejsou patrné).\n"
+        "  - V. portae: dilatace, směr toku, rychlost (cm/s).\n\n"
+        "  Žlučník:\n"
+        "  - Stěna (zesílená / normální).\n"
+        "  - Obsah (anechogenní / konkrementy / sludge).\n\n"
+        "  Žlučové cesty:\n"
+        "  - Hepatocholedochus (šíře v mm, dilatace ano/ne).\n"
+        "  - Intrahepatální žlučovody (dilatace ano/ne).\n\n"
+        "  Slinivka:\n"
+        "  - Velikost, homogenita, ohraničení.\n\n"
+        "  Ledviny:\n"
+        "  - Velikost, funkční parenchym, echogenita.\n"
+        "  - Dutý systém (městnání ano/ne).\n"
+        "  - Případné konkrementy, cysty.\n\n"
+        "  Slezina:\n"
+        "  - Velikost, homogenita.\n\n"
+        "  Volná tekutina:\n"
+        "  - Přítomnost volné tekutiny v dutině břišní.\n\n"
+        "  Malá pánev:\n"
+        "  - Orientační nález.\n\n"
+        "  Močový měchýř:\n"
+        "  - Naplnění, stěna.\n\n"
+        "- U každého orgánu zaznamenej přesně, co zaznělo v přepisu.\n"
+        '- Pokud orgán nebyl zmíněn: „nevyšetřeno" nebo vynechej.\n\n'
+        "Elastografie / FibroScan (pokud provedeno):\n"
+        "- ARFI jater: medián z měření (m/s).\n"
+        "- FibroScan: medián (kPa), IQR/med (%), stupeň fibrózy (F0–F4).\n"
+        "- CAP: hodnota (dB/m), SD, stupeň steatózy (S0–S3).\n"
+        '- Pokud neprovedeno: vynechej celou sekci.\n\n'
+        "Závěr:\n"
+        "- Stručný klinický závěr z UZ vyšetření.\n"
+        "- Hlavní diagnózy (steatóza, steatofibróza, normální nález apod.).\n"
+        "- Stupeň fibrózy a steatózy dle elastografie (pokud provedena).\n"
+        "- Případné omezení vyšetřitelnosti.\n"
+        '- Pokud nezaznělo: „neuvedeno".\n\n'
+    )
+
+
 def _build_system_prompt(today: str, visit_type: str = "default") -> str:
     """Build the Czech medical report system prompt.
 
     Args:
         today: Formatted date string for the report.
-        visit_type: One of "default", "initial", "followup".
+        visit_type: One of "default", "initial", "followup",
+                    "gastroscopy", "colonoscopy", "ultrasound".
     """
-    intro = (
-        "Jsi asistent pro tvorbu lékařské dokumentace. Z poskytnutého přepisu "
-        "návštěvy vytvoř formální lékařskou zprávu v češtině.\n\n"
-    )
+    if visit_type in ("gastroscopy", "colonoscopy", "ultrasound"):
+        intro = (
+            "Jsi asistent pro tvorbu lékařské dokumentace. Z poskytnutého přepisu "
+            "vyšetření vytvoř formální zprávu z vyšetření v češtině.\n\n"
+        )
+    else:
+        intro = (
+            "Jsi asistent pro tvorbu lékařské dokumentace. Z poskytnutého přepisu "
+            "návštěvy vytvoř formální lékařskou zprávu v češtině.\n\n"
+        )
     rules = _build_base_rules()
 
     if visit_type == "followup":
         sections = _build_sections_followup(today)
     elif visit_type == "initial":
         sections = _build_sections_initial(today)
+    elif visit_type == "gastroscopy":
+        sections = _build_sections_gastroscopy(today)
+    elif visit_type == "colonoscopy":
+        sections = _build_sections_colonoscopy(today)
+    elif visit_type == "ultrasound":
+        sections = _build_sections_ultrasound(today)
     else:
         # "default" — model decides; include both templates as guidance
         sections = (
@@ -284,6 +510,37 @@ class ReportRequest(BaseModel):
     transcript: str
     language: str = "cs"
     visit_type: str = "default"
+
+
+class SendReportEmailRequest(BaseModel):
+    """Request body for the /send-report-email endpoint."""
+
+    report: str
+    email: str
+    visit_type: str = "default"
+
+
+def _send_email(to: str, subject: str, body: str) -> None:
+    """Send a plain-text email via SMTP."""
+    if not SMTP_HOST:
+        raise RuntimeError("Email not configured on server")
+
+    msg = MIMEText(body, "plain", "utf-8")
+    msg["Subject"] = subject
+    msg["From"] = SMTP_FROM_EMAIL
+    msg["To"] = to
+
+    if SMTP_USE_TLS:
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=30) as server:
+            server.starttls()
+            if SMTP_USER:
+                server.login(SMTP_USER, SMTP_PASSWORD)
+            server.send_message(msg)
+    else:
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=30) as server:
+            if SMTP_USER:
+                server.login(SMTP_USER, SMTP_PASSWORD)
+            server.send_message(msg)
 
 
 @app.get("/health")
@@ -353,6 +610,45 @@ async def test_report_from_scenario(
                     status_code=502, detail=f"OpenAI error: {str(e)}"
                 ) from e
 
+
+
+@app.post("/send-report-email")
+async def send_report_email(
+    data: SendReportEmailRequest, _: None = Depends(verify_token)
+) -> dict:
+    """Send a generated medical report to the specified email address."""
+    report = data.report.strip()
+    if not report:
+        raise HTTPException(status_code=400, detail="Empty report")
+
+    email = data.email.strip()
+    if not email or not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
+        raise HTTPException(status_code=400, detail="Invalid email address")
+
+    today: str = date.today().strftime("%d. %m. %Y")
+    visit_type = data.visit_type if data.visit_type in VALID_VISIT_TYPES else "default"
+    vt_label = VISIT_TYPE_LABELS.get(visit_type, visit_type)
+
+    subject = f"ANOTE \u2013 L\u00e9ka\u0159sk\u00e1 zpr\u00e1va \u2013 {today}"
+    body = (
+        "L\u00e9ka\u0159sk\u00e1 zpr\u00e1va vygenerovan\u00e1 aplikac\u00ed ANOTE\n"
+        f"Datum: {today}\n"
+        f"Typ n\u00e1v\u0161t\u011bvy: {vt_label}\n"
+        "\n---\n\n"
+        f"{report}\n"
+        "\n---\n"
+        "Tato zpr\u00e1va byla automaticky odesl\u00e1na aplikac\u00ed ANOTE.\n"
+    )
+
+    try:
+        _send_email(email, subject, body)
+        logger.info("Report email sent to %s (visit_type=%s)", email, visit_type)
+        return {"status": "sent"}
+    except Exception as e:
+        logger.error("Email delivery failed: %s", e)
+        raise HTTPException(
+            status_code=502, detail=f"Email delivery failed: {str(e)}"
+        ) from e
 
 
 @app.post("/report")

@@ -200,27 +200,80 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             Consumer(
               builder: (context, ref, _) {
                 final currentVisitType = ref.watch(visitTypeProvider);
-                return SegmentedButton<VisitType>(
-                  segments: const [
-                    ButtonSegment(
-                      value: VisitType.defaultType,
-                      label: Text('Výchozí'),
+                return Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: VisitType.values.map((vt) {
+                    final selected = vt == currentVisitType;
+                    return ChoiceChip(
+                      label: Text(vt.label),
+                      selected: selected,
+                      onSelected: (_) {
+                        ref.read(visitTypeProvider.notifier).setVisitType(vt);
+                        ref
+                            .read(sessionProvider.notifier)
+                            .markVisitTypeChanged();
+                      },
+                    );
+                  }).toList(),
+                );
+              },
+            ),
+            const Divider(height: 32),
+            Text('Automatické odesílání zprávy',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 4),
+            Text(
+              'Po dokončení zprávy ji automaticky odešle e-mailem.',
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(height: 8),
+            Consumer(
+              builder: (context, ref, _) {
+                final emailEnabled = ref.watch(emailReportEnabledProvider);
+                final emailAddress = ref.watch(emailReportAddressProvider);
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Odesílat zprávu e-mailem'),
+                      value: emailEnabled,
+                      onChanged: (value) {
+                        ref
+                            .read(emailReportEnabledProvider.notifier)
+                            .setEnabled(value);
+                      },
                     ),
-                    ButtonSegment(
-                      value: VisitType.initial,
-                      label: Text('Vstupní'),
-                    ),
-                    ButtonSegment(
-                      value: VisitType.followup,
-                      label: Text('Kontrolní'),
-                    ),
+                    if (emailEnabled) ...[
+                      TextField(
+                        controller: TextEditingController(text: emailAddress)
+                          ..selection = TextSelection.collapsed(
+                              offset: emailAddress.length),
+                        decoration: const InputDecoration(
+                          labelText: 'E-mailová adresa',
+                          hintText: 'lekar@nemocnice.cz',
+                          border: OutlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                        onChanged: (value) {
+                          ref
+                              .read(emailReportAddressProvider.notifier)
+                              .setAddress(value.trim());
+                        },
+                      ),
+                      const SizedBox(height: 4),
+                      if (emailAddress.isNotEmpty &&
+                          !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
+                              .hasMatch(emailAddress))
+                        Text(
+                          'Zadejte platnou e-mailovou adresu.',
+                          style: theme.textTheme.bodySmall
+                              ?.copyWith(color: theme.colorScheme.error),
+                        ),
+                    ],
                   ],
-                  selected: {currentVisitType},
-                  onSelectionChanged: (types) {
-                    final type = types.first;
-                    ref.read(visitTypeProvider.notifier).setVisitType(type);
-                    ref.read(sessionProvider.notifier).markVisitTypeChanged();
-                  },
                 );
               },
             ),
