@@ -1,10 +1,11 @@
 """Quick comparison test: gpt-4.1-mini vs gpt-5-mini on Azure OpenAI."""
 
+import os
 import time
 from openai import AzureOpenAI
 
 ENDPOINT = "https://anote-openai.openai.azure.com/"
-KEY = "REDACTED_KEY"
+KEY = os.environ["AZURE_OPENAI_KEY"]
 API_VERSION = "2025-04-01-preview"
 
 TRANSCRIPT = """Dobrý den, já jsem doktor Procházka, jste na urgentním příjmu. Můžete mi říct, co se stalo?

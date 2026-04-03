@@ -38,11 +38,7 @@ ENDPOINT = "https://anote-openai.openai.azure.com/"
 API_VERSION = "2025-04-01-preview"
 DEFAULT_MODEL = "gpt-4-1-mini"
 
-API_KEY = os.environ.get(
-    "AZURE_OPENAI_KEY",
-    # Fallback: same key used in test_hurvinek.py (already committed to repo)
-    "REDACTED_KEY",
-)
+API_KEY = os.environ["AZURE_OPENAI_KEY"]
 
 # ── System prompt (synced from backend/main.py _build_system_prompt) ──────────
 

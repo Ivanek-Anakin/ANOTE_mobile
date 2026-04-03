@@ -1,5 +1,6 @@
 """Test full report generation pipeline with 3 Hurvínek scenarios on Azure OpenAI gpt-4.1-mini."""
 
+import os
 import time
 import warnings
 from pathlib import Path
@@ -9,7 +10,7 @@ warnings.filterwarnings("ignore")
 from openai import AzureOpenAI
 
 ENDPOINT = "https://anote-openai.openai.azure.com/"
-KEY = "REDACTED_KEY"
+KEY = os.environ["AZURE_OPENAI_KEY"]
 API_VERSION = "2025-04-01-preview"
 MODEL = "gpt-4-1-mini"
 

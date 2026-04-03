@@ -1,10 +1,10 @@
 """Test gpt-5-mini alone to debug empty output."""
-import time, warnings
+import os, time, warnings
 warnings.filterwarnings("ignore")
 from openai import AzureOpenAI
 
 client = AzureOpenAI(
-    api_key="REDACTED_KEY",
+    api_key=os.environ["AZURE_OPENAI_KEY"],
     api_version="2025-04-01-preview",
     azure_endpoint="https://anote-openai.openai.azure.com/",
 )
