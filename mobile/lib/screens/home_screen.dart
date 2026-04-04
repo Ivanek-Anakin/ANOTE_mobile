@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/session_state.dart';
 import '../providers/session_provider.dart';
@@ -16,6 +17,15 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _reportExpanded = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Preload model after first frame to avoid blocking UI
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      ref.read(sessionProvider.notifier).preloadModel();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

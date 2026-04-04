@@ -292,6 +292,7 @@ class WhisperService {
   Completer<void>? _initCompleter;
   Completer<String>? _transcribeFullCompleter;
   Completer<String>? _transcribeTailCompleter;
+  Completer<void>? _flushVadCompleter;
 
   // ---------------------------------------------------------------------------
   // Local state (test mode via withTranscriber — no worker spawned)
@@ -658,6 +659,25 @@ class WhisperService {
     _isTranscribing = false;
   }
 
+  /// Flush VAD internal buffers to ensure all pending speech segments
+  /// are pushed into the speech buffer before final transcription.
+  Future<void> flushVad() async {
+    if (_workerSendPort != null) {
+      debugLog('[WhisperService] flushVad → sending to worker');
+      _flushVadCompleter = Completer<void>();
+      _workerSendPort!.send(<String, dynamic>{'cmd': 'flush'});
+      try {
+        await _flushVadCompleter!.future.timeout(const Duration(seconds: 5));
+      } catch (e) {
+        debugLog('[WhisperService] flushVad timeout/error: $e');
+      } finally {
+        _flushVadCompleter = null;
+      }
+      return;
+    }
+    // Test mode: no-op (no VAD in test mode)
+  }
+
   /// Release all resources.
   void dispose() {
     _killWorker();
@@ -705,6 +725,7 @@ class WhisperService {
     _initCompleter = null;
     _transcribeFullCompleter = null;
     _transcribeTailCompleter = null;
+    _flushVadCompleter = null;
   }
 
   /// Handle messages coming back from the worker isolate.
@@ -734,6 +755,8 @@ class WhisperService {
             Exception(message['error'] as String? ?? 'Unknown worker error'));
       case 'finalChunkDone':
         break; // informational — could expose for UI progress indicator
+      case 'flushDone':
+        _flushVadCompleter?.complete();
       case 'resetDone':
         break; // fire-and-forget
       case 'disposeDone':

@@ -303,6 +303,9 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
   /// This is the fast path called after the user stops recording. Only the
   /// remaining tail (typically < 30s) needs decoding — all earlier chunks
   /// were already transcribed incrementally during recording.
+  ///
+  /// Includes a safety pass: always transcribe the last 15s of raw audio
+  /// regardless of VAD, to catch quiet trailing speech that VAD missed.
   String doTranscribeTail() {
     const int chunkSize = 30 * sampleRate;
     const int overlap = 5 * sampleRate;
@@ -343,7 +346,32 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
 
     final allParts = [...finalizedChunks];
     if (tailText.isNotEmpty) allParts.add(tailText);
-    final result = allParts.join(' ');
+    String result = allParts.join(' ');
+
+    // Safety pass: transcribe last 15s of raw audio regardless of VAD
+    // to catch quiet trailing speech the VAD may have missed.
+    const int safetyTailSamples = 15 * sampleRate;
+    if (rawAudioBuffer.length > safetyTailSamples) {
+      try {
+        final safetyTail = rawAudioBuffer.sublist(
+          rawAudioBuffer.length - safetyTailSamples,
+        );
+        final safetyText = transcribe(safetyTail);
+        if (safetyText.isNotEmpty) {
+          final deduped = WhisperService.removeOverlap(
+            WhisperService.lastWords(result, 20),
+            safetyText,
+          );
+          if (deduped.isNotEmpty && deduped.split(' ').length > 3) {
+            result = '$result $deduped';
+            workerLog('[Worker] Safety tail added ${deduped.split(' ').length} words');
+          }
+        }
+      } catch (e) {
+        workerLog('[Worker] Safety tail error: $e');
+      }
+    }
+
     workerLog('[Worker] transcribeTail done: '
         '${finalizedChunks.length} chunks + tail = ${result.length} chars');
     return result;
@@ -545,6 +573,26 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
         } catch (e) {
           mainSendPort
               .send({'type': 'transcribeTailError', 'error': e.toString()});
+        }
+
+      case 'flush':
+        try {
+          if (vad != null) {
+            vad!.flush();
+            while (!vad!.isEmpty()) {
+              final segment = vad!.front();
+              vad!.pop();
+              if (segment.samples.isNotEmpty) {
+                speechBuffer.addAll(segment.samples);
+                workerLog('[Worker] flush: VAD segment '
+                    '${segment.samples.length} samples');
+              }
+            }
+          }
+          mainSendPort.send({'type': 'flushDone'});
+        } catch (e) {
+          workerLog('[Worker] flush error: $e');
+          mainSendPort.send({'type': 'flushDone'});
         }
 
       case 'reset':

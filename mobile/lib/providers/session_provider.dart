@@ -287,6 +287,28 @@ class SessionNotifier extends StateNotifier<SessionState> {
     _preloadModel();
   }
 
+  /// Preload the Whisper model in background so first recording starts
+  /// instantly. Safe to call multiple times — no-op if already loaded.
+  /// Called from HomeScreen after first frame renders.
+  Future<void> preloadModel() async {
+    final selectedModel = _ref.read(transcriptionModelProvider);
+    if (selectedModel == TranscriptionModel.cloud) return;
+
+    final config = selectedModel == TranscriptionModel.turbo
+        ? WhisperService.turboConfig
+        : WhisperService.smallConfig;
+
+    if (_whisperService.isModelLoaded &&
+        _whisperService.modelConfig.dirName == config.dirName) {
+      return;
+    }
+
+    if (_isPreloading) return;
+
+    // Delegate to the internal preload (with retry logic)
+    await _preloadModel();
+  }
+
   /// Switch to a different on-device model. Downloads if needed, then loads.
   ///
   /// Called from the settings screen when the user selects a different model.
@@ -452,6 +474,19 @@ class SessionNotifier extends StateNotifier<SessionState> {
     try {
       final selectedModel = _ref.read(transcriptionModelProvider);
 
+      // ===== STEP 1: Start audio capture IMMEDIATELY =====
+      // Pre-buffer audio while model loads so we don't lose the first seconds.
+      await _audioService.start();
+      if (!mounted || state.status != RecordingStatus.recording) return;
+
+      final List<List<double>> preBuffer = [];
+      StreamSubscription<List<double>>? preBufferSub;
+
+      preBufferSub = _audioService.audioStream.listen(
+        (List<double> samples) => preBuffer.add(samples),
+      );
+
+      // ===== STEP 2: Load model (if needed) =====
       // Cloud mode doesn't need on-device model
       if (selectedModel != TranscriptionModel.cloud) {
         final config = selectedModel == TranscriptionModel.turbo
@@ -482,6 +517,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
             } catch (e) {
               _whisperService.onDownloadProgress = null;
               _isPreloading = false;
+              await preBufferSub.cancel();
               if (!mounted) return;
               final isNetwork = _isNetworkException(e);
               state = state.copyWith(
@@ -495,7 +531,10 @@ class SessionNotifier extends StateNotifier<SessionState> {
             }
             _whisperService.onDownloadProgress = null;
             _isPreloading = false;
-            if (!mounted) return;
+            if (!mounted) {
+              await preBufferSub.cancel();
+              return;
+            }
             state = state.copyWith(isModelLoaded: true, clearDownload: true);
           } else {
             // Wait for the ongoing preload to finish.
@@ -503,6 +542,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
               await Future<void>.delayed(const Duration(milliseconds: 200));
             }
             if (!mounted || !_whisperService.isModelLoaded) {
+              await preBufferSub.cancel();
               if (mounted) {
                 state = state.copyWith(
                   status: RecordingStatus.idle,
@@ -515,10 +555,21 @@ class SessionNotifier extends StateNotifier<SessionState> {
         }
       }
 
-      await _audioService.start();
       // Abort if stopRecording() or resetSession() was called while we were
       // waiting for loadModel() or audioService.start().
-      if (!mounted || state.status != RecordingStatus.recording) return;
+      if (!mounted || state.status != RecordingStatus.recording) {
+        await preBufferSub.cancel();
+        return;
+      }
+
+      // ===== STEP 3: Cancel pre-buffer, flush into whisper, set up real pipeline =====
+      await preBufferSub.cancel();
+
+      // Flush pre-buffered audio into whisper service
+      for (final samples in preBuffer) {
+        _whisperService.feedAudio(samples);
+      }
+      preBuffer.clear();
 
       // Keep screen on and start foreground service so recording survives
       // the screen turning off.
@@ -595,9 +646,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
     _autoSaveTimer?.cancel();
     _autoSaveTimer = null;
 
-    _audioSubscription?.cancel();
-    _audioSubscription = null;
-
+    // DON'T cancel audio subscription yet — let it drain
     _transcriptSubscription?.cancel();
     _transcriptSubscription = null;
 
@@ -607,11 +656,23 @@ class SessionNotifier extends StateNotifier<SessionState> {
 
   Future<void> _stopRecordingAsync() async {
     try {
+      // Step 1: Stop the microphone (no new audio will be generated)
       WhisperService.debugLog('[SessionNotifier] Stopping audio service...');
       await _audioService.stop();
+
+      // Step 2: Small delay to let in-flight audio buffers arrive
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+
+      // Step 3: NOW cancel the audio subscription (all pending buffers processed)
+      await _audioSubscription?.cancel();
+      _audioSubscription = null;
+
       // Release wake lock and foreground service now that audio capture is done.
       await _releaseWakeLockAndForeground();
       if (!mounted) return;
+
+      // Flush VAD before final transcription to push pending speech segments
+      await _whisperService.flushVad();
 
       final selectedModel = _ref.read(transcriptionModelProvider);
 
