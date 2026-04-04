@@ -166,7 +166,7 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
           sileroVad: sherpa.SileroVadModelConfig(
             model: vadModelPath,
             threshold:
-                0.45, // slightly lower for final pass — catch more speech
+                0.35, // lower for final pass — catch quiet trailing speech
             minSilenceDuration: 0.5,
             minSpeechDuration: 0.25,
             maxSpeechDuration: 30.0,
@@ -406,7 +406,7 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
               config: sherpa.VadModelConfig(
                 sileroVad: sherpa.SileroVadModelConfig(
                   model: vadModelPath,
-                  threshold: 0.5,
+                  threshold: 0.45,
                   minSilenceDuration: 0.5,
                   minSpeechDuration: 0.25,
                   maxSpeechDuration: 30.0,

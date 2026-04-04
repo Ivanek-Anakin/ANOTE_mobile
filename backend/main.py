@@ -128,6 +128,17 @@ def _build_base_rules() -> str:
         "přiřaď pacientovi. Pokud není jasné, kdo mluví, uveď obsah bez přiřazení.\n"
         "- U změn medikace nebo léčby zaznamenej, kdo změnu doporučil "
         "(jiný lékař, specialista), pokud to v přepisu zazní.\n"
+        "- Rozlišuj ALERGII (imunitní reakce: anafylaxe, angioedém, urtikarie, bronchospasmus) "
+        "a INTOLERANCI / nesnášenlivost (nežádoucí účinek bez imunitní reakce: "
+        "GIT potíže, bolest hlavy). V AA uváděj pouze alergie. Intolerance uveď v OA nebo FA.\n"
+        "- Preferovaná terminologie u poslechového nálezu plic: \u201Echrůpky\u201C (nikoli \u201Echropy\u201C).\n"
+        "- Děti pacienta patří do RA (Rodinná anamnéza), NE do SA (Sociální anamnéza). "
+        "V RA uveď počet dětí, věk a zdravotní stav, pokud bylo zmíněno.\n"
+        "- Potíže s močením (dysurie, polakisurie, nykturie, hematurie) patří do NO "
+        "(Nynější onemocnění), NE do GA. To platí pro obě pohlaví.\n"
+        "- DŮKLADNĚ projdi celý přepis. Pokud je v přepisu zmíněna informace (rodinný "
+        "příslušník, lék, symptom, event), MUSÍ se objevit ve zprávě. Raději uveď "
+        "informaci navíc, než aby chyběla.\n"
     )
 
 
@@ -164,10 +175,13 @@ def _build_sections_initial(today: str) -> str:
         '- Alergie (léky, potraviny, pyl\u2026), reakce.\n'
         '- Pokud výslovně popřeno: \u201Ealergie neguje\u201C.\n'
         '- Pokud se neřešilo: \u201Eneuvedeno\u201C.\n\n'
-        "GA (Gynekologická/urologická anamnéza \u2013 jen pokud relevantní a zmíněno):\n"
-        '- Dle přepisu (cyklus, gravidita, antikoncepce / urologické potíže atd.).\n'
-        '- Pokud výslovně popřeno: uveď negaci relevantního symptomu.\n'
-        '- Jinak \u201Eneuvedeno\u201C.\n\n'
+        "GA (Gynekologická anamnéza \u2014 pouze u žen):\n"
+        "- Menstruace (menarché, pravidelnost), gravidity, porody, potraty, "
+        "menopauza, antikoncepce, gynekologické operace.\n"
+        "- Pokud je pacient muž: sekci GA VYNECHEJ (nepiš ji vůbec, ani \u201Eneuvedeno\u201C).\n"
+        "- Pohlaví urči z přepisu (oslovení, koncovky, kontext).\n"
+        "- Potíže s močením NEPATŘÍ do GA \u2014 uveď je v NO.\n"
+        '- Pokud se neřešilo: \u201Eneuvedeno\u201C.\n\n'
         "SA (Sociální anamnéza):\n"
         "- Kouření, alkohol, drogy \u2013 jen co zazní. Pokud výslovně popřeno: "
         'např. \u201Ekouření neguje\u201C.\n'

@@ -153,7 +153,7 @@ List<Float32List> _extractSpeechSegmentsStandalone(
       config: sherpa.VadModelConfig(
         sileroVad: sherpa.SileroVadModelConfig(
           model: vadModelPath,
-          threshold: 0.45,
+          threshold: 0.35,
           minSilenceDuration: 0.5,
           minSpeechDuration: 0.25,
           maxSpeechDuration: 30.0,
