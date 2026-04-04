@@ -155,13 +155,19 @@ https://anote-api.gentleriver-a61d304a.westus2.azurecontainerapps.io
 
 ### Deploy / Redeploy
 
+> **az CLI**: We use the Azure CLI installed via pip in the project venv
+> (`.venv/bin/az`). Activate the venv first: `source .venv/bin/activate`.
+> Do **not** use a system-level `az` — the pip version is pinned in the venv.
+
 ```bash
-# 1. Build & push new image (from backend/ directory)
-cd backend
+# 0. Make sure you're in the repo root with venv active
+source .venv/bin/activate
+
+# 1. Build & push new image (backend only — uses backend/.dockerignore)
 az containerapp up \
   --name anote-api \
   --resource-group anote-rg \
-  --source .
+  --source ./backend
 
 # 2. Rebind env vars + secrets (az containerapp up overwrites them)
 az containerapp update \

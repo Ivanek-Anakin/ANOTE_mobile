@@ -53,3 +53,7 @@ mobile/android/key.properties
 
 # ===== Misc =====
 *.log
+
+# ===== Test scripts with secrets =====
+test_gpt5mini.py
+test_gpt5mini_full.py

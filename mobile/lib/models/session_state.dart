@@ -68,6 +68,15 @@ enum VisitType {
 
   /// Follow-up — compact control report.
   followup,
+
+  /// Gastroscopy report.
+  gastroscopy,
+
+  /// Colonoscopy report.
+  colonoscopy,
+
+  /// Ultrasound report.
+  ultrasound,
 }
 
 /// Map VisitType to backend API string value.
@@ -80,6 +89,12 @@ extension VisitTypeApi on VisitType {
         return 'initial';
       case VisitType.followup:
         return 'followup';
+      case VisitType.gastroscopy:
+        return 'gastroscopy';
+      case VisitType.colonoscopy:
+        return 'colonoscopy';
+      case VisitType.ultrasound:
+        return 'ultrasound';
     }
   }
 
@@ -91,6 +106,12 @@ extension VisitTypeApi on VisitType {
         return 'Vstupní';
       case VisitType.followup:
         return 'Kontrolní';
+      case VisitType.gastroscopy:
+        return 'Gastroskopie';
+      case VisitType.colonoscopy:
+        return 'Koloskopie';
+      case VisitType.ultrasound:
+        return 'Ultrazvuk';
     }
   }
 
@@ -100,6 +121,12 @@ extension VisitTypeApi on VisitType {
         return VisitType.initial;
       case 'followup':
         return VisitType.followup;
+      case 'gastroscopy':
+        return VisitType.gastroscopy;
+      case 'colonoscopy':
+        return VisitType.colonoscopy;
+      case 'ultrasound':
+        return VisitType.ultrasound;
       default:
         return VisitType.defaultType;
     }

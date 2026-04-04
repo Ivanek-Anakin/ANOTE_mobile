@@ -347,6 +347,9 @@ class _VisitTypeBadge extends StatelessWidget {
     final color = switch (vt) {
       VisitType.initial => Colors.blue,
       VisitType.followup => Colors.orange,
+      VisitType.gastroscopy => Colors.teal,
+      VisitType.colonoscopy => Colors.purple,
+      VisitType.ultrasound => Colors.indigo,
       VisitType.defaultType => theme.colorScheme.primary,
     };
 
