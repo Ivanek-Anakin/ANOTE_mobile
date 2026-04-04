@@ -293,6 +293,7 @@ class WhisperService {
   Completer<String>? _transcribeFullCompleter;
   Completer<String>? _transcribeTailCompleter;
   Completer<void>? _flushVadCompleter;
+  Completer<List<double>>? _rawAudioCompleter;
 
   // ---------------------------------------------------------------------------
   // Local state (test mode via withTranscriber — no worker spawned)
@@ -678,6 +679,32 @@ class WhisperService {
     // Test mode: no-op (no VAD in test mode)
   }
 
+  /// Retrieve the raw audio buffer from the worker isolate.
+  /// Used in hybrid mode to send raw audio to cloud transcription.
+  Future<List<double>> getRawAudioBufferFromWorker() async {
+    if (_workerSendPort != null) {
+      debugLog('[WhisperService] getRawAudioBufferFromWorker → sending to worker');
+      _rawAudioCompleter = Completer<List<double>>();
+      _workerSendPort!.send(<String, dynamic>{'cmd': 'getRawAudio'});
+      try {
+        final result = await _rawAudioCompleter!.future
+            .timeout(const Duration(seconds: 30));
+        _rawAudioCompleter = null;
+        debugLog('[WhisperService] getRawAudioBufferFromWorker: '
+            '${result.length} samples '
+            '(${(result.length / _sampleRate).toStringAsFixed(1)}s)');
+        return result;
+      } catch (e) {
+        _rawAudioCompleter = null;
+        debugLog('[WhisperService] getRawAudioBufferFromWorker error: $e');
+        rethrow;
+      }
+    }
+
+    // Test mode: return local buffer
+    return List<double>.unmodifiable(_rawAudioBuffer);
+  }
+
   /// Release all resources.
   void dispose() {
     _killWorker();
@@ -726,6 +753,7 @@ class WhisperService {
     _transcribeFullCompleter = null;
     _transcribeTailCompleter = null;
     _flushVadCompleter = null;
+    _rawAudioCompleter = null;
   }
 
   /// Handle messages coming back from the worker isolate.
@@ -757,6 +785,12 @@ class WhisperService {
         break; // informational — could expose for UI progress indicator
       case 'flushDone':
         _flushVadCompleter?.complete();
+      case 'rawAudioData':
+        final TransferableTypedData transferable =
+            message['samples'] as TransferableTypedData;
+        final ByteBuffer buffer = transferable.materialize();
+        final Float32List samples = buffer.asFloat32List();
+        _rawAudioCompleter?.complete(samples.toList());
       case 'resetDone':
         break; // fire-and-forget
       case 'disposeDone':

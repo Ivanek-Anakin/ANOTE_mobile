@@ -327,7 +327,8 @@ class SessionNotifier extends StateNotifier<SessionState> {
       return;
     }
 
-    final config = model == TranscriptionModel.turbo
+    // Hybrid uses small model for live preview
+    final config = (model == TranscriptionModel.turbo)
         ? WhisperService.turboConfig
         : WhisperService.smallConfig;
 
@@ -488,10 +489,11 @@ class SessionNotifier extends StateNotifier<SessionState> {
 
       // ===== STEP 2: Load model (if needed) =====
       // Cloud mode doesn't need on-device model
+      // Hybrid mode uses small model for live preview
       if (selectedModel != TranscriptionModel.cloud) {
         final config = selectedModel == TranscriptionModel.turbo
             ? WhisperService.turboConfig
-            : WhisperService.smallConfig;
+            : WhisperService.smallConfig; // hybrid uses small for live preview
 
         // Check if the correct model is loaded
         final needsSwitch = _whisperService.isModelLoaded &&
@@ -696,6 +698,26 @@ class SessionNotifier extends StateNotifier<SessionState> {
           } catch (e2) {
             WhisperService.debugLog(
                 '[SessionNotifier] On-device fallback error: $e2');
+          }
+        }
+      } else if (selectedModel == TranscriptionModel.hybrid) {
+        // Hybrid mode: get raw audio from worker isolate, send to cloud
+        try {
+          final rawAudio =
+              await _whisperService.getRawAudioBufferFromWorker();
+          if (rawAudio.isNotEmpty) {
+            final cloudService = _ref.read(cloudTranscriptionServiceProvider);
+            fullTranscript = await cloudService.transcribe(rawAudio);
+          }
+        } catch (e) {
+          WhisperService.debugLog(
+              '[SessionNotifier] Hybrid cloud transcription error: $e');
+          // Fallback to on-device transcribeTail if cloud fails
+          try {
+            fullTranscript = await _whisperService.transcribeTail();
+          } catch (e2) {
+            WhisperService.debugLog(
+                '[SessionNotifier] Hybrid on-device fallback error: $e2');
           }
         }
       } else {

@@ -595,6 +595,23 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
           mainSendPort.send({'type': 'flushDone'});
         }
 
+      case 'getRawAudio':
+        try {
+          workerLog('[Worker] getRawAudio: ${rawAudioBuffer.length} samples');
+          final float32 = Float32List.fromList(rawAudioBuffer);
+          mainSendPort.send({
+            'type': 'rawAudioData',
+            'samples': TransferableTypedData.fromList([float32]),
+          });
+        } catch (e) {
+          workerLog('[Worker] getRawAudio error: $e');
+          mainSendPort.send({
+            'type': 'rawAudioData',
+            'samples':
+                TransferableTypedData.fromList([Float32List(0)]),
+          });
+        }
+
       case 'reset':
         speechBuffer.clear();
         rawAudioBuffer.clear();

@@ -64,6 +64,12 @@ class _FakeWhisperService extends WhisperService {
   void reset() {}
 
   @override
+  Future<void> flushVad() async {}
+
+  @override
+  Future<List<double>> getRawAudioBufferFromWorker() async => [];
+
+  @override
   void dispose() {}
 }
 
@@ -148,8 +154,8 @@ void main() {
 
     container.read(sessionProvider.notifier).startRecording();
     container.read(sessionProvider.notifier).stopRecording();
-    // Give the async stop pipeline time to complete
-    await Future<void>.delayed(const Duration(milliseconds: 50));
+    // Give the async stop pipeline time to complete (includes 300ms drain delay)
+    await Future<void>.delayed(const Duration(milliseconds: 500));
     expect(container.read(sessionProvider).status, RecordingStatus.idle);
   });
 
@@ -177,7 +183,7 @@ void main() {
 
     container.read(sessionProvider.notifier).startRecording();
     container.read(sessionProvider.notifier).stopRecording();
-    await Future<void>.delayed(const Duration(milliseconds: 50));
+    await Future<void>.delayed(const Duration(milliseconds: 500));
 
     expect(container.read(sessionProvider).status, RecordingStatus.idle);
   });

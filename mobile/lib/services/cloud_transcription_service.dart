@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../config/constants.dart';
 import '../utils/wav_encoder.dart';
+import 'whisper_service.dart' show WhisperService;
 
 /// Azure OpenAI Whisper cloud transcription service.
 ///
@@ -21,11 +23,48 @@ class CloudTranscriptionService {
   })  : _storage = storage ?? const FlutterSecureStorage(),
         _httpClientFactory = httpClientFactory ?? (() => HttpClient());
 
+  /// Max chunk duration in samples (10 minutes at 16 kHz to stay under 25 MB).
+  static const int _maxChunkSamples = 10 * 60 * 16000; // 9,600,000 samples
+
+  /// Overlap between chunks (10 seconds at 16 kHz).
+  static const int _overlapSamples = 10 * 16000; // 160,000 samples
+
   /// Transcribe audio using Azure OpenAI Whisper API.
   ///
   /// [samples] — raw PCM Float32 samples at 16 kHz.
   /// Returns the transcribed text.
+  ///
+  /// For recordings longer than 10 minutes, automatically splits into
+  /// overlapping chunks and deduplicates at boundaries.
   Future<String> transcribe(List<double> samples) async {
+    if (samples.length <= _maxChunkSamples) {
+      // Short recording — single request
+      return _transcribeChunk(samples);
+    }
+
+    // Long recording — chunked transcription
+    final parts = <String>[];
+    String previousTail = '';
+
+    for (int start = 0;
+        start < samples.length;
+        start += _maxChunkSamples - _overlapSamples) {
+      final int end = min(start + _maxChunkSamples, samples.length);
+      final chunk = samples.sublist(start, end);
+
+      final text = await _transcribeChunk(chunk);
+      if (text.isEmpty) continue;
+
+      final deduped = WhisperService.removeOverlap(previousTail, text);
+      if (deduped.isNotEmpty) parts.add(deduped);
+      previousTail = WhisperService.lastWords(text, 30);
+    }
+
+    return parts.join(' ');
+  }
+
+  /// Transcribe a single chunk via Azure OpenAI Whisper API.
+  Future<String> _transcribeChunk(List<double> samples) async {
     final storedEndpoint =
         await _storage.read(key: AppConstants.secureStorageKeyAzureWhisperUrl);
     final storedKey =

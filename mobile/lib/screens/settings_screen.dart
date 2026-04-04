@@ -305,6 +305,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           value: TranscriptionModel.cloud,
                           label: Text(TranscriptionModel.cloud.label),
                         ),
+                        ButtonSegment(
+                          value: TranscriptionModel.hybrid,
+                          label: Text(TranscriptionModel.hybrid.label),
+                        ),
                       ],
                       selected: {currentModel},
                       onSelectionChanged: isRecording
@@ -325,7 +329,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       currentModel.description,
                       style: theme.textTheme.bodySmall,
                     ),
-                    if (currentModel == TranscriptionModel.cloud) ...[
+                    if (currentModel == TranscriptionModel.cloud ||
+                        currentModel == TranscriptionModel.hybrid) ...[
                       const SizedBox(height: 12),
                       TextField(
                         controller: _azureWhisperUrlController,
