@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/constants.dart';
+import '../models/session_state.dart';
+import '../providers/session_provider.dart';
 import '../services/report_service.dart';
 import 'home_screen.dart';
 
@@ -17,6 +19,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   final _storage = const FlutterSecureStorage();
   final _urlController = TextEditingController();
   final _tokenController = TextEditingController();
+  final _azureWhisperUrlController = TextEditingController();
+  final _azureWhisperKeyController = TextEditingController();
 
   bool _isTestingConnection = false;
   String? _connectionStatus;
@@ -32,11 +36,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _loadSettings() async {
     final url = await _storage.read(key: AppConstants.secureStorageKeyUrl);
     final token = await _storage.read(key: AppConstants.secureStorageKeyToken);
+    final azureUrl =
+        await _storage.read(key: AppConstants.secureStorageKeyAzureWhisperUrl);
+    final azureKey =
+        await _storage.read(key: AppConstants.secureStorageKeyAzureWhisperKey);
     setState(() {
       _urlController.text =
           (url?.isEmpty ?? true) ? AppConstants.defaultBackendUrl : url!;
       _tokenController.text =
           (token?.isEmpty ?? true) ? AppConstants.defaultToken : token!;
+      _azureWhisperUrlController.text = (azureUrl?.isEmpty ?? true)
+          ? AppConstants.defaultAzureWhisperUrl
+          : azureUrl!;
+      _azureWhisperKeyController.text = (azureKey?.isEmpty ?? true)
+          ? AppConstants.defaultAzureWhisperKey
+          : azureKey!;
     });
   }
 
@@ -48,6 +62,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     await _storage.write(
       key: AppConstants.secureStorageKeyToken,
       value: _tokenController.text.trim(),
+    );
+    await _storage.write(
+      key: AppConstants.secureStorageKeyAzureWhisperUrl,
+      value: _azureWhisperUrlController.text.trim(),
+    );
+    await _storage.write(
+      key: AppConstants.secureStorageKeyAzureWhisperKey,
+      value: _azureWhisperKeyController.text.trim(),
     );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -67,7 +89,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     setState(() {
       _isTestingConnection = false;
-      _connectionStatus = reachable ? '✅ Backend dostupný' : '❌ Backend nedostupný';
+      _connectionStatus =
+          reachable ? '✅ Backend dostupný' : '❌ Backend nedostupný';
     });
   }
 
@@ -75,6 +98,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   void dispose() {
     _urlController.dispose();
     _tokenController.dispose();
+    _azureWhisperUrlController.dispose();
+    _azureWhisperKeyController.dispose();
     super.dispose();
   }
 
@@ -92,7 +117,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Připojení k backendu', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            Text('Připojení k backendu',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             TextField(
               controller: _urlController,
@@ -142,7 +169,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               Text(_connectionStatus!, style: theme.textTheme.bodyMedium),
             ],
             const Divider(height: 32),
-            Text('Vzhled', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            Text('Vzhled',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             SegmentedButton<ThemeMode>(
               segments: const [
@@ -159,7 +188,185 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               },
             ),
             const Divider(height: 32),
-            Text('O aplikaci', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            Text('Typ návštěvy',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 4),
+            Text(
+              'Ovlivňuje strukturu generované zprávy.',
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(height: 12),
+            Consumer(
+              builder: (context, ref, _) {
+                final currentVisitType = ref.watch(visitTypeProvider);
+                return Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: VisitType.values.map((vt) {
+                    final selected = vt == currentVisitType;
+                    return ChoiceChip(
+                      label: Text(vt.label),
+                      selected: selected,
+                      onSelected: (_) {
+                        ref.read(visitTypeProvider.notifier).setVisitType(vt);
+                        ref
+                            .read(sessionProvider.notifier)
+                            .markVisitTypeChanged();
+                      },
+                    );
+                  }).toList(),
+                );
+              },
+            ),
+            const Divider(height: 32),
+            Text('Automatické odesílání zprávy',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 4),
+            Text(
+              'Po dokončení zprávy ji automaticky odešle e-mailem.',
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(height: 8),
+            Consumer(
+              builder: (context, ref, _) {
+                final emailEnabled = ref.watch(emailReportEnabledProvider);
+                final emailAddress = ref.watch(emailReportAddressProvider);
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Odesílat zprávu e-mailem'),
+                      value: emailEnabled,
+                      onChanged: (value) {
+                        ref
+                            .read(emailReportEnabledProvider.notifier)
+                            .setEnabled(value);
+                      },
+                    ),
+                    if (emailEnabled) ...[
+                      TextField(
+                        controller: TextEditingController(text: emailAddress)
+                          ..selection = TextSelection.collapsed(
+                              offset: emailAddress.length),
+                        decoration: const InputDecoration(
+                          labelText: 'E-mailová adresa',
+                          hintText: 'lekar@nemocnice.cz',
+                          border: OutlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                        onChanged: (value) {
+                          ref
+                              .read(emailReportAddressProvider.notifier)
+                              .setAddress(value.trim());
+                        },
+                      ),
+                      const SizedBox(height: 4),
+                      if (emailAddress.isNotEmpty &&
+                          !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
+                              .hasMatch(emailAddress))
+                        Text(
+                          'Zadejte platnou e-mailovou adresu.',
+                          style: theme.textTheme.bodySmall
+                              ?.copyWith(color: theme.colorScheme.error),
+                        ),
+                    ],
+                  ],
+                );
+              },
+            ),
+            const Divider(height: 32),
+            Text('Rozpoznávání řeči',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            Consumer(
+              builder: (context, ref, _) {
+                final currentModel = ref.watch(transcriptionModelProvider);
+                final sessionState = ref.watch(sessionProvider);
+                final isRecording =
+                    sessionState.status == RecordingStatus.recording;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SegmentedButton<TranscriptionModel>(
+                      segments: [
+                        ButtonSegment(
+                          value: TranscriptionModel.small,
+                          label: Text(TranscriptionModel.small.label),
+                        ),
+                        ButtonSegment(
+                          value: TranscriptionModel.turbo,
+                          label: Text(TranscriptionModel.turbo.label),
+                        ),
+                        ButtonSegment(
+                          value: TranscriptionModel.cloud,
+                          label: Text(TranscriptionModel.cloud.label),
+                        ),
+                      ],
+                      selected: {currentModel},
+                      onSelectionChanged: isRecording
+                          ? null
+                          : (models) {
+                              final model = models.first;
+                              ref
+                                  .read(transcriptionModelProvider.notifier)
+                                  .setModel(model);
+                              // Trigger download/load of the selected model
+                              ref
+                                  .read(sessionProvider.notifier)
+                                  .switchToModel(model);
+                            },
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      currentModel.description,
+                      style: theme.textTheme.bodySmall,
+                    ),
+                    if (currentModel == TranscriptionModel.cloud) ...[
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: _azureWhisperUrlController,
+                        decoration: const InputDecoration(
+                          labelText: 'Azure Whisper URL',
+                          hintText:
+                              'https://{resource}.openai.azure.com/openai/deployments/{deployment}/audio/transcriptions?api-version=2024-06-01',
+                          border: OutlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.url,
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: _azureWhisperKeyController,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Azure Whisper API Key',
+                          hintText: 'Váš API klíč',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ],
+                    if (isRecording)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          'Nelze změnit model během nahrávání.',
+                          style: theme.textTheme.bodySmall
+                              ?.copyWith(color: theme.colorScheme.error),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+            const _InfoRow(label: 'Jazyk', value: 'čeština (cs)'),
+            const Divider(height: 32),
+            Text('O aplikaci',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             const Text('ANOTE Mobile v1.0.0'),
             const SizedBox(height: 4),
@@ -170,6 +377,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _InfoRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      children: [
+        Text('$label: ',
+            style: theme.textTheme.bodyMedium
+                ?.copyWith(fontWeight: FontWeight.w600)),
+        Expanded(child: Text(value, style: theme.textTheme.bodyMedium)),
+      ],
     );
   }
 }

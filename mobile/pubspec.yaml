@@ -1,5 +1,6 @@
 name: anote_mobile
 description: ANOTE — Medical report generation from voice
+version: 0.3.0+1
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
@@ -13,9 +14,15 @@ dependencies:
   path_provider: ^2.1.0
   permission_handler: ^11.0.0
   shared_preferences: ^2.2.0
+  sherpa_onnx: ^1.12.26
+  audio_streamer: ^4.0.0
+  wakelock_plus: ^1.4.0
+  flutter_foreground_task: ^8.17.0
 
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
   flutter_lints: ^3.0.0
   mockito: ^5.4.0
@@ -25,3 +32,5 @@ flutter:
   uses-material-design: true
   assets:
     - assets/demo_scenarios/
+    - assets/models/
+    - assets/hotwords_cs_medical.txt

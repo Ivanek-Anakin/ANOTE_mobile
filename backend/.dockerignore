@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+
+# Environment files (secrets)
+.env
+
+# Test and evaluation files (not needed at runtime)
+tests/
+test_*.py
+eval_*.json
+evaluation_results*.json
+transcription_eval_results.json
+evaluate_*.py
+summarize_results.py
+
+# Models directory (large, not used by backend API)
+models/
+
+# IDE
+.vscode/
+.idea/

@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -5,19 +8,46 @@ import 'screens/home_screen.dart';
 import 'screens/settings_screen.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  final prefs = await SharedPreferences.getInstance();
-  final themeName = prefs.getString('theme_mode');
-  final themeMode = switch (themeName) {
-    'light' => ThemeMode.light,
-    'dark' => ThemeMode.dark,
-    _ => ThemeMode.system,
+  // Catch all uncaught Flutter framework errors.
+  FlutterError.onError = (FlutterErrorDetails details) {
+    // ignore: avoid_print
+    print('[FLUTTER ERROR] ${details.exceptionAsString()}');
+    // ignore: avoid_print
+    print('[FLUTTER ERROR] ${details.stack}');
+    FlutterError.presentError(details);
   };
-  runApp(
-    ProviderScope(
-      child: AnoteApp(initialThemeMode: themeMode),
-    ),
-  );
+
+  // Catch all uncaught async errors.
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    final prefs = await SharedPreferences.getInstance();
+    final themeName = prefs.getString('theme_mode');
+    final themeMode = switch (themeName) {
+      'light' => ThemeMode.light,
+      'dark' => ThemeMode.dark,
+      _ => ThemeMode.system,
+    };
+
+    // Also register a PlatformDispatcher error handler for isolate errors.
+    PlatformDispatcher.instance.onError = (error, stack) {
+      // ignore: avoid_print
+      print('[PLATFORM ERROR] $error');
+      // ignore: avoid_print
+      print('[PLATFORM ERROR] $stack');
+      return true;
+    };
+
+    runApp(
+      ProviderScope(
+        child: AnoteApp(initialThemeMode: themeMode),
+      ),
+    );
+  }, (error, stack) {
+    // ignore: avoid_print
+    print('[ZONE ERROR] $error');
+    // ignore: avoid_print
+    print('[ZONE ERROR] $stack');
+  });
 }
 
 class AnoteApp extends ConsumerWidget {

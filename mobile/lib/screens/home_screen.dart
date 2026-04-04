@@ -5,7 +5,7 @@ import '../providers/session_provider.dart';
 import '../widgets/report_panel.dart';
 import '../widgets/transcript_panel.dart';
 import '../widgets/recording_controls.dart';
-import '../widgets/demo_picker.dart';
+import '../widgets/recording_history_list.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -15,28 +15,28 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  bool _showDemo = false;
-  final _manualTranscriptController = TextEditingController();
-
-  @override
-  void dispose() {
-    _manualTranscriptController.dispose();
-    super.dispose();
-  }
+  bool _reportExpanded = true;
 
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(sessionProvider);
-    final notifier = ref.read(sessionProvider.notifier);
     final theme = Theme.of(context);
     final width = MediaQuery.of(context).size.width;
     final isWide = width > 900;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('🩺 ANOTE'),
+        title: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.medical_services, size: 24),
+            SizedBox(width: 8),
+            Text('ANOTE'),
+          ],
+        ),
         actions: [
           IconButton(
+            key: const Key('btn_settings'),
             icon: const Icon(Icons.settings),
             tooltip: 'Nastavení',
             onPressed: () => Navigator.pushNamed(context, '/settings'),
@@ -50,7 +50,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ? Icons.light_mode
                       : Icons.dark_mode,
                 ),
-                tooltip: brightness == Brightness.dark ? 'Světlý režim' : 'Tmavý režim',
+                tooltip: brightness == Brightness.dark
+                    ? 'Světlý režim'
+                    : 'Tmavý režim',
                 onPressed: () {
                   final notifier = ref.read(_themeModeProvider.notifier);
                   notifier.toggle();
@@ -62,43 +64,176 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       body: Column(
         children: [
-          _StatusPill(status: session.status, errorMessage: session.errorMessage),
+          _StatusPill(
+              status: session.status, errorMessage: session.errorMessage),
+          if (session.modelDownloadProgress != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Stahování modelu${session.modelDownloadFileName != null ? ': ${session.modelDownloadFileName}' : ''}',
+                          style: theme.textTheme.bodySmall,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Text(
+                        '${(session.modelDownloadProgress! * 100).toInt()}%',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: session.modelDownloadProgress,
+                      minHeight: 6,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          if (session.errorMessage != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      session.errorMessage!,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.error,
+                      ),
+                      maxLines: 4,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (!session.isModelLoaded)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: SizedBox(
+                        height: 28,
+                        child: OutlinedButton.icon(
+                          onPressed: () => ref
+                              .read(sessionProvider.notifier)
+                              .retryModelLoad(),
+                          icon: const Icon(Icons.refresh, size: 14),
+                          label: const Text('Zkusit znovu'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            textStyle: theme.textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                            foregroundColor: theme.colorScheme.error,
+                            side: BorderSide(color: theme.colorScheme.error),
+                          ),
+                        ),
+                      ),
+                    ),
+                  // Retry report generation after timeout / network error
+                  if (session.isModelLoaded &&
+                      session.transcript.isNotEmpty &&
+                      session.status == RecordingStatus.idle)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: SizedBox(
+                        height: 28,
+                        child: OutlinedButton.icon(
+                          onPressed: () => ref
+                              .read(sessionProvider.notifier)
+                              .regenerateReport(),
+                          icon: const Icon(Icons.refresh, size: 14),
+                          label: const Text('Zkusit znovu'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            textStyle: theme.textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                            foregroundColor: theme.colorScheme.error,
+                            side: BorderSide(color: theme.colorScheme.error),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
           Expanded(
-            child: isWide
-                ? _buildWideLayout(session, notifier, theme)
-                : _buildNarrowLayout(session, notifier, theme),
+            child: isWide ? _buildWideLayout(theme) : _buildNarrowLayout(theme),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildNarrowLayout(
-      SessionState session, SessionNotifier notifier, ThemeData theme) {
+  Widget _buildNarrowLayout(ThemeData theme) {
+    final screenHeight = MediaQuery.of(context).size.height;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(
-            height: 300,
-            child: const ReportPanel(),
-          ),
+          if (_reportExpanded)
+            SizedBox(
+              height: screenHeight * 0.55,
+              child: ReportPanel(
+                onClose: () => setState(() => _reportExpanded = false),
+              ),
+            )
+          else
+            Card(
+              child: InkWell(
+                onTap: () => setState(() => _reportExpanded = true),
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.description, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Lékařská zpráva',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Icon(Icons.expand_more,
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: 0.6)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           const SizedBox(height: 12),
           const TranscriptPanel(),
           const SizedBox(height: 12),
           const RecordingControls(),
           const SizedBox(height: 12),
-          _buildTempGenerateSection(session, notifier, theme),
-          const SizedBox(height: 12),
-          _buildDemoSection(theme),
+          const RecordingHistoryList(),
         ],
       ),
     );
   }
 
-  Widget _buildWideLayout(
-      SessionState session, SessionNotifier notifier, ThemeData theme) {
+  Widget _buildWideLayout(ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -119,82 +254,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   const SizedBox(height: 12),
                   const RecordingControls(),
                   const SizedBox(height: 12),
-                  _buildTempGenerateSection(session, notifier, theme),
-                  const SizedBox(height: 12),
-                  _buildDemoSection(theme),
+                  const RecordingHistoryList(),
                 ],
               ),
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildTempGenerateSection(
-      SessionState session, SessionNotifier notifier, ThemeData theme) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Testování backendu (dočasné — pro testování)',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _manualTranscriptController,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: 'Vložte přepis pro testování generování zprávy...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: session.status == RecordingStatus.processing
-                    ? null
-                    : () => notifier.generateReportFromText(
-                          _manualTranscriptController.text,
-                        ),
-                child: const Text('Generovat zprávu'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDemoSection(ThemeData theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        OutlinedButton.icon(
-          onPressed: () => setState(() => _showDemo = !_showDemo),
-          icon: const Text('🎬'),
-          label: const Text('Demo / Prezentační režim'),
-          style: OutlinedButton.styleFrom(
-            side: BorderSide(
-              color: theme.colorScheme.outline,
-              style: BorderStyle.solid,
-            ),
-          ),
-        ),
-        if (_showDemo) ...[
-          const SizedBox(height: 8),
-          const DemoPicker(),
-        ],
-      ],
     );
   }
 }
@@ -251,8 +317,7 @@ class _StatusPillState extends State<_StatusPill>
   }
 
   void _updateAnimation() {
-    if (widget.status == RecordingStatus.recording ||
-        widget.status == RecordingStatus.demoPlaying) {
+    if (widget.status == RecordingStatus.recording) {
       _controller.repeat(reverse: true);
     } else {
       _controller.stop();
@@ -279,7 +344,6 @@ class _StatusPillState extends State<_StatusPill>
           Colors.green.shade600
         ),
       RecordingStatus.processing => ('Dokončování...', Colors.green.shade600),
-      RecordingStatus.demoPlaying => ('Simulace...', Colors.green.shade600),
     };
 
     return Padding(

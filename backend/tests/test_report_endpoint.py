@@ -148,4 +148,4 @@ def test_report_azure_openai_error(client: TestClient) -> None:
         )
 
     assert response.status_code == 502
-    assert "Azure OpenAI error" in response.json()["detail"]
+    assert "OpenAI error" in response.json()["detail"]

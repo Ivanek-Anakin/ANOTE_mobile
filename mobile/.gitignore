@@ -37,3 +37,5 @@ macos/Flutter/GeneratedPluginRegistrant.swift
 # Xcode
 ios/*.xcworkspace
 ios/Podfile.lock
+# Whisper model (too large for git — download separately)
+assets/models/*.bin

@@ -1,1 +1,13 @@
-Pacient je Robert Hartman, 62letý muž, datum narození 15. března 1963. Dostavil se na pohotovost s akutní bolestí na hrudi vyzařující do levé paže. Bolest začala přibližně před dvěma hodinami, když pacient odpočíval a díval se na televizi. Popisuje ji jako svíravý, tlakový pocit o intenzitě 8 z 10. Dále uvádí dušnost, pocení a nevolnost. V anamnéze má hypertenzi po dobu 15 let a diabetes mellitus 2. typu diagnostikovaný před 8 lety. V současné době užívá metformin 500 miligramů dvakrát denně, lisinopril 10 miligramů denně a acylpyrin 100 miligramů denně. Je alergický na sulfonamidy, způsobují mu vyrážku. Rodinná anamnéza je významná pro otce, který prodělal infarkt myokardu ve věku 58 let. Pacient je bývalý kuřák, přestal před 5 lety, historie 20 balíčkoroků. Při vyšetření je pacient zpocený a úzkostný. Krevní tlak 158/92, tepová frekvence 96 tepů za minutu, dechová frekvence 22, saturace kyslíkem 94 procent na pokojovém vzduchu, teplota 36,8 stupňů Celsia. Kardiální vyšetření odhaluje pravidelný rytmus, bez šelestů. Plíce jsou čisté bilaterálně. EKG ukazuje ST depresi ve svodech V4 až V6 a inverze T vln ve svodech I a aVL. Iniciální troponin zvýšený na 0,15 nanogramů na mililitr. Závěr: Nestabilní angina pectoris, je třeba vyloučit non-ST elevační infarkt myokardu. Plán: Přijetí na koronární jednotku, sériové troponiny každých 6 hodin, kontinuální monitorace, heparinový bolus a infuze, nitroglycerin na bolest, kardiologické konzilium s možností katetrizace, echokardiografie ráno, pozastavit metformin do výsledků renálních funkcí.
+Dobrý den, já jsem doktor Procházka, jste na urgentním příjmu. Můžete mi říct, co se stalo?
+Dobrý den, doktore. Strašně mě bolí na hrudi, začalo to asi před půl hodinou. Nemůžu se pořádně nadechnout.
+Kde přesně tu bolest cítíte? Vyzařuje někam?
+Tady uprostřed, ale táhne mi to do levé ruky a je mi hrozně špatně, potím se.
+Rozumím. Kolik vám je let?
+Osmdesát... ne, padesát osm. Promiňte, nemůžu se soustředit.
+To je v pořádku. Berete nějaké léky pravidelně?
+Jenom aspirin stovku, předepsal mi ho obvoďák jako prevenci.
+Máte alergii na nějaké léky?
+Ne, na nic.
+Tak teď vás vyšetřím. Sestřičko, změřte prosím tlak a natočte EKG. Takže tlak máte 150 na 95, puls 98, nepravidelný. Na EKG vidím elevaci ST segmentu ve svodech II, III a aVF.
+Co to znamená, doktore? Je to vážné?
+Pane Nováku, máte akutní infarkt myokardu, konkrétně spodní stěny srdce. Musíme jednat rychle. Dáme vám heparin a nitráty a okamžitě vás převezeme na katetrizační sál, kde provedeme koronární angiografii. Sestřičko, volejte katetrizační tým a připravte pacienta na překlad.

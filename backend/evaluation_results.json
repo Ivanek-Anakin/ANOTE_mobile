@@ -1,0 +1,159 @@
+{
+  "metadata": {
+    "date": "2026-03-01T18:09:22.047850",
+    "model": "gpt-4-1-mini",
+    "api_version": "2025-04-01-preview",
+    "num_scenarios": 3,
+    "scenarios_dir": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/testing_hurvinek"
+  },
+  "results": [
+    {
+      "scenario": "S Hurvínkem za lékařem   1  Díl   Nachlazení",
+      "transcript_words": 1081,
+      "report_generation": {
+        "time_s": 8.69,
+        "prompt_tokens": 3480,
+        "completion_tokens": 873
+      },
+      "report": "Lékařská zpráva\n\nIdentifikace pacienta:\n- Jméno: neuvedeno\n- Věk / r. narození: neuvedeno\n- Datum návštěvy: 01. 03. 2026\n\nNO (Hlavní obtíže / důvod návštěvy):\n- Kašel, rýma, pocit nemoci od rána, pravděpodobně začínající infekce dýchacích cest, trvání několik hodin (od rána).\n- Pacientka přesto šla do divadla se školou, kde kašlala a smrkala.\n- Spouštěč: pravděpodobně virové onemocnění, otužování diskutováno jako prevence.\n- Neuvedeno explicitní vyjádření hlavního důvodu návštěvy.\n\nNA (Anamnéza nynějšího onemocnění):\n- Pacientka se ráno probudila s pocitem nemoci, kašle a smrká, obtíže ji rušily během divadelního představení.\n- Doprovodné příznaky: bolest hlavy, pocení, rýma, kašel, zduřelé hmatné krční uzliny.\n- Zvýšenou teplotu neguje (neměřila si teplotu, ale pravděpodobně ji má).\n- Neuvedena přesná teplota.\n- Pacientka nebyla schopna dýchat volně kvůli rýmě.\n- Neuvedeno zhoršení dušnosti.\n- Neuvedeno jiné doprovodné příznaky.\n\nRA (Rodinná anamnéza):\n- neuvedeno\n\nOA (Osobní anamnéza):\n- neuvedeno\n\nFA (Farmakologická anamnéza / aktuální medikace):\n- Neuvedena předchozí medikace.\n- Po vyšetření předepsány léky na kašel, dávkování: 1 tableta 3× denně po jídle.\n\nAA (Alergologická anamnéza):\n- alergie neguje\n\nGA (Gynekologická/urologická anamnéza):\n- neuvedeno\n\nSA (Sociální anamnéza):\n- neuvedeno\n\nObjektivní nález:\n- Hmatné zvětšené krční uzliny.\n- Fonendoskopicky poslechově bez bližší specifikace, srdční ozvy normální.\n- Teplota nebyla změřena, ale pravděpodobně zvýšená.\n- Neuvedeno měření TK, pulsu, SpO2.\n\nHodnocení (pracovní diagnóza / klinický závěr):\n- Nachlazení / virové onemocnění dýchacích cest s přítomností zduřených krčních uzlin.\n- Suspektní chřipka nebo jiné virové onemocnění.\n- Neuvedena přesná diagnóza.\n\nNávrh vyšetření:\n- Vyšetření krku (vyšetření jazyka, krčních uzlin, poslech plic a srdce).\n- Měření tělesné teploty.\n- Neuvedeno další laboratorní nebo zobrazovací vyšetření.\n\nNávrh terapie:\n- Režimová opatření: klid na lůžku, teplo.\n- Farmakoterapie: léky na kašel, 1 tableta 3× denně po jídle, užívat pravidelně a doužívat i po odeznění příznaků.\n- Doporučeno otužování jako prevence, nikoli v akutní fázi onemocnění.\n- Neuvedeno specifické názvy léků.\n\nPokyny a plán kontrol:\n- Kontrola odpoledne.\n- Varování před šířením infekce (nekýchat a nesmrkat mezi lidmi).\n- Doporučeno dodržovat léčbu a klidový režim.\n- Neuvedeno další plánované kontroly či doporučení.\n\n",
+      "evaluation": {
+        "scores": {
+          "factual_accuracy": {
+            "score": 5,
+            "reasoning": "All facts in the report are directly traceable to the transcript; no hallucinated information was found."
+          },
+          "completeness": {
+            "score": 4,
+            "reasoning": "The report captures the main medical information including symptoms, examination findings, and treatment plan, but omits some minor details such as the patient's reluctance to rest and some playful dialogue."
+          },
+          "structure": {
+            "score": 4,
+            "reasoning": "Most required sections are present and information is placed appropriately; however, some sections like RA, OA, GA, and SA are marked as 'neuvedeno' without explicit mention in the transcript, which is acceptable but could be more clearly stated."
+          },
+          "negation_handling": {
+            "score": 5,
+            "reasoning": "The report correctly distinguishes between negated symptoms (e.g., no measured temperature) and not discussed items (e.g., family history)."
+          },
+          "clinical_language": {
+            "score": 5,
+            "reasoning": "The Czech medical terminology is appropriate, professional, and clearly conveys clinical information."
+          },
+          "noise_resilience": {
+            "score": 5,
+            "reasoning": "The report effectively filters out irrelevant content such as songs, banter, and playful dialogue, focusing only on medically relevant information."
+          }
+        },
+        "composite_score": 4.7,
+        "hallucinations": [],
+        "omissions": [
+          "Patient's reluctance to rest despite illness.",
+          "Playful dialogue and humorous advice (e.g., fazole in ear, slivovice) not mentioned but are irrelevant clinically."
+        ],
+        "summary": "The report is accurate, well-structured, and uses appropriate clinical language, effectively filtering out irrelevant content. Minor omissions of non-critical details do not detract from the overall quality."
+      }
+    },
+    {
+      "scenario": "S Hurvínkem za lékařem   2  Díl   Zlomenina",
+      "transcript_words": 967,
+      "report_generation": {
+        "time_s": 5.93,
+        "prompt_tokens": 3252,
+        "completion_tokens": 661
+      },
+      "report": "Lékařská zpráva\n\nIdentifikace pacienta:\n- Jméno: Martin\n- Věk / r. narození: neuvedeno\n- Datum návštěvy: 01. 03. 2026\n\nNO (Hlavní obtíže / důvod návštěvy):\n- Úraz dolní končetiny po pádu ze stromu, bolest nohy, podezření na zlomeninu.\n\nNA (Anamnéza nynějšího onemocnění):\n- Dnes odpoledne pacient upadl ze stromu při hře na hřišti, bolest v dolní části nohy, bolestivost při pohybu. \n- Doprovodné příznaky: bolest nohy, žádné zmínky o otoku či krvácení.\n- Zvýšenou teplotu neguje.\n- Dušnost neguje.\n- Neuvedeno další doprovodné příznaky.\n\nRA (Rodinná anamnéza):\n- neuvedeno\n\nOA (Osobní anamnéza):\n- neuvedeno\n\nFA (Farmakologická anamnéza / aktuální medikace):\n- bez pravidelné medikace\n\nAA (Alergologická anamnéza):\n- alergie neguje\n\nGA (Gynekologická/urologická anamnéza):\n- neuvedeno\n\nSA (Sociální anamnéza):\n- neuvedeno\n\nObjektivní nález:\n- Neuvedeno přesné hodnoty vitálních funkcí ani fyzikální nález.\n- Rentgen dolní končetiny proveden, zobrazení kostí a kloubů bez zlomeniny vyžadující operaci.\n- Zjištěno porušení souvislosti kosti, indikující zlomeninu vyžadující sádrovou fixaci.\n\nHodnocení (pracovní diagnóza / klinický závěr):\n- Zlomenina dolní končetiny bez nutnosti operace, indikována sádrová fixace.\n\nNávrh vyšetření:\n- Rentgenové vyšetření dolní končetiny.\n\nNávrh terapie:\n- Nasazení sádry na nohu s fixací po dobu 5–6 týdnů.\n- Po 3 dnech přidání podpatek pro umožnění částečného zatížení.\n- Doporučeno omezení chůze na postižené noze v počáteční fázi.\n\nPokyny a plán kontrol:\n- Kontrolní rentgen za 5–6 týdnů k posouzení hojení a odstranění sádry.\n- Doporučení vyvarovat se lezení na stromy a respektovat zákazy na hřišti.\n- Varovné příznaky neuvedeny.\n- Plánována kontrola po uplynutí doby fixace.\n\nPoznámka:\n- Pacient byl poučen o povaze rentgenového vyšetření a významu sádrové fixace.\n- Zdůrazněna prevence úrazů při hrách na výškách.",
+      "evaluation": {
+        "scores": {
+          "factual_accuracy": {
+            "score": 5,
+            "reasoning": "All facts in the report are directly supported by the transcript; no hallucinated information is present."
+          },
+          "completeness": {
+            "score": 4,
+            "reasoning": "The report captures the main medical information about the injury, diagnostics, and treatment, but omits some minor details such as the patient's emotional state and the presence of a friend."
+          },
+          "structure": {
+            "score": 4,
+            "reasoning": "Most required sections are present and correctly placed; however, some sections like vital signs and physical exam are noted as 'neuvedeno' rather than explicitly stated, and social anamnesis is missing though not discussed."
+          },
+          "negation_handling": {
+            "score": 5,
+            "reasoning": "The report correctly distinguishes between negated symptoms (e.g., no fever, no dyspnea) and sections not discussed (marked as 'neuvedeno')."
+          },
+          "clinical_language": {
+            "score": 5,
+            "reasoning": "The Czech medical terminology is appropriate, professional, and clearly conveys the clinical information."
+          },
+          "noise_resilience": {
+            "score": 5,
+            "reasoning": "The report effectively filters out irrelevant content such as poems, banter, and background noise, focusing solely on medically relevant information."
+          }
+        },
+        "composite_score": 4.7,
+        "hallucinations": [],
+        "omissions": [
+          "Patient's emotional state and boredom described in the transcript.",
+          "Presence of a friend during the injury event.",
+          "No explicit mention of vital signs or physical exam findings beyond the X-ray."
+        ],
+        "summary": "The report is accurate, well-structured, and uses appropriate clinical language, effectively filtering out irrelevant content. It comprehensively covers the injury, diagnostics, and treatment, though minor contextual details from the transcript are omitted."
+      }
+    },
+    {
+      "scenario": "S Hurvínkem za lékařem 08 Angína",
+      "transcript_words": 1109,
+      "report_generation": {
+        "time_s": 6.92,
+        "prompt_tokens": 3591,
+        "completion_tokens": 671
+      },
+      "report": "Lékařská zpráva\n\nIdentifikace pacienta:\n- Jméno: neuvedeno\n- Věk / r. narození: neuvedeno\n- Datum návštěvy: 01. 03. 2026\n\nNO (Hlavní obtíže / důvod návštěvy):\n- Bolest v krku a hlavy, bolest v uchu, únava po fyzické aktivitě, trvání neuvedeno.\n\nNA (Anamnéza nynějšího onemocnění):\n- Pacient udává bolest v krku, bolest hlavy a píchání v uchu po náročné fyzické aktivitě (dlouhá cesta, pobyt venku). \n- Bolest v krku doprovázena povleklým jazykem, bílými a rudými mandličkami.\n- Pacient popisuje únavu a pocit chladu.\n- Zvýšenou teplotu pacient má (naměřena teplota, viz objektivní nález).\n- Doprovodné příznaky: bolest hlavy, bolest v uchu.\n- Zvýšenou teplotu neguje neuvedeno (v objektivním nálezu je teplota zvýšená).\n\nRA (Rodinná anamnéza):\n- neuvedeno\n\nOA (Osobní anamnéza):\n- neuvedeno\n\nFA (Farmakologická anamnéza / aktuální medikace):\n- neuvedeno\n\nAA (Alergologická anamnéza):\n- alergie neguje\n\nGA (Gynekologická/urologická anamnéza):\n- neuvedeno\n\nSA (Sociální anamnéza):\n- neuvedeno\n\nObjektivní nález:\n- Zvýšená tělesná teplota (přesná hodnota neuvedena).\n- Jazyk povleklý, přítomnost bílých a rudých mandlí.\n- Zadní stěna krku zánětlivě změněná.\n- Bolestivost v uchu.\n- Ostatní fyzikální nález neuveden.\n\nHodnocení (pracovní diagnóza / klinický závěr):\n- Parádní (rozvinutá) angína.\n\nNávrh vyšetření:\n- neuvedeno\n\nNávrh terapie:\n- Nasazení antibiotik – penicilin, pravidelné užívání.\n- Doporučení zůstat doma (léčba v domácím prostředí).\n- Režimová opatření: dobré oblečení, vyhýbat se prochladnutí, včasná orientace a návrat domů.\n- Při zhoršení stavu nebo nejasnostech doporučeno rychlé vyhledání lékařské pomoci.\n\nPokyny a plán kontrol:\n- Kontrola dle potřeby, návrat k lékaři při zhoršení příznaků.\n- Důraz na včasné hlášení obtíží a pravidelné užívání antibiotik.\n- Informace o riziku rezistence při nedodržení léčby.\n\n",
+      "evaluation": {
+        "scores": {
+          "factual_accuracy": {
+            "score": 5,
+            "reasoning": "All clinical facts in the report are directly supported by the transcript; no hallucinated information is present."
+          },
+          "completeness": {
+            "score": 4,
+            "reasoning": "The report captures all relevant medical information about symptoms, examination, diagnosis, and treatment; however, some social and personal anamnesis details are marked as 'neuvedeno' despite minor contextual clues about recent physical activity and environment."
+          },
+          "structure": {
+            "score": 4,
+            "reasoning": "Most required sections are present and correctly placed; however, some sections like 'Návrh vyšetření' and 'Rodinná anamnéza' are empty or marked 'neuvedeno' without explicit mention in the transcript, which is acceptable but could be improved."
+          },
+          "negation_handling": {
+            "score": 5,
+            "reasoning": "The report correctly distinguishes between negated allergies and 'neuvedeno' for other anamnesis sections; no confusion between negation and absence of information is noted."
+          },
+          "clinical_language": {
+            "score": 5,
+            "reasoning": "The Czech medical terminology is appropriate, professional, and consistent with clinical standards."
+          },
+          "noise_resilience": {
+            "score": 5,
+            "reasoning": "The report effectively filters out all irrelevant content such as songs, banter, and storytelling, focusing solely on medically relevant information."
+          }
+        },
+        "composite_score": 4.7,
+        "hallucinations": [],
+        "omissions": [
+          "Minor contextual details about recent physical activity and environment (e.g., pobyt venku, dlouhá cesta) are not explicitly summarized in social or personal anamnesis."
+        ],
+        "summary": "The report is accurate, well-structured, and professionally written, capturing all key clinical information while effectively filtering irrelevant content. Minor improvements could be made in completeness by incorporating contextual anamnesis details."
+      }
+    }
+  ],
+  "aggregate": {
+    "mean_composite": 4.7,
+    "min_composite": 4.7,
+    "max_composite": 4.7,
+    "per_dimension_means": {
+      "factual_accuracy": 5.0,
+      "completeness": 4.0,
+      "structure": 4.0,
+      "negation_handling": 5.0,
+      "clinical_language": 5.0,
+      "noise_resilience": 5.0
+    }
+  }
+}

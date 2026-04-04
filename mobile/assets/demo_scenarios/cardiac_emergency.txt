@@ -1,1 +1,15 @@
-Patient John Smith, 62 years old, brought in by ambulance with acute chest pain for approximately 45 minutes. Pain radiates to left arm and jaw, accompanied by diaphoresis and shortness of breath. Patient appears pale and diaphoretic. Blood pressure 160/100, heart rate 105 irregular. ECG shows ST elevation in anterior leads V1-V4. Patient takes atorvastatin 40mg and lisinopril 10mg daily. No known drug allergies. Diagnosis: acute anterior STEMI. Plan: emergency PCI, IV heparin, aspirin 325mg loading dose, transfer to cath lab immediately.
+Sir, I'm Doctor Williams, you're in the emergency department. Can you tell me what happened?
+I got this terrible pain in my chest, it started maybe forty-five minutes ago. I was just watching TV and it hit me out of nowhere.
+Can you describe the pain? Where exactly is it?
+Right here in the center. It's crushing, like someone is sitting on my chest. And it goes down my left arm and up into my jaw.
+Are you sweating? Feeling nauseous?
+Yeah, I'm soaking wet, and I feel like I'm going to throw up. I can't catch my breath either.
+How old are you, sir?
+Sixty-two.
+Do you take any medications regularly?
+Atorvastatin, forty milligrams, and lisinopril, ten milligrams. Every day.
+Any allergies to medications?
+No, none.
+All right, Mr. Smith. Nurse, let's get a twelve-lead ECG stat and check vitals. Blood pressure is 160 over 100, heart rate 105 and irregular. The ECG is showing ST elevation in the anterior leads, V1 through V4.
+Is it a heart attack, doc?
+Yes, Mr. Smith, you're having what we call an acute anterior STEMI, that's a serious heart attack affecting the front wall of your heart. We need to act immediately. I'm starting IV heparin now, and we're giving you 325 milligrams of aspirin as a loading dose. We're transferring you to the catheterization lab right now for an emergency procedure to open the blocked artery. The team is already being assembled. You're in good hands.
