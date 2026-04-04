@@ -1,0 +1,212 @@
+srdce
+játra
+plíce
+ledviny
+mozek
+žaludek
+střevo
+kloub
+páteř
+krk
+hlava
+hrdlo
+ucho
+oko
+nos
+čelo
+rameno
+loket
+zápěstí
+koleno
+kotník
+kyčel
+pánev
+hrudník
+břicho
+děloha
+vaječník
+prostata
+štítná žláza
+mícha
+cévy
+tepna
+žíla
+svaly
+kosti
+chrupavka
+šlacha
+vaz
+ploténka
+obratel
+žebro
+klíční kost
+diagnóza
+anamnéza
+hypertenze
+diabetes
+fibrilace
+pneumonie
+bronchitida
+astma
+angina
+infarkt
+iktus
+embolie
+trombóza
+arytmie
+ischemie
+ateroskleróza
+osteoporóza
+artritida
+artróza
+fraktura
+luxace
+kontúze
+appendicitida
+cholecystitida
+pankreatitida
+hepatitida
+cirhóza
+gastritida
+reflux
+peptický vřed
+karcinom
+melanom
+lymfom
+leukémie
+metastáza
+benigní
+maligní
+absces
+sepse
+infekce
+alergie
+anafylaxe
+edém
+zánět
+horečka
+bolest
+nevolnost
+zvracení
+průjem
+zácpa
+dušnost
+kašel
+hemoptýza
+hematurie
+ikterus
+anémie
+EKG
+RTG
+CT
+MRI
+sono
+ultrazvuk
+endoskopie
+biopsie
+dialýza
+transfuze
+gastroskopie
+kolonoskopie
+spirometrie
+echokardiografie
+angiografie
+mamografie
+akupunktura
+punkce
+katetrizace
+laparoskopie
+torakoskopie
+laparotomie
+resekce
+amputace
+transplantace
+sutura
+drenáž
+intubace
+ventilace
+tracheostomie
+antibiotika
+analgetika
+antipyretika
+ibuprofen
+paracetamol
+metformin
+inzulín
+warfarin
+heparin
+aspirin
+kortikosteroidy
+antihypertenziva
+betablokátory
+ACE inhibitory
+statiny
+diuretika
+bronchodilatancia
+antihistaminika
+antidepresiva
+anxiolytika
+opiáty
+tramadol
+morfin
+amoxicilin
+ciprofloxacin
+metronidazol
+omeprazol
+pantoprazol
+amiodaron
+atorvastatin
+bisoprolol
+rampipril
+furosemid
+nález
+závěr
+doporučení
+terapie
+farmakoterapie
+laboratorní vyšetření
+objektivní nález
+subjektivní potíže
+dekurz
+epikríza
+propouštěcí zpráva
+ambulantní zpráva
+příjmová zpráva
+kontrolní vyšetření
+diferenciální diagnóza
+prognóza
+indikace
+kontraindikace
+nežádoucí účinky
+dávkování
+krevní tlak
+tepová frekvence
+tělesná teplota
+dechová frekvence
+saturace kyslíkem
+krevní obraz
+biochemie
+sedimentace
+CRP
+glykémie
+kreatinin
+urea
+bilirubin
+hemoglobin
+trombocyty
+leukocyty
+erytrocyty
+INR
+APTT
+elektrolyty
+cholesterol
+triglyceridy
+jaterní testy
+nynější onemocnění
+rodinná anamnéza
+osobní anamnéza
+pracovní anamnéza
+alergická anamnéza
+farmakologická anamnéza
+gynekologická anamnéza
+sociální anamnéza

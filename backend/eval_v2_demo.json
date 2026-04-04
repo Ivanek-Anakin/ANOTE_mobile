@@ -1,0 +1,379 @@
+{
+  "metadata": {
+    "date": "2026-03-01T19:10:43.009920",
+    "model": "gpt-4-1-mini",
+    "api_version": "2025-04-01-preview",
+    "prompt_variant": "v2",
+    "prompt_variant_name": "Strict structure",
+    "prompt_variant_description": "Enforce 13-section format, no merging/skipping",
+    "num_scenarios": 8,
+    "scenarios_dir": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/mobile/assets/demo_scenarios"
+  },
+  "results": [
+    {
+      "scenario": "cardiac_emergency",
+      "transcript_words": 245,
+      "report_generation": {
+        "time_s": 5.47,
+        "prompt_tokens": 1836,
+        "completion_tokens": 495,
+        "reasoning_tokens": 0
+      },
+      "report": "Lékařská zpráva\n\nIdentifikace pacienta:\n- Jméno: Mr. Smith\n- Věk / r. narození: 62 let\n- Datum návštěvy: 01. 03. 2026\n\nNO (Hlavní obtíže / důvod návštěvy):\n- Těžká bolest na hrudi, začala přibližně před 45 minutami, náhlý nástup při sledování televize.\n\nNA (Anamnéza nynějšího onemocnění):\n- Bolest lokalizovaná uprostřed hrudníku, charakter krutý, tlakový pocit jako by někdo seděl na hrudi, šíří se do levé paže a do čelisti. Doprovází ji pocení, nauzea a dušnost. \n\nRA (Rodinná anamnéza):\n- neuvedeno\n\nOA (Osobní anamnéza):\n- neuvedeno\n\nFA (Farmakologická anamnéza / aktuální medikace):\n- Atorvastatin 40 mg denně\n- Lisinopril 10 mg denně\n\nAA (Alergologická anamnéza):\n- alergie neguje\n\nGA (Gynekologická/urologická anamnéza):\n- neuvedeno\n\nSA (Sociální anamnéza):\n- neuvedeno\n\nObjektivní nález:\n- TK 160/100 mmHg\n- Srdeční frekvence 105/min, nepravidelná\n- EKG: elevace ST segmentu v předních svodech V1–V4\n\nHodnocení (pracovní diagnóza / klinický závěr):\n- Akutní přední STEMI (infarkt myokardu s elevací ST segmentu)\n\nNávrh vyšetření:\n- 12-svodové EKG\n- Monitorace vitálních funkcí\n\nNávrh terapie:\n- Intravenózní podání heparinu\n- Aspirin 325 mg jako nasycovací dávka\n- Převod na katetrizační sál k urgentní revaskularizaci\n\nPokyny a plán kontrol:\n- Okamžitý transport na katetrizační sál\n- Monitorace a urgentní intervence dle kardiologického týmu",
+      "evaluation": {
+        "scores": {
+          "factual_accuracy": {
+            "score": 5,
+            "reasoning": "All facts in the report are directly traceable to the transcript without any hallucinated information."
+          },
+          "completeness": {
+            "score": 4,
+            "reasoning": "The report captures all key medical information including symptoms, vitals, ECG findings, diagnosis, and treatment plan; however, it omits the patient's lack of medication allergies explicitly stated in the transcript."
+          },
+          "structure": {
+            "score": 5,
+            "reasoning": "All 13 required sections are present and information is appropriately placed in the correct sections."
+          },
+          "negation_handling": {
+            "score": 5,
+            "reasoning": "The report correctly distinguishes between 'neuvedeno' for not discussed sections and explicit negation for allergies."
+          },
+          "clinical_language": {
+            "score": 5,
+            "reasoning": "The Czech medical terminology is appropriate, professional, and consistent with clinical standards."
+          },
+          "noise_resilience": {
+            "score": 5,
+            "reasoning": "The report filters out irrelevant content and ASR errors, focusing solely on medically relevant information."
+          }
+        },
+        "composite_score": 4.8,
+        "hallucinations": [],
+        "omissions": [
+          "Explicit statement that the patient has no medication allergies (the report states 'alergie neguje' but does not specify 'žádné alergie na léky' as in the transcript)."
+        ],
+        "summary": "The report is accurate, well-structured, and uses appropriate clinical language, capturing nearly all relevant medical details from the transcript with only a minor omission regarding the explicit allergy statement."
+      }
+    },
+    {
+      "scenario": "cz_detska_prohlidka",
+      "transcript_words": 200,
+      "report_generation": {
+        "time_s": 4.52,
+        "prompt_tokens": 1970,
+        "completion_tokens": 432,
+        "reasoning_tokens": 0
+      },
+      "report": "Lékařská zpráva\n\nIdentifikace pacienta:\n- Jméno: Tomášek\n- Věk / r. narození: neuvedeno\n- Datum návštěvy: 01. 03. 2026\n\nNO (Hlavní obtíže / důvod návštěvy):\n- Preventivní prohlídka\n\nNA (Anamnéza nynějšího onemocnění):\n- Pacient chodí do druhé třídy, adaptace ve škole bez potíží, prospívá dobře. Sportuje, plavání 2× týdně, hraje fotbal v oddíle. Jí vyváženou stravu. Alergie neguje.\n\nRA (Rodinná anamnéza):\n- neuvedeno\n\nOA (Osobní anamnéza):\n- neuvedeno\n\nFA (Farmakologická anamnéza / aktuální medikace):\n- bez pravidelné medikace\n\nAA (Alergologická anamnéza):\n- alergie neguje\n\nGA (Gynekologická/urologická anamnéza):\n- neuvedeno\n\nSA (Sociální anamnéza):\n- neuvedeno\n\nObjektivní nález:\n- Váha 24 kg, výška 122 cm, hodnoty v normě pro věk. Očkování aktuální dle kalendáře. Zrak a sluch bez problémů. Mlékový chrup se stálými prvními moláry, zuby v pořádku, doporučena preventivní prohlídka u zubaře.\n\nHodnocení (pracovní diagnóza / klinický závěr):\n- Stav v naprostém pořádku, zdravý životní styl doporučen\n\nNávrh vyšetření:\n- Preventivní prohlídka u zubaře\n\nNávrh terapie:\n- Pokračovat ve sportu a vyvážené stravě\n\nPokyny a plán kontrol:\n- Další preventivní kontrola za rok",
+      "evaluation": {
+        "scores": {
+          "factual_accuracy": {
+            "score": 5,
+            "reasoning": "All facts in the report are directly supported by the transcript without any hallucinations."
+          },
+          "completeness": {
+            "score": 4,
+            "reasoning": "The report captures all medically relevant information, but some minor details like the exact school grade and teacher change could be included for completeness."
+          },
+          "structure": {
+            "score": 4,
+            "reasoning": "Most required sections are present and correctly placed; however, some sections like OA, RA, GA, and SA are marked as 'neuvedeno' without explicit mention in the transcript, which is acceptable but could be more clearly stated."
+          },
+          "negation_handling": {
+            "score": 5,
+            "reasoning": "The report correctly distinguishes between negated allergies and sections not discussed."
+          },
+          "clinical_language": {
+            "score": 5,
+            "reasoning": "The Czech medical terminology is appropriate, professional, and consistent with standard clinical documentation."
+          },
+          "noise_resilience": {
+            "score": 5,
+            "reasoning": "The report effectively filters out irrelevant content such as greetings and small talk, focusing only on medically relevant information."
+          }
+        },
+        "composite_score": 4.7,
+        "hallucinations": [],
+        "omissions": [
+          "Mention of the new teacher in school",
+          "Exact school grade (second grade) explicitly in the report"
+        ],
+        "summary": "The report is accurate, well-structured, and professionally written, capturing the essential medical information from the transcript while appropriately handling negations and irrelevant content. Minor completeness improvements could be made by including more detailed school-related information."
+      }
+    },
+    {
+      "scenario": "cz_kardialni_nahoda",
+      "transcript_words": 172,
+      "report_generation": {
+        "time_s": 5.41,
+        "prompt_tokens": 1891,
+        "completion_tokens": 434,
+        "reasoning_tokens": 0
+      },
+      "report": "Lékařská zpráva\n\nIdentifikace pacienta:\n- Jméno: Novák\n- Věk / r. narození: 58 let\n- Datum návštěvy: 01. 03. 2026\n\nNO (Hlavní obtíže / důvod návštěvy):\n- Bolest na hrudi trvající přibližně půl hodiny, dušnost.\n\nNA (Anamnéza nynějšího onemocnění):\n- Bolest lokalizovaná uprostřed hrudníku, vyzařující do levé ruky, doprovázená pocením a pocitem nevolnosti. Dušnost. Pacient nemůže se pořádně nadechnout.\n\nRA (Rodinná anamnéza):\n- neuvedeno\n\nOA (Osobní anamnéza):\n- neuvedeno\n\nFA (Farmakologická anamnéza / aktuální medikace):\n- Aspirin 100 mg jako prevence, předepsaný praktickým lékařem.\n\nAA (Alergologická anamnéza):\n- Alergie na léky neguje.\n\nGA (Gynekologická/urologická anamnéza):\n- neuvedeno\n\nSA (Sociální anamnéza):\n- neuvedeno\n\nObjektivní nález:\n- TK 150/95 mmHg, puls 98/min, nepravidelný.\n- EKG: elevace ST segmentu ve svodech II, III a aVF.\n\nHodnocení (pracovní diagnóza / klinický závěr):\n- Akutní infarkt myokardu spodní stěny.\n\nNávrh vyšetření:\n- Koronární angiografie.\n\nNávrh terapie:\n- Podání heparinu a nitroglycerinu.\n- Okamžitý transport na katetrizační sál.\n\nPokyny a plán kontrol:\n- Připrava pacienta na překlad na katetrizační sál.\n- Volejte katetrizační tým.",
+      "evaluation": {
+        "scores": {
+          "factual_accuracy": {
+            "score": 5,
+            "reasoning": "All facts in the report are directly traceable to the transcript without any hallucinated information."
+          },
+          "completeness": {
+            "score": 4,
+            "reasoning": "The report captures all key medical information, but minor details such as the patient's initial confusion about age and the exact time of symptom onset could be more explicitly noted."
+          },
+          "structure": {
+            "score": 5,
+            "reasoning": "All 13 required sections are present and information is correctly placed in appropriate sections."
+          },
+          "negation_handling": {
+            "score": 5,
+            "reasoning": "The report correctly distinguishes between 'neuvedeno' for not discussed sections and explicit negation for allergies."
+          },
+          "clinical_language": {
+            "score": 5,
+            "reasoning": "The Czech medical terminology is appropriate, professional, and consistent with clinical standards."
+          },
+          "noise_resilience": {
+            "score": 5,
+            "reasoning": "The report effectively filters out irrelevant content such as the patient's confusion and background noise, focusing on medically relevant information."
+          }
+        },
+        "composite_score": 4.8,
+        "hallucinations": [],
+        "omissions": [
+          "Patient's initial confusion about age (said 80 then corrected to 58).",
+          "Exact symptom onset time (about half an hour ago) could be emphasized more."
+        ],
+        "summary": "The report is accurate, well-structured, and uses appropriate clinical language, capturing all essential medical information from the transcript with minor omissions of less critical details."
+      }
+    },
+    {
+      "scenario": "cz_otrava_jidlem",
+      "transcript_words": 198,
+      "report_generation": {
+        "time_s": 4.62,
+        "prompt_tokens": 1955,
+        "completion_tokens": 528,
+        "reasoning_tokens": 0
+      },
+      "report": "Lékařská zpráva\n\nIdentifikace pacienta:\n- Jméno: paní Horáková\n- Věk / r. narození: 28 let\n- Datum návštěvy: 01. 03. 2026\n\nNO (Hlavní obtíže / důvod návštěvy):\n- Nevolnost, zvracení a průjem od rána, nemožnost udržet potravu.\n\nNA (Anamnéza nynějšího onemocnění):\n- Potíže začaly kolem 6. hodiny ranní. Večer před vznikem potíží byla večeře v restauraci, kde pacientka konzumovala mořské plody. Přítel má podobné, ale méně závažné potíže. Břicho je citlivé difúzně, nejvíce dole. Zvýšená peristaltika. Zvýšenou teplotu neguje.\n\nRA (Rodinná anamnéza):\n- neuvedeno\n\nOA (Osobní anamnéza):\n- Neužívá žádné léky, alergie neguje.\n\nFA (Farmakologická anamnéza / aktuální medikace):\n- Bez pravidelné medikace.\n\nAA (Alergologická anamnéza):\n- Alergie neguje.\n\nGA (Gynekologická/urologická anamnéza):\n- neuvedeno\n\nSA (Sociální anamnéza):\n- neuvedeno\n\nObjektivní nález:\n- Teplota 37,8 °C, TK 100/65 mmHg, puls 95/min. Suché sliznice, známky dehydratace. Břicho měkké, citlivé difúzně, zvýšená peristaltika.\n\nHodnocení (pracovní diagnóza / klinický závěr):\n- Alimentární intoxikace (otrava z jídla), pravděpodobně z mořských plodů.\n\nNávrh vyšetření:\n- neuvedeno\n\nNávrh terapie:\n- Rehydratační roztoky s častým požitím po malých doušcích, probiotika, lehká dieta (rýže, banány, suchary).\n\nPokyny a plán kontrol:\n- Kontrola do 24 hodin při nelepšení nebo při vzniku vysokých teplot. V případě zhoršení okamžitý návrat k lékaři.",
+      "evaluation": {
+        "scores": {
+          "factual_accuracy": {
+            "score": 5,
+            "reasoning": "All facts in the report are directly traceable to the transcript without any hallucinated information."
+          },
+          "completeness": {
+            "score": 5,
+            "reasoning": "The report captures all medically relevant information from the transcript, including symptoms, history, examination findings, diagnosis, treatment, and follow-up instructions."
+          },
+          "structure": {
+            "score": 4,
+            "reasoning": "All required sections are present except for 'Návrh vyšetření' which is correctly marked as 'neuvedeno'. The patient name is included though not explicitly stated in the transcript, but it is consistent with the dialogue. The placement of information is appropriate."
+          },
+          "negation_handling": {
+            "score": 5,
+            "reasoning": "The report correctly distinguishes between negated information (e.g., no allergies, no medication, no high fever) and information not discussed (e.g., family and social anamnesis)."
+          },
+          "clinical_language": {
+            "score": 5,
+            "reasoning": "The Czech medical terminology is appropriate, professional, and consistent with clinical standards."
+          },
+          "noise_resilience": {
+            "score": 5,
+            "reasoning": "The report filters out irrelevant content and ASR errors, focusing solely on medically relevant information."
+          }
+        },
+        "composite_score": 4.8,
+        "hallucinations": [],
+        "omissions": [],
+        "summary": "The report is accurate, complete, well-structured, and professionally written, effectively capturing all relevant clinical information from the transcript without adding or omitting details."
+      }
+    },
+    {
+      "scenario": "cz_respiracni_infekce",
+      "transcript_words": 196,
+      "report_generation": {
+        "time_s": 4.89,
+        "prompt_tokens": 1965,
+        "completion_tokens": 484,
+        "reasoning_tokens": 0
+      },
+      "report": "Lékařská zpráva\n\nIdentifikace pacienta:\n- Jméno: paní Svobodová\n- Věk / r. narození: 34 let\n- Datum návštěvy: 01. 03. 2026\n\nNO (Hlavní obtíže / důvod návštěvy):\n- Kašel a dušnost trvající 5 dní, postupné zhoršování, spouštěč pravděpodobně kontakt s nemocným kolegou v práci.\n\nNA (Anamnéza nynějšího onemocnění):\n- Kašel začal náhle, trvá 5 dní, je produktivní s vykašláváním žlutozeleného hlenu. Dušnost udává zhoršení dýchání. Bolest v krku a únava. Zvýšená teplota do 38,5 °C. \n\nRA (Rodinná anamnéza):\n- neuvedeno\n\nOA (Osobní anamnéza):\n- Bez chronických onemocnění, neužívá žádné léky, zdravá.\n\nFA (Farmakologická anamnéza / aktuální medikace):\n- Bez pravidelné medikace.\n\nAA (Alergologická anamnéza):\n- Alergie na léky neguje.\n\nGA (Gynekologická/urologická anamnéza):\n- neuvedeno\n\nSA (Sociální anamnéza):\n- Kouření neguje.\n\nObjektivní nález:\n- Saturace kyslíku 96 %. Teplota 38,1 °C. Při poslechu vlhké chrůpky vpravo na bázi plic.\n\nHodnocení (pracovní diagnóza / klinický závěr):\n- Komunitní pneumonie na pravé straně.\n\nNávrh vyšetření:\n- neuvedeno\n\nNávrh terapie:\n- Antibiotika: amoxicilin s klavulanátem 875/125 mg, 2× denně po dobu 7 dní. Doporučen klid na lůžku a dostatečný příjem tekutin.\n\nPokyny a plán kontrol:\n- Kontrola za 5 dní nebo dříve při zhoršení stavu.",
+      "evaluation": {
+        "scores": {
+          "factual_accuracy": {
+            "score": 5,
+            "reasoning": "All facts in the report are directly supported by the transcript without any hallucinations."
+          },
+          "completeness": {
+            "score": 5,
+            "reasoning": "The report captures all medically relevant information from the transcript, including symptoms, anamnesis, examination findings, diagnosis, therapy, and follow-up plan."
+          },
+          "structure": {
+            "score": 5,
+            "reasoning": "All 13 required sections are present and information is correctly placed in appropriate sections."
+          },
+          "negation_handling": {
+            "score": 5,
+            "reasoning": "The report correctly distinguishes between 'neuvedeno' (not discussed) and explicit negations, e.g., allergies and smoking are explicitly negated."
+          },
+          "clinical_language": {
+            "score": 5,
+            "reasoning": "The Czech medical terminology is appropriate, professional, and consistent with clinical standards."
+          },
+          "noise_resilience": {
+            "score": 5,
+            "reasoning": "The report filters out irrelevant content and ASR errors, focusing solely on medically relevant information."
+          }
+        },
+        "composite_score": 5.0,
+        "hallucinations": [],
+        "omissions": [],
+        "summary": "The report is a precise, complete, and well-structured medical documentation that accurately reflects the transcript without any hallucinations or omissions, using appropriate clinical language and correctly handling negations."
+      }
+    },
+    {
+      "scenario": "food_poisoning",
+      "transcript_words": 262,
+      "report_generation": {
+        "time_s": 6.27,
+        "prompt_tokens": 1859,
+        "completion_tokens": 708,
+        "reasoning_tokens": 0
+      },
+      "report": "Lékařská zpráva\n\nIdentifikace pacienta:\n- Jméno: neuvedeno\n- Věk / r. narození: 25 let\n- Datum návštěvy: 01. 03. 2026\n\nNO (Hlavní obtíže / důvod návštěvy):\n- Zvracení a průjem od cca 2. hodiny ranní, celková špatná kondice.\n\nNA (Anamnéza nynějšího onemocnění):\n- Začátek potíží přibližně šest hodin po večeři na pracovním eventu (večeře kolem 19. hodiny předchozího dne).\n- Konzumace kuřete, rýže, těstovinového salátu a krevetového koktejlu.\n- Více osob z eventu má podobné příznaky (alespoň tři kolegové).\n- Bolest břicha celkově, citlivost na pohmat.\n- Zvýšená teplota 38,2 °C.\n- Suchá ústa, známky mírné dehydratace.\n- Zvýšená peristaltika střev.\n- Nausea, zvracení, průjem.\n- Zvýšenou teplotu nad 39 °C má hlásit.\n- Neschopnost udržet tekutiny má hlásit.\n- Doprovodné příznaky neuvedeny.\n\nRA (Rodinná anamnéza):\n- neuvedeno\n\nOA (Osobní anamnéza):\n- Bez uvedených chronických onemocnění.\n- Neuvedeno prodělaných nemocí či operací.\n\nFA (Farmakologická anamnéza / aktuální medikace):\n- Bez pravidelné medikace.\n\nAA (Alergologická anamnéza):\n- Alergie neguje.\n\nGA (Gynekologická/urologická anamnéza):\n- neuvedeno\n\nSA (Sociální anamnéza):\n- neuvedeno\n\nObjektivní nález:\n- Teplota 38,2 °C\n- TK 105/70 mmHg\n- Puls 92/min\n- Suchá ústa, známky dehydratace\n- Břicho měkké, difúzně citlivé\n- Zvýšená střevní peristaltika (přehnané střevní zvuky)\n\nHodnocení (pracovní diagnóza / klinický závěr):\n- Suspektní alimentární gastroenteritida pravděpodobně bakteriální etiologie (Salmonella nebo Stafylokokový toxin).\n\nNávrh vyšetření:\n- neuvedeno\n\nNávrh terapie:\n- Rehydratace perorálními rehydratačními roztoky v malých dávkách a častěji.\n- Dieta BRAT (banány, rýže, jablečná přesnídávka, toast).\n- Možnost předepsání antiemetika při výrazné nevolnosti.\n\nPokyny a plán kontrol:\n- Kontrola při nemožnosti udržet tekutiny nebo při vzestupu teploty nad 39 °C.\n- Návrat k lékaři při zhoršení stavu.",
+      "evaluation": {
+        "scores": {
+          "factual_accuracy": {
+            "score": 5,
+            "reasoning": "All facts in the report are directly traceable to the transcript without any hallucinated information."
+          },
+          "completeness": {
+            "score": 5,
+            "reasoning": "The report captures all medically relevant information from the transcript, including symptoms, history, physical findings, differential diagnosis, and management plan."
+          },
+          "structure": {
+            "score": 5,
+            "reasoning": "All 13 required sections are present and information is correctly placed in appropriate sections."
+          },
+          "negation_handling": {
+            "score": 5,
+            "reasoning": "The report correctly distinguishes between 'neuvedeno' (not discussed) and explicit negations, such as allergy negation and absence of chronic diseases."
+          },
+          "clinical_language": {
+            "score": 5,
+            "reasoning": "The Czech medical terminology is appropriate, professional, and consistent with clinical documentation standards."
+          },
+          "noise_resilience": {
+            "score": 5,
+            "reasoning": "The report filters out irrelevant content and ASR errors, focusing solely on medically relevant information."
+          }
+        },
+        "composite_score": 5.0,
+        "hallucinations": [],
+        "omissions": [],
+        "summary": "The report is a precise, complete, and well-structured medical documentation that accurately reflects the transcript content using appropriate clinical language and correctly handles negations and irrelevant content."
+      }
+    },
+    {
+      "scenario": "pediatric_checkup",
+      "transcript_words": 274,
+      "report_generation": {
+        "time_s": 4.52,
+        "prompt_tokens": 1872,
+        "completion_tokens": 516,
+        "reasoning_tokens": 0
+      },
+      "report": "Lékařská zpráva\n\nIdentifikace pacienta:\n- Jméno: Emma\n- Věk / r. narození: neuvedeno\n- Datum návštěvy: 01. 03. 2026\n\nNO (Hlavní obtíže / důvod návštěvy):\n- Roční preventivní prohlídka.\n\nNA (Anamnéza nynějšího onemocnění):\n- Pacientka je aktivní, plave 2× týdně, hraje si venku s dětmi z okolí. Nemá žádné alergie, strava je vyvážená. Čas u obrazovek je omezen na cca 1 hodinu ve školních dnech, o víkendech více. Zubní hygiena je většinou 2× denně, někdy zapomíná večer. Zvýšenou teplotu neguje, jiné příznaky neuvedeny.\n\nRA (Rodinná anamnéza):\n- neuvedeno\n\nOA (Osobní anamnéza):\n- Neuvedena závažná onemocnění. Imunizace je kompletní a aktuální.\n\nFA (Farmakologická anamnéza / aktuální medikace):\n- Bez pravidelné medikace.\n\nAA (Alergologická anamnéza):\n- Alergie neguje.\n\nGA (Gynekologická/urologická anamnéza):\n- neuvedeno\n\nSA (Sociální anamnéza):\n- neuvedeno\n\nObjektivní nález:\n- Hmotnost 26 kg, výška 128 cm, hodnoty odpovídají věku. Oční vyšetření bez nálezu, ušní vyšetření bez patologie, sluch v pořádku. Stav ústní dutiny bez patologických změn, první trvalé stoličky v pořádku.\n\nHodnocení (pracovní diagnóza / klinický závěr):\n- Pacientka je ve výborném zdravotním stavu, vývojové milníky odpovídají věku.\n\nNávrh vyšetření:\n- neuvedeno\n\nNávrh terapie:\n- Doporučeno pokračovat v aktivním životním stylu, vyvážené stravě a pravidelné zubní hygieně.\n\nPokyny a plán kontrol:\n- Kontrola za jeden rok na další preventivní prohlídku.",
+      "evaluation": {
+        "scores": {
+          "factual_accuracy": {
+            "score": 5,
+            "reasoning": "All facts in the report are directly supported by the transcript without any hallucinations."
+          },
+          "completeness": {
+            "score": 5,
+            "reasoning": "The report captures all medically relevant information from the transcript, including lifestyle, immunization, physical exam, and recommendations."
+          },
+          "structure": {
+            "score": 5,
+            "reasoning": "All 13 required sections are present and information is appropriately placed in each section."
+          },
+          "negation_handling": {
+            "score": 5,
+            "reasoning": "The report correctly distinguishes between 'neuvedeno' and explicit negations, such as allergies and symptoms."
+          },
+          "clinical_language": {
+            "score": 5,
+            "reasoning": "The Czech medical terminology is professional, clear, and appropriate for a pediatric preventive checkup."
+          },
+          "noise_resilience": {
+            "score": 5,
+            "reasoning": "The report filters out irrelevant content and ASR errors, focusing only on medically relevant information."
+          }
+        },
+        "composite_score": 5.0,
+        "hallucinations": [],
+        "omissions": [],
+        "summary": "The report is an excellent, accurate, and complete medical documentation of the pediatric preventive checkup, well-structured and professionally written without any irrelevant content."
+      }
+    },
+    {
+      "scenario": "respiratory_infection",
+      "transcript_words": 252,
+      "report_generation": {
+        "time_s": 4.65,
+        "prompt_tokens": 1850,
+        "completion_tokens": 514,
+        "reasoning_tokens": 0
+      },
+      "report": "Lékařská zpráva\n\nIdentifikace pacienta:\n- Jméno: Brown\n- Věk / r. narození: 45 let\n- Datum návštěvy: 01. 03. 2026\n\nNO (Hlavní obtíže / důvod návštěvy):\n- Kašel trvající přibližně 4 dny, dušnost, zhoršující se stav.\n\nNA (Anamnéza nynějšího onemocnění):\n- Náhlý začátek před několika dny po kontaktu s lidmi kašlajícími na konferenci. Kašel, dušnost, horečka do 38,8 °C, zimnice, výrazná únava, téměř neschopnost vstát z postele. Zvýšenou teplotu udává, zimnici a únavu. Dušnost přítomna.\n\nRA (Rodinná anamnéza):\n- neuvedeno\n\nOA (Osobní anamnéza):\n- Bez chronických plicních onemocnění (astma, CHOPN negováno). Jinak obecně zdravý.\n\nFA (Farmakologická anamnéza / aktuální medikace):\n- bez pravidelné medikace\n\nAA (Alergologická anamnéza):\n- alergie neguje\n\nGA (Gynekologická/urologická anamnéza):\n- neuvedeno\n\nSA (Sociální anamnéza):\n- Kouření neguje\n\nObjektivní nález:\n- Teplota 38,3 °C, saturace kyslíku 95 %. Při auskultaci slyšitelné praskoty v pravém dolním plicním poli, snížené dýchání v této oblasti.\n\nHodnocení (pracovní diagnóza / klinický závěr):\n- Komunitní pneumonie pravého dolního laloku.\n\nNávrh vyšetření:\n- neuvedeno\n\nNávrh terapie:\n- Amoxicilin-klavulanát 875/125 mg, 2× denně po dobu 7 dnů. Doporučen odpočinek a dostatečný příjem tekutin.\n\nPokyny a plán kontrol:\n- Kontrola za 5 dnů nebo dříve při zhoršení, zejména při zhoršené dušnosti nebo zvýšení teploty nad 39 °C.",
+      "evaluation": {
+        "scores": {
+          "factual_accuracy": {
+            "score": 5,
+            "reasoning": "All facts in the report are directly traceable to the transcript with no added or hallucinated information."
+          },
+          "completeness": {
+            "score": 5,
+            "reasoning": "The report captures all medically relevant information from the transcript including history, symptoms, examination findings, diagnosis, treatment, and follow-up instructions."
+          },
+          "structure": {
+            "score": 5,
+            "reasoning": "All 13 required sections are present and information is correctly placed in appropriate sections."
+          },
+          "negation_handling": {
+            "score": 5,
+            "reasoning": "Explicit negations such as no smoking, no allergies, no chronic lung disease are correctly distinguished from sections marked as 'neuvedeno' where information was not discussed."
+          },
+          "clinical_language": {
+            "score": 5,
+            "reasoning": "The Czech medical terminology is appropriate, professional, and consistent with clinical standards."
+          },
+          "noise_resilience": {
+            "score": 5,
+            "reasoning": "The report correctly filters out irrelevant content and ASR errors, focusing only on medically relevant information."
+          }
+        },
+        "composite_score": 5.0,
+        "hallucinations": [],
+        "omissions": [],
+        "summary": "The report is an accurate, complete, and well-structured medical document that uses appropriate clinical language and correctly handles negations and irrelevant content."
+      }
+    }
+  ],
+  "aggregate": {
+    "mean_composite": 4.89,
+    "min_composite": 4.7,
+    "max_composite": 5.0,
+    "per_dimension_means": {
+      "factual_accuracy": 5.0,
+      "completeness": 4.62,
+      "structure": 4.75,
+      "negation_handling": 5.0,
+      "clinical_language": 5.0,
+      "noise_resilience": 5.0
+    }
+  }
+}

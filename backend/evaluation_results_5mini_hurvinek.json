@@ -1,0 +1,170 @@
+{
+  "metadata": {
+    "date": "2026-03-01T18:16:49.720673",
+    "model": "gpt-5-mini",
+    "api_version": "2025-04-01-preview",
+    "num_scenarios": 3,
+    "scenarios_dir": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/testing_hurvinek"
+  },
+  "results": [
+    {
+      "scenario": "S Hurvínkem za lékařem   1  Díl   Nachlazení",
+      "transcript_words": 1081,
+      "report_generation": {
+        "time_s": 29.1,
+        "prompt_tokens": 3479,
+        "completion_tokens": 3172,
+        "reasoning_tokens": 2240
+      },
+      "report": "Lékařská zpráva\n\nIdentifikace pacienta:\n- Jméno: neuvedeno\n- Věk / r. narození: neuvedeno\n- Datum návštěvy: 01. 03. 2026\n\nNO (Hlavní obtíže / důvod návštěvy):\n- Kašel a rýma (smrkání) od tohoto rána; pacientka uvádí \"asi na mě něco leze\". Navzdory potížím byla dnes dopoledne ve škole na divadelním představení (návštěva divadla Hurvínek), kde kašlala a smrkala.\n\nNA (Anamnéza nynějšího onemocnění):\n- Začátek: dnes ráno.\n- Symptomy: kašel, smrkání; subjektivně i únava (\"dneska tak umořený\"), bolest hlavy (\"nějak mě rozbolala hlava\" — pacientka uvádí).\n- Provokační/úlevové faktory: pacientka zmiňuje expozici chladu/otužování (diskuse o \"nastydnutí\"), ale konkrétní spouštěč není jasně stanoven.\n- Doprovodné příznaky: pacientka neudala měřenou tělesnou teplotu (neměřila).\n- Negace/ostatní: měření teploty negováno (neměřila).\n\nRA (Rodinná anamnéza):\n- neuvedeno\n\nOA (Osobní anamnéza):\n- neuvedeno\n\nFA (Farmakologická anamnéza / aktuální medikace):\n- neuvedeno\n\nAA (Alergologická anamnéza):\n- neuvedeno\n\nGA (Gynekologická/urologická anamnéza):\n- neuvedeno\n\nSA (Sociální anamnéza):\n- neuvedeno\n\nObjektivní nález:\n- Vyšetření ORL: vypláznutý jazyk na vyšetření; přítomny hmatné (palpabilní) lymfatické uzliny v oblasti krku.\n- Auskultace: poslech fonendoskopem — srdční ozvy přítomny; poslech dýchání proveden (dýchání slyšitelné). Žádné přesné patologické plicní šelesty detailně popsány nebyly.\n- Teplota: neměřena.\n- TK, TF, SpO2 a další vitální parametry: neuvedeno\n\nHodnocení (pracovní diagnóza / klinický závěr):\n- Pracovní závěr lékaře: akutní nachlazení (\"tak to vypadá u vás obou na pořádné nachlazení\").\n- Lékař rovněž vyjádřil suspektní virové onemocnění / chřipku slovními formulacemi (\"To je parádní chřipka. Nebo spíš dřevomorka.\"), finální diagnóza nebyla definitivně stanovena.\n\nNávrh vyšetření:\n- Doporučeno změřit tělesnou teplotu (lékař uvedl \"bude lepší, když ji změříme\").\n- Poslech fonendoskopem proveden.\n- Jiná další vyšetření uvedena nebyla: neuvedeno\n\nNávrh terapie:\n- Farmakoterapie: předepsány \"léky na kašel\" — režim uveden: 1 tableta 3× denně po jídle (konkrétní název léku neuveden).\n- Režimová opatření: klid na lůžku, být v teple, vyzvednout léky v lékárně (poznámka: lékárnu poznáte podle zeleného kříže).\n- Instrukce k medikaci: léky užívat pravidelně a \"doužívat\" i po zlepšení stavu.\n\nPokyny a plán kontrol:\n- Kontrola: pacientka byla instruována, aby si lehla; lékař plánuje kontrolu odpoledne (\"já si vás přijdu odpoledne zkontrolovat\").\n- Varovné příznaky / jiné pokyny: neuvedeno.",
+      "evaluation": {
+        "scores": {
+          "factual_accuracy": {
+            "score": 4,
+            "reasoning": "Většina údajů v zápisu odpovídá přepisu (příznaky, vyšetření, doporučení, předepsaná medikace), avšak byl doplněn datum návštěvy, které v přepisu chybí, což je nepodložená informace."
+          },
+          "completeness": {
+            "score": 4,
+            "reasoning": "Hlavní anamnéza, objektivní nález a terapie jsou zachyceny, ale chybí několik užitečných detailů z konzultace (např. explicitní varování před domácími „recepty“ a odhadovaná délka onemocnění 8–10 dní)."
+          },
+          "structure": {
+            "score": 5,
+            "reasoning": "Zpráva obsahuje všechny povinné sekce (identifikace, NO, NA, RA, OA, FA, AA, GA, SA, objektivní nález, hodnocení, návrh vyšetření, návrh terapie / pokyny), informace jsou umístěny v odpovídajících částech."
+          },
+          "negation_handling": {
+            "score": 5,
+            "reasoning": "Negace jsou správně rozlišeny (např. neměřila teplotu, rodinná a jiné anamnézy označeny jako neuvedeno), bez chybných převodů negací na pozitivní tvrzení."
+          },
+          "clinical_language": {
+            "score": 5,
+            "reasoning": "Použité odborné výrazy (auskultace, fonendoskop, hmatné uzliny, pracovní diagnóza) jsou správné a profesionální v českém lékařském kontextu."
+          },
+          "noise_resilience": {
+            "score": 4,
+            "reasoning": "Zpráva efektivně odfiltrovala písně a divadelní vsuvky a zachytila relevantní klinické informace, nicméně došlo k doplnění datumu návštěvy, což ukazuje drobný sklon k „dodání“ chybějících detailů."
+          }
+        },
+        "composite_score": 4.5,
+        "hallucinations": [
+          "Datum návštěvy: 01. 03. 2026 (v přepisu datum není uvedeno)"
+        ],
+        "omissions": [
+          "Explicitní zmínka o tom, že domácí „rady“ (fazole v uchu, slivovice) byly lékařem označeny za nesmysly a potenciálně nebezpečné (rozpoznané v přepisu, v zápisu chybí jako bezpečnostní upozornění).",
+          "Poradenství ohledně očekávané délky onemocnění (v přepisu bylo uvedeno, že rýma/chřipka trvá 8–10 dní), které nebylo v závěru uvedeno.",
+          "Identifikace, že u vyšetření byli přítomni oba pacienti (Kája a Hurvínek) není explicitně uvedena v části identifikace; zpráva se primárně soustředila na jednu 'pacientku'."
+        ],
+        "summary": "Zpráva dobře shrnuje hlavní klinické body (příznaky, nález, vyšetření, předepsaná medikace a plán kontroly) a používá vhodnou medicínskou terminologii; chybí však několik drobných, ale užitečných konzultačních detailů a byl do ní přidán nepodložený datum návštěvy."
+      }
+    },
+    {
+      "scenario": "S Hurvínkem za lékařem   2  Díl   Zlomenina",
+      "transcript_words": 967,
+      "report_generation": {
+        "time_s": 23.27,
+        "prompt_tokens": 3251,
+        "completion_tokens": 2760,
+        "reasoning_tokens": 1856
+      },
+      "report": "Lékařská zpráva\n\nIdentifikace pacienta:\n- Jméno: Martin\n- Věk / r. narození: neuvedeno\n- Datum návštěvy: 01. 03. 2026\n\nNO (Hlavní obtíže / důvod návštěvy):\n- Pád ze stromu odpoledne, bolest dolní končetiny/nohy (pacient: \"bolí moje noha\", \"to bolí... tady dolů\").\n\nNA (Anamnéza nynějšího onemocnění):\n- Dneska odpoledne byl pacient na hřišti / lezl na strom, následně upadl. Bolest v noze od okamžiku pádu. Pacient byl při pádu dětmi doprovázen; po pádu volána pomoc (\"Musím pro pomoc. Pane doktore!\"). Proveden rentgen postižené končetiny.\n- Zvýšenou teplotu neuvedeno.\n\nRA (Rodinná anamnéza):\n- neuvedeno\n\nOA (Osobní anamnéza):\n- neuvedeno\n\nFA (Farmakologická anamnéza / aktuální medikace):\n- neuvedeno\n\nAA (Alergologická anamnéza):\n- alergie neguje / neuvedeno (alergie nebyly zmíněny)\n\nGA (Gynekologická/urologická anamnéza):\n- neuvedeno\n\nSA (Sociální anamnéza):\n- neuvedeno\n\nObjektivní nález:\n- Rentgen (provedeno): snímek nohy/dolní končetiny. Na snímku zaznamenáno porušení souvislosti (v přepisu: \"porušení souvislostí\"), tedy zlomenina; přesné lokalizace a další popis kostního defektu v přepisu neuvedeny.\n- Na operaci to není (operační řešení negováno).\n- Jiná objektivní měření (TK, pulz, SpO2, teplota, neurologický či cévní status) v přepisu neuvedena.\n\nHodnocení (pracovní diagnóza / klinický závěr):\n- Porušení souvislosti (zlomenina) dolní končetiny/nohy; operační řešení negováno. Potřeba imobilizace sádrou.\n\nNávrh vyšetření:\n- Rentgen postižené části (provedeno).\n- Kontrolní rentgen pro rozhodnutí o sejmutí sádry (v plánu; v přepisu uvedeno jako \"kontrolní rengenu\").\n\nNávrh terapie:\n- Sádra (imobilizace) byla indikována / aplikována. Popis technologie: osa nohy zabalena do punčochy a vaty, sádra namočená v teplé vodě; procedura popsána v přepisu.\n- Doporučeno zvednutí nohy opatrně (elevace).\n- Zpočátku omezené šlapání na sádru (nejslabší/bez zátěže), po třech dnech přidělán podpatek (\"přiděláme za tři dny podpatek\") pro možnost pozdějšího došlapu.\n- Doba imobilizace orientačně podle přepisu: sejmutí sádry podle kontrolního rentgenu asi za pět až šest týdnů.\n\nPokyny a plán kontrol:\n- Kontrolní rentgen ke zhodnocení a rozhodnutí o sejmutí sádry za přibližně 5–6 týdnů.\n- Po třech dnech doplnění podpěry (podpatek) pro postupné zatěžování.\n- Pacientovi byla vysvětlena rizika pádu z výšky a doporučeno vyhýbat se místům s vypsaným zákazem (dodržovat zákazy), aby se předešlo horším úrazům.\n- Jiná varovná znamení nebo instrukce k návratu při zhoršení v přepisu explicitně nezazněla.",
+      "evaluation": {
+        "scores": {
+          "factual_accuracy": {
+            "score": 4,
+            "reasoning": "Většina tvrzení v zprávě je odvoditelná z přepisu (pád, bolest nohy, rentgen, diagnóza zlomeniny/porušení souvislostí, sádra, kontrolní rentgen). Nicméně datum návštěvy bylo vymyšlené a označení ‚sádra aplikována‘ je spíše inferencí než explicitním údajem v přepisu."
+          },
+          "completeness": {
+            "score": 4,
+            "reasoning": "Zpráva zachycuje hlavní klinické body (mechanismus úrazu, vyšetření rentgenem, diagnóza, imobilizace, doporučení kontroly), ale neuvádí věk/pediatrický kontext, přesnou lokalizaci poranění ani jasně neodděluje indikaci od skutečného výkonu (aplikace sádry)."
+          },
+          "structure": {
+            "score": 5,
+            "reasoning": "Všechny požadované sekce (13) jsou přítomny a informace jsou logicky zařazeny do odpovídajících sekcí."
+          },
+          "negation_handling": {
+            "score": 4,
+            "reasoning": "Většinou korektně označeno jako ‚neuvedeno‘ tam, kde informace chybí; u alergií je však uvedeno ‚alergie neguje / neuvedeno‘, což míchá explicitní negaci s absencí informace."
+          },
+          "clinical_language": {
+            "score": 4,
+            "reasoning": "Terminologie je většinou odborná a srozumitelná (rentgen, imobilizace, elevace, porušení souvislostí), objevují se drobné pravopisné/terminologické nekonzistence (rengen/rentgen) a styl je občas hovorový."
+          },
+          "noise_resilience": {
+            "score": 5,
+            "reasoning": "Zpráva účinně odfiltrovala zpěvné/pohádkové pasáže a banter a vypíchla relevantní klinické informace bez zbytečného hluku."
+          }
+        },
+        "composite_score": 4.3,
+        "hallucinations": [
+          "Datum návštěvy '01. 03. 2026' není v přepisu uvedeno.",
+          "Tvrdí se, že sádra byla aplikována (‚byla indikována / aplikována‘) – v přepisu je spíše konstatace, že sádra je nutná, aplikace není jednoznačně popsána."
+        ],
+        "omissions": [
+          "Věk/pediatrický status pacienta nebyl explicitně uveden ve zprávě, přestože v přepisu je jasný dětský kontext.",
+          "Neuvádí se přesná lokalizace postižené části dolní končetiny (např. kotník vs lýtko), přestože pacient ukazuje ‚tady dolů‘ – lokalizace zůstala vágní v přepisu a zpráva ji nezdůraznila ani jako omezení."
+        ],
+        "summary": "Zpráva věrně vystihuje hlavní klinické body z přepisu (pád, bolest nohy, rentgen, porušení souvislostí/zlomenina, imobilizace a kontrolní rentgen), má dobrou strukturu a filtruje nerelevantní obsah; chybí však malé přesnosti (vymyšlené datum, nejasnost zda byla sádra skutečně aplikována) a je možné zlepšit zacházení s negacemi a explicitní uvedení pediatrického kontextu."
+      }
+    },
+    {
+      "scenario": "S Hurvínkem za lékařem 08 Angína",
+      "transcript_words": 1109,
+      "report_generation": {
+        "time_s": 25.33,
+        "prompt_tokens": 3590,
+        "completion_tokens": 2641,
+        "reasoning_tokens": 1792
+      },
+      "report": "Lékařská zpráva\n\nIdentifikace pacienta:\n- Jméno: Kája; Hurvínek\n- Věk / r. narození: neuvedeno\n- Datum návštěvy: 01. 03. 2026\n\nNO (Hlavní obtíže / důvod návštěvy):\n- Kája: bolest v krku a bolest hlavy, obtíže vzniklé po včerejší aktivitě (\"po včerešku\"). Spouštěč: únava po včerejším lítání.\n- Hurvínek: píchání v uchu, subjektivně po včerejší aktivitě.\n- Pokud pacient důvod výslovně neřekl: neuvedeno\n\nNA (Anamnéza nynějšího onemocnění):\n- Kája: Uvádí bolest v krku a bolest hlavy. Začátek symptomu: od včerejška. Subjektivně také únava po včerejším \"létání\". Dřívější vyšetření lékařem: lékař konstatoval teplotu (bez číselné hodnoty) a prohlédl ústa/krk.\n- Objektivně (z vyšetření lékařem, popis): \"povleklý jazyk, béliké, rudé mandle\".\n- Hurvínek: Uvádí píchání v uchu. Začátek: od včerejška. Vyšetření ucha objektivně není v přepisu uvedeno.\n- Negace: neuvedeno další explicitní negace příznaků.\n\nRA (Rodinná anamnéza):\n- neuvedeno\n\nOA (Osobní anamnéza):\n- neuvedeno\n\nFA (Farmakologická anamnéza / aktuální medikace):\n- neuvedeno\n\nAA (Alergologická anamnéza):\n- neuvedeno\n\nGA (Gynekologická/urologická anamnéza):\n- neuvedeno\n\nSA (Sociální anamnéza):\n- neuvedeno\n\nObjektivní nález:\n- Teplota: lékař uvedl \"má teplotu\" (číselná hodnota neuvedena).\n- Vyšetření orofaryngu: \"povleklý jazyk, béliké, rudé mandle\" (popis lékaře).\n- Jiné vitální funkce nebo fyzikální nález číselně/konkrétně uvedeny nebyly: neuvedeno\n\nHodnocení (pracovní diagnóza / klinický závěr):\n- Kája: angína (lékař: \"parádní angína\", \"rozvinutá angína\").\n- Hurvínek: diagnóza nebyla v přepisu explicitně stanovena lékařem.\n\nNávrh vyšetření:\n- neuvedeno\n\nNávrh terapie:\n- Nasazení antibiotik: penicillín (uvedeno lékem \"Dostaneš penicillín\"; dávkování a režim neuvedeno).\n- Doporučení zůstat doma (u Káji: \"budeš muset zůstat doma\").\n\nPokyny a plán kontrol:\n- Užívat antibiotika pravidelně podle doporučení (\"ty léky se musí brát pravidelně\").\n- Obecná režimová doporučení: dobře se obléci, zabránit prochladnutí, včas se vrátit a přijít na ošetření při zhoršení nebo pokud není dobře (\"když vám není dobře, musíte rychle přijít na ošetření\").\n- Důraz na včasné zahájení léčby pro rychlejší uzdravení.\n- Další kontrola či konkrétní termín nebyly v přepisu uvedeny: neuvedeno",
+      "evaluation": {
+        "scores": {
+          "factual_accuracy": {
+            "score": 4,
+            "reasoning": "Většina klinických faktů (bolest v krku, horečka, angína, nasazení penicillinu, píchání v uchu u Hurvínka) je přímo v přepisu, avšak report obsahuje datum návštěvy (01.03.2026), které v přepisu explicitně není."
+          },
+          "completeness": {
+            "score": 4,
+            "reasoning": "Zpráva zachycuje hlavní symptomy, objektivní nález, diagnózu a terapii, chybí však konkrétní zhodnocení/ plán pro Hurvínkovo ucho a drobné detaily o vyšetřeních."
+          },
+          "structure": {
+            "score": 5,
+            "reasoning": "Všechny povinné sekce jsou přítomné a informace jsou převážně umístěny do vhodných oddílů (identifikace, NO, NA, anamnézy, objektivní nález, hodnocení, terapie, pokyny)."
+          },
+          "negation_handling": {
+            "score": 4,
+            "reasoning": "Report korektně označuje nepřítomné údaje jako 'neuvedeno' a nerozšiřuje implicitní negace, ale formulace 'Negace: neuvedeno' v NA je zbytečně obecná."
+          },
+          "clinical_language": {
+            "score": 5,
+            "reasoning": "Použitá česká medicínská terminologie (angína, orofarynx, mandličky, penicillín) je vhodná a profesionální; jazyk je srozumitelný pro klinickou dokumentaci."
+          },
+          "noise_resilience": {
+            "score": 5,
+            "reasoning": "Zpráva účinně odfiltruje písňové části a pohádkové vsuvky a soustředí se na relevantní klinické informace z přepisu."
+          }
+        },
+        "composite_score": 4.5,
+        "hallucinations": [
+          "Datum návštěvy: 01. 03. 2026 (vyplněno ve zprávě, datum není explicitně uvedeno v přepisu)"
+        ],
+        "omissions": [
+          "Chybí explicitní dokumentace vyšetření ucha Hurvínka a případné doporučení či léčba jeho píchání v uchu (v přepisu je stížnost, vyšetření ucha není popsáno, ale report neuvádí další plán).",
+          "Neuvádí se, zda byla podána nebo jen předepsána antibiotika (v přepisu je formulace 'Dostaneš penicillín', report uvádí nasazení, ale není jasné podání vs. předpis) a chybí konkrétní režim/dávkování (v přepisu také chybí, ale absence není zmíněna jako omezení)."
+        ],
+        "summary": "Zpráva věrně odfiltruje pohádkový šum a zachycuje klíčové klinické informace (bolest v krku, nález na mandlích, angína, penicillín), má dobrou strukturu a jazyk; drobné nedostatky jsou jedna vymyšlená položka data a neúplné zhodnocení/ plán pro Hurvínkovo ucho."
+      }
+    }
+  ],
+  "aggregate": {
+    "mean_composite": 4.43,
+    "min_composite": 4.3,
+    "max_composite": 4.5,
+    "per_dimension_means": {
+      "factual_accuracy": 4.0,
+      "completeness": 4.0,
+      "structure": 5.0,
+      "negation_handling": 4.33,
+      "clinical_language": 4.67,
+      "noise_resilience": 4.67
+    }
+  }
+}

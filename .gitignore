@@ -1,0 +1,59 @@
+# ===== Python / Backend =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+*.env.local
+
+# ===== Flutter / Dart =====
+mobile/build/
+mobile/.dart_tool/
+mobile/.packages
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.metadata
+mobile/.idea/
+mobile/*.iml
+mobile/pubspec.lock
+
+# ===== iOS =====
+mobile/ios/Pods/
+mobile/ios/.symlinks/
+mobile/ios/Flutter/App.framework/
+mobile/ios/Flutter/Flutter.framework/
+mobile/ios/Flutter/Flutter.podspec
+mobile/ios/Flutter/Generated.xcconfig
+mobile/ios/Flutter/flutter_export_environment.sh
+mobile/ios/Runner.xcodeproj/project.xcworkspace/xcuserdata/
+mobile/ios/Runner.xcodeproj/xcuserdata/
+mobile/ios/Runner.xcworkspace/xcuserdata/
+**/DerivedData/
+**/Pods/
+
+# ===== Android =====
+mobile/android/.gradle/
+mobile/android/app/build/
+mobile/android/build/
+mobile/android/local.properties
+mobile/android/key.properties
+*.jks
+
+# ===== macOS =====
+.DS_Store
+**/.DS_Store
+
+# ===== IDE =====
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ===== Misc =====
+*.log
+
+# ===== Test scripts with secrets =====
+test_gpt5mini.py
+test_gpt5mini_full.py

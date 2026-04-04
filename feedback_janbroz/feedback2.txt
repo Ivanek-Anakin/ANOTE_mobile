@@ -1,0 +1,50 @@
+Lékařská zpráva
+
+Identifikace pacienta:  
+- Jméno: Jeřina Nováková  
+- Věk / r. narození: 58 let  
+- Datum návštěvy: 31. 03. 2026  
+
+NO (Nynější onemocnění):  
+Pacientka přichází na doporučení praktického lékaře pro otok pravé dolní končetiny. Asi před dvěma dny ráno si všimla otoku pravého lýtka, mírná bolest, zpočátku nevěnovala pozornost. Večer otok výraznější, druhý den se rozšířil až do stehna. Otok trvá, přibližně mírně zvětšený oproti začátku. Udává napnutí, pocit tlaku, bez výrazného píchání či bodavé bolesti. Bolest lehce propaguje do pravého boku. Úraz dolní končetiny neguje. Rýmu, výrazný kašel a dušnost negovala, pouze lehký kašel při chůzi do schodů. Nezvrací, zvýšenou teplotu neguje. Obtíže s močením neguje.  
+
+RA (Rodinná anamnéza):  
+Neuvedeno.  
+
+OA (Osobní anamnéza):  
+Neléčí se s ničím, v minulosti nebyla hospitalizována.  
+
+FA (Farmakologická anamnéza / aktuální medikace):  
+Neuvedeno.  Bylo řečeno, že nic neužívá
+
+AA (Alergologická anamnéza):  
+Udává alergii na některé prachy (prach), dle lékařky nutno dávat pozor (řečeno: musím si dávat pozor nebo mám...) – projev: kašel, slzení očí.  
+
+GA (Gynekologická/urologická anamnéza):  
+Chodí pravidelně na mamografii a gynekologické prohlídky. Menstruace od 13 let, pravidelná, bez problémů. Má 2 děti, jsou zdravé. Jeden potrat v mládí.  
+
+SA (Sociální anamnéza):  
+Pije asi láhev vína týdně, tvrdý alkohol nepije. Kouří cca 10 cigaret denně, několikrát zkoušela přestat (naposledy asi před 3 lety), bez úspěchu, nikotinovou substituci nezkoušela. Pracuje jako strojevedoucí dálkové dopravy, aktuálně jezdí jen po ČR. Práce náročná, velká zodpovědnost.  
+
+Adherence a spolupráce pacienta:  
+Neuvedeno.  
+
+Objektivní nález:  
+P: 100/min. Poklep na plicích jasný, dýchání sklípkové, vpravo poslechově vrzoty ( řečeno i krepitus, krepitace). Pravá DK oteklá do třísla, lehce lividní, teplejší. Pulzace hmatná na obou stranách. Homansovo znamení pozitivní, plantární znamení pozitivní.  
+
+Hodnocení (pracovní diagnóza / klinický závěr):  
+Hluboká žilní trombóza pravé DK pravděpodobně s plicní embolizací.  
+
+Návrh vyšetření:  
+CT angiografie k potvrzení plicní embolizace.  
+
+Návrh terapie:  
+Zahájit léčbu heparinem.  
+
+Pokyny a plán kontrol:  
+Uložení na lůžkové oddělení, zahájení léčby, poučení o prognóze.  
+
+---
+
+Chcete, abych z této návštěvy rovnou vytvořil i standardizovanou formulaci pro elektronickou zdravotnickou dokumentaci (EHR), aby byla ihned použitelná v nemocničním systému?
+Jak se mnujete? Já se mnuju jeřina Nováková. A kolik je mám lé, to je mi 58 let. A včím se, čím vám přichází ten? Na posálně praktický lekář. Já jsem asi před vědějma dnej ráno si přimla, že mám votekou pravou nohu, jako v lídku. Trochu mě dobolelo, ale jsem se tomu nevěnul a pozanou se, jak jsem urmáneša opráce. No ale večer už to bylo voteky ještě více. tak jsem urmáležil do práce, ale večer už to bylo voteklí ještě více, se halo to až jak ne, jak ne, a stehno. Tak jsem musí dál, všichni byla doma, no a je pořád ten voto trvá, ale je možná trošku větší, tak jsem však doktorověrá no a třeba salkoáno. No a bolí vás stano halo trochu do rákoho, ale je napíná, je to voteklí, tak to cítím, jako takový klak. Ale že by to tam píchalo, bo dalo nebo něco Takový hod. A neměla se nějaký úraz, že byste si vyhravala koleno, nebo kotník, že byste někde byl běšlá pláne, nebo hrávala fable. Ne, ne, nic takový hod. Vlesty jaká vody dýle desítky? No tak důjka bych se měsla, není to zase takový dráv. No něco další, jo, třeba rýmu, kašel, nemáte, dýchá se rád dojře. No, jako, teď jsem, do tím, já napoci, jo jsem, jako... když jsem jel na to, že jsem se zadíchala, že jsem si toho níhdy tohle měla. Nazvrace ní, ne, nezvrace, z té, prvěm nemáte, ne, všechno je v pořádku, s čuráním problémem je taky nemáte, ne, nemáte. No, jako trošku, jako kašlo. Trošku jsem kašlo, a taky právě, jak jsem šl, do těch schodin, taky, To je trošku kašlo. To je trošku jsem kašlal tady právě, jak jsem se pšlal do těch schodinak, nejen akorí kašla, na příklad. A nebola no vás nejle na přičce, no bojlo mě tady v pravu, na boku. A přitom kašlenovat přitom kašlenovat přitom, tak jako byl, no dobře. No ale čitle jsem s nějakou nevucí. Ne, nelečím se sničím. Nebylo jsem nevucnice, nikdy. A napraventivní promletky chodíte, no a chodíte na mamografie, chodím, když jste bána poslede, dala jsem lomi a chodíte na genekolivické pravdlitky, chodím, odkolika let menstruete. Menstrují od 13 a pravidelní je realní problémy, u mnoho zatím jako pravidelní bez problémy. No a něco, od děti máte mám, co si na aceno, jsou zdraví, jsou zdraví. A potrateně kde jenom a potravení někde byly jeden úblělní potra, když jsem byla vlada a věcika na něco. No jsem ojvěcika na pediprachy, to věciky si dává pozora, musím si něco fulka, cím dává pa jí doktorka, lehá e, protože jenak mám jako kašle a takový zavnudí oči a takový věc. A jinak dá nějaké leky, jmé na žádné na kino. a kohol no, vypiju tak, lahek výna, jako týně, z nějakýmaková rádka malou. Tak tvrdý alkohol nepiju, kouřité, kouřím asi v desetci veredeně a zkoušeláste přestat. No, zkoušel jsem to, o jim, že to není zdraví, ale jako asi vakrát jsem se o to pak usel a nepodářel jsem. Tak když na posledě, jo? jsem se o to pakusila a nepodařil asi neděl. Tak když na posledě jel, to jasou asi 3 roky a zkušila jste nějaké leky na to převědkádní kouření. Ne, to jsem neskušila mu. Tak zadně tenu nějaké je poradné a oni vám tam poradí, dají vám leky, o to podle 3 asi nás. Připoládí. Já jsem strojevedoucí a jaký je vlakeří, jí jí tenu, je z díl na koví dálkoví dopravé. a jaké je vláky žijít, je z dílu dálkový dopravy, jakou třeba brno-práha, práha brno, i mezi národní vláky. To jsem by si jezdila, ale teď už nejezdí, by to je zde tady po echách. A je to nároční, no je to nároční, takozavnost, takové návuna, vlast odloví štrakky. Na tom povednost, velká za povednost. Je vzáhledně jíší jistet, teď posejí do vůneby a že byste tam jistat jako infek V zahré ičí jste teď posejí do vůle byla, že byste tam jste na infekci, ne, nikdo jsem jako necezstavala. No dobře, tak asi vás vyšetřím, tak ta pováfrekvence sto za minutu, tady poklep na plicích plní jasný, dýchání zkdíbkové, ale tady v pravo jsou takové, jako by, vrzoty, vyšetř, až jako, by to bylo, kdyby to bylo nějaký kapitus, kapitace, rychle, zdromány, nálezem, no a tam nohá je otekáš do třísla, je to hlá, jakouhle chce lividní, ale a je je teplýším. Půlzace kapitasy hmatná na obu stranách, jo, ho mám, coho zdramení je. když se vám závěl je hratit hmatná na obok straná. Homa odsobo zdramení je negat pozitivní, plantávní znamení je také pozitivní. Takže závěl je hlbokážený trhůz a pravděpodobně s pricní embolizací. Takže pacientku uložíme na bostel, pošeméjná, cté angliou, vysetření je, by jsme to potvrději a dávný v Lejčbe nějaký heparý na úmeníme, kde vy je dál. Nemusíte a týhle parý námeníme, kde vy vědá, ale musíte se báli, to nemuske dá se dá dobrá lečit, ale jsme jít zachytili v část, tak to bychou kutrová, tak nebo ekli padne.

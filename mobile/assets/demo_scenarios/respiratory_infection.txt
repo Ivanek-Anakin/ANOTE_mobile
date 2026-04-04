@@ -1,1 +1,16 @@
-Patient Michael Brown, 45 years old, presents with productive cough, fever, and shortness of breath for 4 days. Onset was sudden after attending a conference. Fever up to 38.8°C at home, chills, fatigue. Non-smoker, no chronic lung disease. No known allergies. On examination: temperature 38.3°C, oxygen saturation 95%, decreased breath sounds and crackles at right base on auscultation. Diagnosis: community-acquired pneumonia, right lower lobe. Plan: amoxicillin-clavulanate 875/125mg twice daily for 7 days, rest, adequate hydration, follow-up in 5 days or sooner if symptoms worsen.
+Good afternoon, Mr. Brown. Have a seat. What brings you in today?
+Hi, doctor. I've had this bad cough for about four days now, and I'm really short of breath. I thought it was just a cold, but it's getting worse.
+Do you have a fever?
+Yeah, I checked at home, it was up to 38.8. I've been having chills and I'm exhausted, I can barely get out of bed.
+When did it start? Was it gradual or sudden?
+Pretty sudden, actually. I was at a conference last week and a lot of people there were coughing. I felt fine until Wednesday, then it just hit me.
+Do you smoke?
+No, never.
+Any chronic lung problems? Asthma, COPD?
+No, nothing like that. I'm forty-five and generally healthy.
+Any allergies to medications?
+No, none that I know of.
+Okay, let me have a listen. Take a deep breath in. And out. One more time. I can hear crackles at the right base, and the breath sounds are decreased there. Your temperature is 38.3, and oxygen saturation is 95 percent.
+Is it pneumonia?
+Yes, Mr. Brown. Based on the examination, you have community-acquired pneumonia in your right lower lobe. I'm prescribing amoxicillin-clavulanate, 875 over 125 milligrams, twice daily for seven days. Get plenty of rest, drink lots of fluids. Come back in five days for a follow-up, or sooner if you feel worse, especially if you have trouble breathing or your fever goes above 39.
+Thank you, doctor. I'll start the antibiotics right away.
