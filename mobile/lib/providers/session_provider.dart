@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,7 +41,7 @@ final transcriptionModelProvider =
 });
 
 class TranscriptionModelNotifier extends StateNotifier<TranscriptionModel> {
-  TranscriptionModelNotifier() : super(TranscriptionModel.small) {
+  TranscriptionModelNotifier() : super(TranscriptionModel.cloud) {
     _load();
   }
 
@@ -162,8 +163,33 @@ class SessionNotifier extends StateNotifier<SessionState> {
 
   bool _isPreloading = false;
 
+  /// Minimum word count before generating report previews.
+  static const int _minWordsForReport = 50;
+
   /// Timestamp when recording started — used to compute duration.
   DateTime? _recordingStartTime;
+
+  /// If non-null, we fell back to this model because cloud was unavailable.
+  /// Used by the UI to show a warning snackbar.
+  TranscriptionModel? _offlineFallbackModel;
+
+  /// Get and clear the offline fallback notification.
+  TranscriptionModel? consumeOfflineFallback() {
+    final model = _offlineFallbackModel;
+    _offlineFallbackModel = null;
+    return model;
+  }
+
+  /// Check if internet is available (quick DNS lookup).
+  Future<bool> _checkInternetConnectivity() async {
+    try {
+      final result = await InternetAddress.lookup('azure.com')
+          .timeout(const Duration(seconds: 3));
+      return result.isNotEmpty && result.first.rawAddress.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
 
   SessionNotifier(
     this._reportService,
@@ -193,6 +219,16 @@ class SessionNotifier extends StateNotifier<SessionState> {
   /// with exponential backoff (5s, 10s, 20s).
   Future<void> _preloadModel({int attempt = 1}) async {
     if (_whisperService.isModelLoaded || _isPreloading) return;
+
+    // Cloud mode doesn't need an on-device model
+    final selectedModel = _ref.read(transcriptionModelProvider);
+    if (selectedModel == TranscriptionModel.cloud) {
+      if (mounted) {
+        state = state.copyWith(isModelLoaded: true);
+      }
+      return;
+    }
+
     _isPreloading = true;
     try {
       // Check model integrity first
@@ -473,7 +509,24 @@ class SessionNotifier extends StateNotifier<SessionState> {
 
   Future<void> _startRecordingAsync() async {
     try {
-      final selectedModel = _ref.read(transcriptionModelProvider);
+      var selectedModel = _ref.read(transcriptionModelProvider);
+
+      // --- Connectivity check for cloud-dependent modes ---
+      if (selectedModel == TranscriptionModel.cloud ||
+          selectedModel == TranscriptionModel.hybrid) {
+        final hasInternet = await _checkInternetConnectivity();
+        if (!hasInternet) {
+          // Fallback: prefer Turbo if downloaded, else Small
+          final turboReady = await WhisperService.isModelDownloaded(
+              config: WhisperService.turboConfig);
+          selectedModel =
+              turboReady ? TranscriptionModel.turbo : TranscriptionModel.small;
+          _offlineFallbackModel = selectedModel;
+
+          WhisperService.debugLog('[SessionNotifier] Offline → falling back to '
+              '${selectedModel.name}');
+        }
+      }
 
       // ===== STEP 1: Start audio capture IMMEDIATELY =====
       // Pre-buffer audio while model loads so we don't lose the first seconds.
@@ -624,6 +677,9 @@ class SessionNotifier extends StateNotifier<SessionState> {
     if (transcript.isEmpty || state.status != RecordingStatus.recording) {
       return;
     }
+    // Don't generate reports until we have enough transcript to be useful
+    final wordCount = transcript.trim().split(RegExp(r'\s+')).length;
+    if (wordCount < _minWordsForReport) return;
     // Skip if the transcript hasn't changed since the last report request.
     if (transcript == _lastReportedTranscript) return;
     _lastReportedTranscript = transcript;

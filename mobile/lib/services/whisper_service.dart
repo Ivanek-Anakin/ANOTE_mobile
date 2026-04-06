@@ -56,6 +56,7 @@ Future<String> transcribeFullInIsolate(Map<String, dynamic> params) async {
   final String decoderPath = params['decoderPath'] as String;
   final String tokensPath = params['tokensPath'] as String;
   final String vadModelPath = params['vadModelPath'] as String;
+  final String hotwordsFilePath = (params['hotwordsFilePath'] as String?) ?? '';
 
   const int sampleRate = 16000;
 
@@ -75,6 +76,12 @@ Future<String> transcribeFullInIsolate(Map<String, dynamic> params) async {
     allSpeech.addAll(seg.toList());
   }
 
+  // Resolve hotwords path — only pass if file exists
+  final String resolvedHotwords =
+      hotwordsFilePath.isNotEmpty && File(hotwordsFilePath).existsSync()
+          ? hotwordsFilePath
+          : '';
+
   // Create recognizer (fresh — cannot reuse across isolate boundary)
   final recognizer = sherpa.OfflineRecognizer(
     sherpa.OfflineRecognizerConfig(
@@ -91,6 +98,8 @@ Future<String> transcribeFullInIsolate(Map<String, dynamic> params) async {
         debug: false,
         provider: 'cpu',
       ),
+      hotwordsFile: resolvedHotwords,
+      hotwordsScore: 1.5,
     ),
   );
 

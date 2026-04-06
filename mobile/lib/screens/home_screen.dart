@@ -34,6 +34,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final width = MediaQuery.of(context).size.width;
     final isWide = width > 900;
 
+    // Show snackbar when offline fallback occurs during recording start
+    ref.listen<SessionState>(sessionProvider, (prev, next) {
+      if (prev != null &&
+          prev.status != RecordingStatus.recording &&
+          next.status == RecordingStatus.recording) {
+        // Check after connectivity check completes (up to 3s timeout)
+        final messenger = ScaffoldMessenger.of(context);
+        Future.delayed(const Duration(seconds: 4), () {
+          if (!mounted) return;
+          final fallback =
+              ref.read(sessionProvider.notifier).consumeOfflineFallback();
+          if (fallback != null) {
+            messenger.showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Bez internetu — přepis přepnut na ${fallback == TranscriptionModel.turbo ? "Turbo" : "Small"} (offline)',
+                ),
+                duration: const Duration(seconds: 4),
+                backgroundColor: Colors.orange.shade700,
+              ),
+            );
+          }
+        });
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: const Row(

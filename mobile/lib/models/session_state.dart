@@ -32,11 +32,11 @@ extension TranscriptionModelApi on TranscriptionModel {
   String get label {
     switch (this) {
       case TranscriptionModel.small:
-        return 'Small (výchozí)';
+        return 'Small';
       case TranscriptionModel.turbo:
         return 'Turbo';
       case TranscriptionModel.cloud:
-        return 'Cloud';
+        return 'Cloud (výchozí)';
       case TranscriptionModel.hybrid:
         return 'Hybrid';
     }
@@ -64,7 +64,7 @@ extension TranscriptionModelApi on TranscriptionModel {
       case 'hybrid':
         return TranscriptionModel.hybrid;
       default:
-        return TranscriptionModel.small;
+        return TranscriptionModel.cloud;
     }
   }
 }

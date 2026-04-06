@@ -408,6 +408,12 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
 
           sherpa.initBindings();
 
+          // Resolve hotwords path — only pass if file exists
+          final String resolvedHotwords =
+              hotwordsFilePath.isNotEmpty && File(hotwordsFilePath).existsSync()
+                  ? hotwordsFilePath
+                  : '';
+
           final sw = Stopwatch()..start();
           recognizer = sherpa.OfflineRecognizer(
             sherpa.OfflineRecognizerConfig(
@@ -424,6 +430,8 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
                 debug: false,
                 provider: 'cpu',
               ),
+              hotwordsFile: resolvedHotwords,
+              hotwordsScore: 1.5,
             ),
           );
           sw.stop();
