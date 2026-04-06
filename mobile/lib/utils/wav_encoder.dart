@@ -11,7 +11,8 @@ class WavEncoder {
     final int numSamples = samples.length;
     final int dataSize = numSamples * 2; // 2 bytes per int16 sample
     final int fileSize = 36 + dataSize; // RIFF chunk size = fileSize - 8
-    final int byteRate = sampleRate * 1 * 2; // sampleRate * channels * bytesPerSample
+    final int byteRate =
+        sampleRate * 1 * 2; // sampleRate * channels * bytesPerSample
 
     final buffer = ByteData(44 + dataSize);
 
@@ -36,7 +37,8 @@ class WavEncoder {
     buffer.setUint16(22, 1, Endian.little); // NumChannels = 1 (mono)
     buffer.setUint32(24, sampleRate, Endian.little);
     buffer.setUint32(28, byteRate, Endian.little);
-    buffer.setUint16(32, 2, Endian.little); // BlockAlign = channels * bitsPerSample/8
+    buffer.setUint16(
+        32, 2, Endian.little); // BlockAlign = channels * bitsPerSample/8
     buffer.setUint16(34, 16, Endian.little); // BitsPerSample = 16
 
     // data sub-chunk
@@ -54,5 +56,16 @@ class WavEncoder {
     }
 
     return buffer.buffer.asUint8List();
+  }
+
+  /// Downsample by factor of 2 using adjacent sample averaging.
+  /// 16kHz → 8kHz is well-suited for speech and halves upload size.
+  static List<double> downsample2x(List<double> samples) {
+    final int outLen = samples.length ~/ 2;
+    final result = List<double>.filled(outLen, 0.0);
+    for (int i = 0; i < outLen; i++) {
+      result[i] = (samples[i * 2] + samples[i * 2 + 1]) / 2.0;
+    }
+    return result;
   }
 }

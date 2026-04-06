@@ -78,7 +78,8 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
   String previousChunkTail = '';
 
   const int sampleRate = 16000;
-  const int windowInterval = 5 * sampleRate; // 5 s (matches Phase 1)
+  late int windowInterval; // set in 'init' based on device tier
+  windowInterval = 5 * sampleRate; // default 5 s, may be overridden
   const int overlapSamples = 3 * sampleRate; // 3 s
 
   /// Maximum raw audio buffer: 30 minutes @ 16 kHz = 28,800,000 samples.
@@ -393,6 +394,12 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
           final tokensPath = message['tokensPath'] as String;
           vadModelPath = message['vadModelPath'] as String;
           hotwordsFilePath = (message['hotwordsFilePath'] as String?) ?? '';
+          final int numThreads = (message['numThreads'] as int?) ?? 4;
+          final int windowIntervalSec =
+              (message['windowIntervalSeconds'] as int?) ?? 5;
+          windowInterval = windowIntervalSec * sampleRate;
+          workerLog(
+              '[Worker] Config: numThreads=$numThreads, windowInterval=${windowIntervalSec}s');
 
           // Log paths and verify files exist before creating recognizer
           workerLog('[Worker] encoder: $encoderPath '
@@ -426,7 +433,7 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
                   tailPaddings: -1,
                 ),
                 tokens: tokensPath,
-                numThreads: 4,
+                numThreads: numThreads,
                 debug: false,
                 provider: 'cpu',
               ),

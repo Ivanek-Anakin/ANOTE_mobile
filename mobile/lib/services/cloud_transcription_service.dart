@@ -23,10 +23,10 @@ class CloudTranscriptionService {
   })  : _storage = storage ?? const FlutterSecureStorage(),
         _httpClientFactory = httpClientFactory ?? (() => HttpClient());
 
-  /// Max chunk duration in samples (10 minutes at 16 kHz to stay under 25 MB).
+  /// Max chunk duration in samples (10 minutes at 16 kHz, before downsampling).
   static const int _maxChunkSamples = 10 * 60 * 16000; // 9,600,000 samples
 
-  /// Overlap between chunks (10 seconds at 16 kHz).
+  /// Overlap between chunks (10 seconds at 16 kHz, before downsampling).
   static const int _overlapSamples = 10 * 16000; // 160,000 samples
 
   /// Transcribe audio using Azure OpenAI Whisper API.
@@ -77,8 +77,11 @@ class CloudTranscriptionService {
         ? AppConstants.defaultAzureWhisperKey
         : storedKey!;
 
-    // Encode PCM to WAV
-    final Uint8List wavBytes = WavEncoder.encode(samples, sampleRate: 16000);
+    // Downsample 16kHz → 8kHz to halve upload size (speech quality preserved)
+    final downsampled = WavEncoder.downsample2x(samples);
+    final Uint8List wavBytes = WavEncoder.encode(downsampled, sampleRate: 8000);
+    WhisperService.debugLog('Cloud upload: ${wavBytes.length} bytes '
+        '(${samples.length} samples → ${downsampled.length} downsampled)');
 
     // Build multipart request
     final uri = Uri.parse(endpoint);

@@ -454,6 +454,23 @@ class WhisperService {
     }
   }
 
+  /// Detect device total RAM in MB. Uses /proc/meminfo on Android.
+  /// Returns 6000 (high tier default) on iOS or on error.
+  static Future<int> getDeviceRamMB() async {
+    try {
+      if (Platform.isAndroid) {
+        final meminfo = await File('/proc/meminfo').readAsString();
+        final match = RegExp(r'MemTotal:\s+(\d+)\s+kB').firstMatch(meminfo);
+        if (match != null) {
+          return int.parse(match.group(1)!) ~/ 1024;
+        }
+      }
+      return 6000;
+    } catch (_) {
+      return 6000;
+    }
+  }
+
   /// Simple debug logger that works in both debug and release.
   static void debugLog(String message) {
     // ignore: avoid_print
@@ -524,6 +541,12 @@ class WhisperService {
 
     _workerSendPort = await workerSendPortCompleter.future;
 
+    // Detect device tier for adaptive thread/window config
+    final ramMB = await getDeviceRamMB();
+    final bool isLowTier = ramMB < 6000;
+    debugLog(
+        '[WhisperService] Device RAM: ${ramMB}MB, tier: ${isLowTier ? "low" : "high"}');
+
     // Send init command with model paths
     _workerSendPort!.send(<String, dynamic>{
       'cmd': 'init',
@@ -532,6 +555,8 @@ class WhisperService {
       'tokensPath': _tokensPath,
       'vadModelPath': _vadModelPath,
       'hotwordsFilePath': _hotwordsFilePath,
+      'numThreads': isLowTier ? 2 : 4,
+      'windowIntervalSeconds': isLowTier ? 8 : 5,
     });
 
     try {
