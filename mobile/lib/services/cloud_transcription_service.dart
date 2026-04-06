@@ -102,19 +102,19 @@ class CloudTranscriptionService {
 
     // Prompt field — guides Whisper toward Czech medical terminology
     bodyParts.add(utf8.encode('--$boundary\r\n'));
-    bodyParts
-        .add(utf8.encode('Content-Disposition: form-data; name="prompt"\r\n\r\n'
-            'Lékařská prohlídka, anamnéza pacienta, nynější onemocnění. '
-            'Homansovo znamení, Murphyho znamení, Lasègueovo znamení. '
-            'Hluboká žilní trombóza, plicní embolie, infarkt myokardu, fibrilace síní. '
-            'CT angiografie, RTG plic, EKG, echokardiografie, gastroskopie, kolonoskopie. '
-            'Chrůpky, krepitace, vrzoty, dýchání sklípkové, poklep plný jasný. '
-            'Krevní tlak, tepová frekvence, saturace kyslíkem, dechová frekvence. '
-            'Metformin, Prestarium, bisoprolol, atorvastatin, warfarin, heparin, furosemid. '
-            'Cirhóza, pneumonie, cholecystitida, appendicitida, pankreatitida. '
-            'Alergická anamnéza, farmakologická anamnéza, rodinná anamnéza. '
-            'Hypertenze, diabetes mellitus, hypercholesterolémie. '
-            'Objektivní nález, subjektivní potíže, pracovní diagnóza.\r\n'));
+    bodyParts.add(utf8.encode(
+        'Content-Disposition: form-data; name="prompt"\r\n\r\n'
+        'Lékařská prohlídka, anamnéza pacienta, nynější onemocnění. '
+        'Homansovo znamení, Murphyho znamení, Lasègueovo znamení. '
+        'Hluboká žilní trombóza, plicní embolie, infarkt myokardu, fibrilace síní. '
+        'CT angiografie, RTG plic, EKG, echokardiografie, gastroskopie, kolonoskopie. '
+        'Chrůpky, krepitace, vrzoty, dýchání sklípkové, poklep plný jasný. '
+        'Krevní tlak, tepová frekvence, saturace kyslíkem, dechová frekvence. '
+        'Metformin, Prestarium, bisoprolol, atorvastatin, warfarin, heparin, furosemid. '
+        'Cirhóza, pneumonie, cholecystitida, appendicitida, pankreatitida. '
+        'Alergická anamnéza, farmakologická anamnéza, rodinná anamnéza. '
+        'Hypertenze, diabetes mellitus, hypercholesterolémie. '
+        'Objektivní nález, subjektivní potíže, pracovní diagnóza.\r\n'));
 
     // Response format field
     bodyParts.add(utf8.encode('--$boundary\r\n'));

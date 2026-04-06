@@ -683,7 +683,8 @@ class WhisperService {
   /// Used in hybrid mode to send raw audio to cloud transcription.
   Future<List<double>> getRawAudioBufferFromWorker() async {
     if (_workerSendPort != null) {
-      debugLog('[WhisperService] getRawAudioBufferFromWorker → sending to worker');
+      debugLog(
+          '[WhisperService] getRawAudioBufferFromWorker → sending to worker');
       _rawAudioCompleter = Completer<List<double>>();
       _workerSendPort!.send(<String, dynamic>{'cmd': 'getRawAudio'});
       try {

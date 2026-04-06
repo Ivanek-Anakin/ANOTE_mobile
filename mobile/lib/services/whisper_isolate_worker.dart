@@ -364,7 +364,8 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
           );
           if (deduped.isNotEmpty && deduped.split(' ').length > 3) {
             result = '$result $deduped';
-            workerLog('[Worker] Safety tail added ${deduped.split(' ').length} words');
+            workerLog(
+                '[Worker] Safety tail added ${deduped.split(' ').length} words');
           }
         }
       } catch (e) {
@@ -607,8 +608,7 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
           workerLog('[Worker] getRawAudio error: $e');
           mainSendPort.send({
             'type': 'rawAudioData',
-            'samples':
-                TransferableTypedData.fromList([Float32List(0)]),
+            'samples': TransferableTypedData.fromList([Float32List(0)]),
           });
         }
 

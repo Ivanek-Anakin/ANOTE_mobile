@@ -703,8 +703,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
       } else if (selectedModel == TranscriptionModel.hybrid) {
         // Hybrid mode: get raw audio from worker isolate, send to cloud
         try {
-          final rawAudio =
-              await _whisperService.getRawAudioBufferFromWorker();
+          final rawAudio = await _whisperService.getRawAudioBufferFromWorker();
           if (rawAudio.isNotEmpty) {
             final cloudService = _ref.read(cloudTranscriptionServiceProvider);
             fullTranscript = await cloudService.transcribe(rawAudio);
