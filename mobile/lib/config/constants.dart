@@ -4,7 +4,7 @@ class AppConstants {
       'https://anote-api.gentleriver-a61d304a.westus2.azurecontainerapps.io';
   static const String defaultToken =
       '_lZNhJDgaoneVaztSf2tJnf-rZMEQV5ZCLBPRAyC38I';
-  static const Duration reportGenerationInterval = Duration(seconds: 15);
+  static const Duration reportGenerationInterval = Duration(seconds: 30);
   static const Duration pollInterval = Duration(milliseconds: 500);
   static const String secureStorageKeyToken = 'api_bearer_token';
   static const String secureStorageKeyUrl = 'backend_url';
@@ -21,5 +21,5 @@ class AppConstants {
   static const String defaultAzureWhisperUrl =
       'https://anote-openai.openai.azure.com/openai/deployments/whisper/audio/transcriptions?api-version=2024-06-01';
   static const String defaultAzureWhisperKey =
-      'REDACTED_KEY';
+      'REDACTED_AZURE_WHISPER_KEY';
 }

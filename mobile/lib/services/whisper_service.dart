@@ -83,6 +83,7 @@ Future<String> transcribeFullInIsolate(Map<String, dynamic> params) async {
           : '';
 
   // Create recognizer (fresh — cannot reuse across isolate boundary)
+  // NOTE: hotwords are NOT supported for Whisper models in sherpa-onnx.
   final recognizer = sherpa.OfflineRecognizer(
     sherpa.OfflineRecognizerConfig(
       model: sherpa.OfflineModelConfig(
@@ -98,8 +99,6 @@ Future<String> transcribeFullInIsolate(Map<String, dynamic> params) async {
         debug: false,
         provider: 'cpu',
       ),
-      hotwordsFile: resolvedHotwords,
-      hotwordsScore: 1.5,
     ),
   );
 
@@ -325,6 +324,20 @@ class WhisperService {
   String _fullTranscript = '';
   bool _isTranscribing = false;
 
+  /// When true, feedAudio only accumulates raw audio without attempting
+  /// local transcription. Used in cloud mode where no on-device model
+  /// is loaded.
+  bool _cloudOnlyMode = false;
+
+  /// Enable cloud-only buffering mode (no local transcription).
+  void setCloudOnlyMode(bool enabled) {
+    _cloudOnlyMode = enabled;
+    if (enabled) {
+      _speechBuffer.clear();
+      _lastSpeechBoundary = 0;
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Model paths (needed for download / verification on main isolate)
   // ---------------------------------------------------------------------------
@@ -543,7 +556,9 @@ class WhisperService {
 
     // Detect device tier for adaptive thread/window config
     final ramMB = await getDeviceRamMB();
-    final bool isLowTier = ramMB < 6000;
+    final bool isLowTier = Platform.isIOS || ramMB < 6000;
+    final int numThreads = Platform.isIOS ? 1 : (isLowTier ? 2 : 4);
+    final int windowIntervalSeconds = Platform.isIOS ? 10 : (isLowTier ? 8 : 5);
     debugLog(
         '[WhisperService] Device RAM: ${ramMB}MB, tier: ${isLowTier ? "low" : "high"}');
 
@@ -555,8 +570,8 @@ class WhisperService {
       'tokensPath': _tokensPath,
       'vadModelPath': _vadModelPath,
       'hotwordsFilePath': _hotwordsFilePath,
-      'numThreads': isLowTier ? 2 : 4,
-      'windowIntervalSeconds': isLowTier ? 8 : 5,
+      'numThreads': numThreads,
+      'windowIntervalSeconds': windowIntervalSeconds,
     });
 
     try {
@@ -585,6 +600,14 @@ class WhisperService {
   ///
   /// In test mode (via [withTranscriber]), samples are buffered locally.
   void feedAudio(List<double> samples) {
+    // Cloud-only mode MUST be checked first: a worker isolate from a previous
+    // turbo/hybrid session may still be alive, but in cloud mode all audio
+    // must be accumulated locally for the Azure Whisper API call on stop.
+    if (_cloudOnlyMode) {
+      _rawAudioBuffer.addAll(samples);
+      return;
+    }
+
     if (_workerSendPort != null) {
       // --- Phase 3: send to persistent worker isolate ---
       final float32 = Float32List.fromList(samples);

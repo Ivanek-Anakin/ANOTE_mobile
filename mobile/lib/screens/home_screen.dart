@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +10,12 @@ import '../widgets/transcript_panel.dart';
 import '../widgets/recording_controls.dart';
 import '../widgets/recording_history_list.dart';
 
+bool _isWarningMessage(String? message) {
+  if (message == null) return false;
+  return message.contains('vypnuté kvůli limitu paměti') ||
+      message.contains('vejde bezpečně do paměti');
+}
+
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -17,6 +25,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _reportExpanded = true;
+  Timer? _warningTimer;
 
   @override
   void initState() {
@@ -28,11 +37,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   @override
+  void dispose() {
+    _warningTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final session = ref.watch(sessionProvider);
     final theme = Theme.of(context);
     final width = MediaQuery.of(context).size.width;
     final isWide = width > 900;
+    final isWarning = _isWarningMessage(session.errorMessage);
 
     // Show snackbar when offline fallback occurs during recording start
     ref.listen<SessionState>(sessionProvider, (prev, next) {
@@ -57,6 +73,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             );
           }
         });
+      }
+
+      final nextIsWarning = _isWarningMessage(next.errorMessage);
+      if (nextIsWarning && next.errorMessage != prev?.errorMessage) {
+        final warningText = next.errorMessage;
+        _warningTimer?.cancel();
+        _warningTimer = Timer(const Duration(seconds: 10), () {
+          if (!mounted) return;
+          final currentMessage = ref.read(sessionProvider).errorMessage;
+          if (currentMessage == warningText) {
+            ref.read(sessionProvider.notifier).clearErrorMessage();
+          }
+        });
+      } else if (!nextIsWarning && next.errorMessage != prev?.errorMessage) {
+        _warningTimer?.cancel();
       }
     });
 
@@ -152,7 +183,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     child: Text(
                       session.errorMessage!,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.error,
+                        color: isWarning
+                            ? Colors.orange.shade700
+                            : theme.colorScheme.error,
                       ),
                       maxLines: 4,
                       overflow: TextOverflow.ellipsis,
@@ -370,10 +403,14 @@ class _StatusPillState extends State<_StatusPill>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isWarning = _isWarningMessage(widget.errorMessage);
 
     final (label, color) = switch (widget.status) {
       RecordingStatus.idle => widget.errorMessage != null
-          ? ('Chyba', theme.colorScheme.error)
+          ? (
+              isWarning ? 'Upozornění' : 'Chyba',
+              isWarning ? Colors.orange.shade700 : theme.colorScheme.error
+            )
           : ('Připraveno', Colors.green.shade600),
       RecordingStatus.recording => (
           'Nahrávání & generování...',

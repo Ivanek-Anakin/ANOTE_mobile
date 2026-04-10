@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -141,6 +142,9 @@ final sessionProvider =
 });
 
 class SessionNotifier extends StateNotifier<SessionState> {
+  static const String _iosTurboFallbackWarning =
+      'Turbo se na tomto iPhonu nevejde bezpečně do paměti. Přepínám na Cloud.';
+
   final ReportService _reportService;
   final AudioService _audioService;
   final WhisperService _whisperService;
@@ -162,6 +166,24 @@ class SessionNotifier extends StateNotifier<SessionState> {
   String _lastAutoSavedTranscript = '';
 
   bool _isPreloading = false;
+
+  /// True while a report-preview HTTP request is in flight.
+  bool _reportPreviewInFlight = false;
+
+  /// Timer for scheduling partial cloud transcriptions during recording.
+  Timer? _cloudPartialTimer;
+
+  /// True while a partial cloud transcription request is in flight.
+  bool _cloudPartialInFlight = false;
+
+  /// Index into the cloud partial delay schedule.
+  int _cloudPartialIndex = 0;
+
+  /// Delays (seconds) between successive partial cloud transcription calls.
+  static const List<int> _cloudPartialDelays = [10, 30, 60];
+
+  /// Repeat delay after the initial schedule is exhausted (seconds).
+  static const int _cloudPartialRepeatDelay = 120;
 
   /// Minimum word count before generating report previews.
   static const int _minWordsForReport = 50;
@@ -198,10 +220,47 @@ class SessionNotifier extends StateNotifier<SessionState> {
     this._storageService,
     this._ref,
   ) : super(const SessionState()) {
+    _seedDefaultCloudSettings();
     // Kick off model download / load immediately so it's ready when the
     // user presses record.  The OOM crashes were caused by beam search
     // (now removed), not by the preload timing.
     _preloadModel();
+  }
+
+  Future<void> _seedDefaultCloudSettings() async {
+    const storage = FlutterSecureStorage();
+    final storedUrl =
+        await storage.read(key: AppConstants.secureStorageKeyAzureWhisperUrl);
+    final storedKey =
+        await storage.read(key: AppConstants.secureStorageKeyAzureWhisperKey);
+
+    if (storedUrl == null || storedUrl.isEmpty) {
+      await storage.write(
+        key: AppConstants.secureStorageKeyAzureWhisperUrl,
+        value: AppConstants.defaultAzureWhisperUrl,
+      );
+    }
+    if (storedKey == null || storedKey.isEmpty) {
+      await storage.write(
+        key: AppConstants.secureStorageKeyAzureWhisperKey,
+        value: AppConstants.defaultAzureWhisperKey,
+      );
+    }
+  }
+
+  Future<WhisperModelConfig> _preferredConfigForModel(
+      TranscriptionModel model) async {
+    if (model == TranscriptionModel.turbo) {
+      return WhisperService.turboConfig;
+    }
+    if (model == TranscriptionModel.hybrid) {
+      final ramMB = await WhisperService.getDeviceRamMB();
+      final canUseTurbo = !Platform.isIOS && ramMB >= 8000;
+      return canUseTurbo
+          ? WhisperService.turboConfig
+          : WhisperService.smallConfig;
+    }
+    return WhisperService.smallConfig;
   }
 
   /// Read the current visit type API string from SharedPreferences.
@@ -229,10 +288,20 @@ class SessionNotifier extends StateNotifier<SessionState> {
       return;
     }
 
+    if (Platform.isIOS) {
+      // Avoid preloading local models on iPhone. Load on demand at record time
+      // with a lower-memory worker configuration instead.
+      return;
+    }
+
+    // Preload the correct model variant for the selected mode
+    final preloadConfig = await _preferredConfigForModel(selectedModel);
+
     _isPreloading = true;
     try {
       // Check model integrity first
-      final bool alreadyDownloaded = await WhisperService.isModelDownloaded();
+      final bool alreadyDownloaded =
+          await WhisperService.isModelDownloaded(config: preloadConfig);
       WhisperService.debugLog(
           '[SessionNotifier] Model already downloaded: $alreadyDownloaded');
 
@@ -254,7 +323,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
           modelDownloadFileName: fileName,
         );
       };
-      await _whisperService.loadModel();
+      await _whisperService.loadModel(config: preloadConfig);
       _whisperService.onDownloadProgress = null;
       if (!mounted) return;
       WhisperService.debugLog('[SessionNotifier] Model loaded successfully.');
@@ -323,6 +392,11 @@ class SessionNotifier extends StateNotifier<SessionState> {
     _preloadModel();
   }
 
+  void clearErrorMessage() {
+    if (state.errorMessage == null) return;
+    state = state.copyWith(clearError: true);
+  }
+
   /// Preload the Whisper model in background so first recording starts
   /// instantly. Safe to call multiple times — no-op if already loaded.
   /// Called from HomeScreen after first frame renders.
@@ -330,9 +404,9 @@ class SessionNotifier extends StateNotifier<SessionState> {
     final selectedModel = _ref.read(transcriptionModelProvider);
     if (selectedModel == TranscriptionModel.cloud) return;
 
-    final config = selectedModel == TranscriptionModel.turbo
-        ? WhisperService.turboConfig
-        : WhisperService.smallConfig;
+    if (Platform.isIOS) return;
+
+    final config = await _preferredConfigForModel(selectedModel);
 
     if (_whisperService.isModelLoaded &&
         _whisperService.modelConfig.dirName == config.dirName) {
@@ -356,6 +430,18 @@ class SessionNotifier extends StateNotifier<SessionState> {
     }
     if (_isPreloading) return;
 
+    if (Platform.isIOS && model == TranscriptionModel.turbo) {
+      await _ref.read(transcriptionModelProvider.notifier).setModel(
+            TranscriptionModel.cloud,
+          );
+      state = state.copyWith(
+        isModelLoaded: true,
+        clearDownload: true,
+        errorMessage: _iosTurboFallbackWarning,
+      );
+      return;
+    }
+
     if (model == TranscriptionModel.cloud) {
       // Cloud mode doesn't need an on-device model loaded
       state = state.copyWith(
@@ -363,10 +449,16 @@ class SessionNotifier extends StateNotifier<SessionState> {
       return;
     }
 
-    // Hybrid uses small model for live preview
-    final config = (model == TranscriptionModel.turbo)
-        ? WhisperService.turboConfig
-        : WhisperService.smallConfig;
+    if (Platform.isIOS) {
+      state = state.copyWith(
+        isModelLoaded: false,
+        clearDownload: true,
+        clearError: true,
+      );
+      return;
+    }
+
+    final config = await _preferredConfigForModel(model);
 
     // If this model is already loaded, nothing to do
     if (_whisperService.isModelLoaded &&
@@ -511,16 +603,31 @@ class SessionNotifier extends StateNotifier<SessionState> {
     try {
       var selectedModel = _ref.read(transcriptionModelProvider);
 
+      if (Platform.isIOS && selectedModel == TranscriptionModel.turbo) {
+        selectedModel = TranscriptionModel.cloud;
+        await _ref.read(transcriptionModelProvider.notifier).setModel(
+              TranscriptionModel.cloud,
+            );
+        if (mounted) {
+          state = state.copyWith(errorMessage: _iosTurboFallbackWarning);
+        }
+      }
+
       // --- Connectivity check for cloud-dependent modes ---
       if (selectedModel == TranscriptionModel.cloud ||
           selectedModel == TranscriptionModel.hybrid) {
         final hasInternet = await _checkInternetConnectivity();
         if (!hasInternet) {
           // Fallback: prefer Turbo if downloaded, else Small
-          final turboReady = await WhisperService.isModelDownloaded(
-              config: WhisperService.turboConfig);
-          selectedModel =
-              turboReady ? TranscriptionModel.turbo : TranscriptionModel.small;
+          if (Platform.isIOS) {
+            selectedModel = TranscriptionModel.small;
+          } else {
+            final turboReady = await WhisperService.isModelDownloaded(
+                config: WhisperService.turboConfig);
+            selectedModel = turboReady
+                ? TranscriptionModel.turbo
+                : TranscriptionModel.small;
+          }
           _offlineFallbackModel = selectedModel;
 
           WhisperService.debugLog('[SessionNotifier] Offline → falling back to '
@@ -541,12 +648,13 @@ class SessionNotifier extends StateNotifier<SessionState> {
       );
 
       // ===== STEP 2: Load model (if needed) =====
-      // Cloud mode doesn't need on-device model
-      // Hybrid mode uses small model for live preview
+      // Cloud mode doesn't need on-device model — enable cloud-only buffering
+      // Hybrid/Turbo modes use on-device model for live preview
+      if (selectedModel == TranscriptionModel.cloud) {
+        _whisperService.setCloudOnlyMode(true);
+      }
       if (selectedModel != TranscriptionModel.cloud) {
-        final config = selectedModel == TranscriptionModel.turbo
-            ? WhisperService.turboConfig
-            : WhisperService.smallConfig; // hybrid uses small for live preview
+        final config = await _preferredConfigForModel(selectedModel);
 
         // Check if the correct model is loaded
         final needsSwitch = _whisperService.isModelLoaded &&
@@ -661,6 +769,13 @@ class SessionNotifier extends StateNotifier<SessionState> {
         const Duration(seconds: 10),
         (_) => _periodicAutoSave(),
       );
+
+      // Start partial cloud transcriptions so the user sees incremental
+      // results during cloud-mode recording.
+      if (selectedModel == TranscriptionModel.cloud) {
+        _cloudPartialIndex = 0;
+        _scheduleNextCloudPartial();
+      }
     } catch (e) {
       if (!mounted) return;
       await _releaseWakeLockAndForeground();
@@ -673,6 +788,8 @@ class SessionNotifier extends StateNotifier<SessionState> {
 
   Future<void> _generateReportPreview() async {
     if (!mounted) return;
+    // Skip if a previous preview request is still in flight.
+    if (_reportPreviewInFlight) return;
     final String transcript = state.transcript;
     if (transcript.isEmpty || state.status != RecordingStatus.recording) {
       return;
@@ -683,6 +800,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
     // Skip if the transcript hasn't changed since the last report request.
     if (transcript == _lastReportedTranscript) return;
     _lastReportedTranscript = transcript;
+    _reportPreviewInFlight = true;
     try {
       final vt = await _getVisitTypeApi();
       final String report =
@@ -693,6 +811,64 @@ class SessionNotifier extends StateNotifier<SessionState> {
     } catch (_) {
       // Silently ignore report errors during recording so the doctor is
       // not interrupted.  The final report on stop will surface errors.
+    } finally {
+      _reportPreviewInFlight = false;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Partial cloud transcription during recording
+  // ---------------------------------------------------------------------------
+
+  void _scheduleNextCloudPartial() {
+    final int delaySec;
+    if (_cloudPartialIndex < _cloudPartialDelays.length) {
+      delaySec = _cloudPartialDelays[_cloudPartialIndex];
+    } else {
+      delaySec = _cloudPartialRepeatDelay;
+    }
+    _cloudPartialTimer?.cancel();
+    _cloudPartialTimer = Timer(
+      Duration(seconds: delaySec),
+      _runCloudPartialTranscription,
+    );
+  }
+
+  Future<void> _runCloudPartialTranscription() async {
+    if (!mounted || state.status != RecordingStatus.recording) return;
+    if (_cloudPartialInFlight) return;
+    _cloudPartialInFlight = true;
+    _cloudPartialIndex++;
+    try {
+      final rawAudio = _whisperService.getRawAudioBuffer();
+      if (rawAudio.isEmpty) {
+        _scheduleNextCloudPartial();
+        return;
+      }
+      WhisperService.debugLog(
+          '[SessionNotifier] Cloud partial #$_cloudPartialIndex: '
+          '${rawAudio.length} samples '
+          '(${(rawAudio.length / 16000).toStringAsFixed(1)}s)');
+
+      final cloudService = _ref.read(cloudTranscriptionServiceProvider);
+      final transcript = await cloudService.transcribe(rawAudio);
+
+      if (mounted &&
+          state.status == RecordingStatus.recording &&
+          transcript.isNotEmpty) {
+        state = state.copyWith(transcript: transcript);
+        WhisperService.debugLog(
+            '[SessionNotifier] Cloud partial #$_cloudPartialIndex OK: '
+            '${transcript.length} chars');
+      }
+    } catch (e) {
+      WhisperService.debugLog(
+          '[SessionNotifier] Cloud partial #$_cloudPartialIndex error: $e');
+    } finally {
+      _cloudPartialInFlight = false;
+      if (mounted && state.status == RecordingStatus.recording) {
+        _scheduleNextCloudPartial();
+      }
     }
   }
 
@@ -703,6 +879,9 @@ class SessionNotifier extends StateNotifier<SessionState> {
 
     _autoSaveTimer?.cancel();
     _autoSaveTimer = null;
+
+    _cloudPartialTimer?.cancel();
+    _cloudPartialTimer = null;
 
     // DON'T cancel audio subscription yet — let it drain
     _transcriptSubscription?.cancel();
@@ -736,25 +915,28 @@ class SessionNotifier extends StateNotifier<SessionState> {
 
       WhisperService.debugLog('[SessionNotifier] Running transcribeFull...');
       String fullTranscript = '';
+      Object? transcriptionError;
 
       if (selectedModel == TranscriptionModel.cloud) {
-        // Cloud mode: use Azure OpenAI Whisper API
-        try {
-          final cloudService = _ref.read(cloudTranscriptionServiceProvider);
-          // Get raw audio from whisper service's buffer via transcribeFull
-          // The whisper service was still collecting audio for live preview
-          fullTranscript = await cloudService
-              .transcribe(_whisperService.getRawAudioBuffer());
-        } catch (e) {
-          WhisperService.debugLog(
-              '[SessionNotifier] Cloud transcription error: $e');
-          // Fall back to on-device transcription
+        // Cloud mode: send accumulated raw audio to Azure Whisper API
+        final rawAudio = _whisperService.getRawAudioBuffer();
+        WhisperService.debugLog(
+            '[SessionNotifier] Cloud mode: ${rawAudio.length} raw samples '
+            '(${(rawAudio.length / 16000).toStringAsFixed(1)}s)');
+        if (rawAudio.isNotEmpty) {
           try {
-            fullTranscript = await _whisperService.transcribeFull();
-          } catch (e2) {
+            final cloudService = _ref.read(cloudTranscriptionServiceProvider);
+            fullTranscript = await cloudService.transcribe(rawAudio);
+            WhisperService.debugLog('[SessionNotifier] Cloud transcription OK: '
+                '${fullTranscript.length} chars');
+          } catch (e) {
+            transcriptionError = e;
             WhisperService.debugLog(
-                '[SessionNotifier] On-device fallback error: $e2');
+                '[SessionNotifier] Cloud transcription error: $e');
           }
+        } else {
+          WhisperService.debugLog(
+              '[SessionNotifier] Cloud mode: no raw audio collected!');
         }
       } else if (selectedModel == TranscriptionModel.hybrid) {
         // Hybrid mode: get raw audio from worker isolate, send to cloud
@@ -765,6 +947,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
             fullTranscript = await cloudService.transcribe(rawAudio);
           }
         } catch (e) {
+          transcriptionError = e;
           WhisperService.debugLog(
               '[SessionNotifier] Hybrid cloud transcription error: $e');
           // Fallback to on-device transcribeTail if cloud fails
@@ -779,6 +962,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
         try {
           fullTranscript = await _whisperService.transcribeTail();
         } catch (e) {
+          transcriptionError = e;
           WhisperService.debugLog('[SessionNotifier] transcribeTail error: $e');
           // Fall back to the live transcript instead of crashing
         }
@@ -793,12 +977,16 @@ class SessionNotifier extends StateNotifier<SessionState> {
       WhisperService.debugLog('[SessionNotifier] Final transcript length: '
           '${finalTranscript.length}');
 
+      if (finalTranscript.isEmpty && transcriptionError != null) {
+        state = state.copyWith(errorMessage: transcriptionError.toString());
+      }
+
       if (finalTranscript.isNotEmpty) {
         WhisperService.debugLog('[SessionNotifier] Generating report...');
         final vt = await _getVisitTypeApi();
         String? report;
         Object? lastError;
-        for (int attempt = 1; attempt <= 3; attempt++) {
+        for (int attempt = 1; attempt <= 2; attempt++) {
           try {
             report = await _reportService.generateReport(finalTranscript,
                 visitType: vt);
@@ -807,8 +995,8 @@ class SessionNotifier extends StateNotifier<SessionState> {
             lastError = e;
             WhisperService.debugLog(
                 '[SessionNotifier] Report attempt $attempt failed: $e');
-            if (attempt < 3) {
-              await Future<void>.delayed(Duration(seconds: attempt * 3));
+            if (attempt < 2) {
+              await Future<void>.delayed(const Duration(seconds: 10));
             }
           }
         }
@@ -832,6 +1020,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
       // Still try to auto-save even on error (transcript may exist)
       await _autoSaveRecording();
     } finally {
+      _whisperService.setCloudOnlyMode(false);
       if (mounted) {
         WhisperService.debugLog('[SessionNotifier] Setting status to idle.');
         state = state.copyWith(status: RecordingStatus.idle);
@@ -950,6 +1139,9 @@ class SessionNotifier extends StateNotifier<SessionState> {
     _autoSaveTimer?.cancel();
     _autoSaveTimer = null;
 
+    _cloudPartialTimer?.cancel();
+    _cloudPartialTimer = null;
+
     _audioSubscription?.cancel();
     _audioSubscription = null;
 
@@ -960,6 +1152,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
         state.status == RecordingStatus.processing;
 
     _whisperService.reset();
+    _whisperService.setCloudOnlyMode(false);
     _lastReportedTranscript = '';
     _recordingStartTime = null;
     _ref.read(loadedRecordingIdProvider.notifier).state = null;
@@ -986,6 +1179,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
     _transcriptSubscription = null;
 
     _whisperService.reset();
+    _whisperService.setCloudOnlyMode(false);
     _lastReportedTranscript = '';
     _recordingStartTime = null;
 

@@ -22,15 +22,23 @@ class _TranscriptPanelState extends ConsumerState<TranscriptPanel> {
     final theme = Theme.of(context);
 
     final isActive = session.status == RecordingStatus.recording;
+    final isProcessing = session.status == RecordingStatus.processing;
     final hasContent = session.transcript.isNotEmpty;
 
-    if (!isActive && !hasContent) {
+    if (!isActive && !isProcessing && !hasContent) {
       return const SizedBox.shrink();
     }
 
-    final statusLabel = isActive ? 'Probíhá...' : 'Dokončeno';
-    final statusColor =
-        isActive ? theme.colorScheme.error : Colors.green.shade600;
+    final statusLabel = isActive
+        ? 'Probíhá...'
+        : isProcessing
+            ? 'Dokončování...'
+            : 'Dokončeno';
+    final statusColor = isActive
+        ? theme.colorScheme.error
+        : isProcessing
+            ? Colors.orange.shade600
+            : Colors.green.shade600;
 
     return Card(
       child: Column(
@@ -131,16 +139,41 @@ class _TranscriptPanelState extends ConsumerState<TranscriptPanel> {
                   ),
                 ),
                 child: SingleChildScrollView(
-                  child: SelectableText(
-                    session.transcript.isEmpty
-                        ? 'Čekám na řeč...'
-                        : session.transcript,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: session.transcript.isEmpty
-                          ? theme.colorScheme.onSurface.withValues(alpha: 0.5)
-                          : null,
-                    ),
-                  ),
+                  child: session.transcript.isEmpty && isProcessing
+                      ? Row(
+                          children: [
+                            const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                'Přepis se zpracovává v cloudu...',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.onSurface
+                                      .withValues(alpha: 0.5),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : SelectableText(
+                          session.transcript.isEmpty
+                              ? (isActive &&
+                                      ref.watch(transcriptionModelProvider) ==
+                                          TranscriptionModel.cloud
+                                  ? 'Nahrávám… Přepis bude k dispozici po zastavení.'
+                                  : 'Čekám na řeč...')
+                              : session.transcript,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: session.transcript.isEmpty
+                                ? theme.colorScheme.onSurface
+                                    .withValues(alpha: 0.5)
+                                : null,
+                          ),
+                        ),
                 ),
               ),
             ),

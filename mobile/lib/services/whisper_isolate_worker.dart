@@ -415,13 +415,11 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
 
           sherpa.initBindings();
 
-          // Resolve hotwords path — only pass if file exists
-          final String resolvedHotwords =
-              hotwordsFilePath.isNotEmpty && File(hotwordsFilePath).existsSync()
-                  ? hotwordsFilePath
-                  : '';
-
           final sw = Stopwatch()..start();
+          // NOTE: hotwords are NOT supported for Whisper models (only
+          // transducer models support them in sherpa-onnx). Passing a
+          // non-empty hotwordsFile here causes "Failed to create offline
+          // recognizer", so we intentionally omit hotwordsFile/hotwordsScore.
           recognizer = sherpa.OfflineRecognizer(
             sherpa.OfflineRecognizerConfig(
               model: sherpa.OfflineModelConfig(
@@ -437,8 +435,6 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
                 debug: false,
                 provider: 'cpu',
               ),
-              hotwordsFile: resolvedHotwords,
-              hotwordsScore: 1.5,
             ),
           );
           sw.stop();

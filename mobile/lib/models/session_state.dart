@@ -57,6 +57,8 @@ extension TranscriptionModelApi on TranscriptionModel {
 
   static TranscriptionModel fromString(String? value) {
     switch (value) {
+      case 'small':
+        return TranscriptionModel.small;
       case 'turbo':
         return TranscriptionModel.turbo;
       case 'cloud':
