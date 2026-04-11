@@ -8,10 +8,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../config/constants.dart';
+import '../models/device_capability.dart';
 import '../models/recording_entry.dart';
 import '../models/session_state.dart';
 import '../services/audio_service.dart';
 import '../services/cloud_transcription_service.dart';
+import '../services/device_info_service.dart';
 import '../services/recording_storage_service.dart';
 import '../services/report_service.dart';
 import '../services/whisper_service.dart';
@@ -57,6 +59,61 @@ class TranscriptionModelNotifier extends StateNotifier<TranscriptionModel> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
         AppConstants.transcriptionModelPrefKey, model.prefValue);
+  }
+}
+
+/// Provides the resolved device Turbo capability.
+///
+/// Initialises asynchronously on first read. The UI should watch this to
+/// decide Turbo visibility and Hybrid defaults.
+final deviceCapabilityProvider =
+    StateNotifierProvider<DeviceCapabilityNotifier, DeviceCapability>((ref) {
+  return DeviceCapabilityNotifier();
+});
+
+class DeviceCapabilityNotifier extends StateNotifier<DeviceCapability> {
+  DeviceCapabilityNotifier() : super(const DeviceCapability()) {
+    _resolve();
+  }
+
+  Future<void> _resolve() async {
+    final deviceModel = await DeviceInfoService.getDeviceModelIdentifier();
+    final capability = await TurboCapabilityResolver.resolve(
+        deviceModelIdentifier: deviceModel);
+    if (mounted) {
+      state = capability;
+    }
+  }
+
+  /// Mark that a Turbo init attempt is about to start.
+  /// Write the pending flag so crash on next launch can be detected.
+  Future<void> markTurboProbePending() async {
+    state = state.copyWith(turboProbePending: true);
+    await state.save();
+  }
+
+  /// Mark that a Turbo session completed successfully.
+  Future<void> markTurboSuccess() async {
+    state = state.copyWith(
+      turboProbePending: false,
+      previousTurboSuccess: true,
+      turboStatus: TurboCapabilityStatus.allowed,
+      hybridPrefersTurbo: true,
+      lastEvaluatedAt: DateTime.now(),
+    );
+    await state.save();
+  }
+
+  /// Mark Turbo as blocked (e.g. after detecting a crash).
+  Future<void> markTurboBlocked() async {
+    state = state.copyWith(
+      turboStatus: TurboCapabilityStatus.blocked,
+      hybridPrefersTurbo: false,
+      turboProbePending: false,
+      previousTurboCrashSuspected: true,
+      lastEvaluatedAt: DateTime.now(),
+    );
+    await state.save();
   }
 }
 
@@ -142,8 +199,10 @@ final sessionProvider =
 });
 
 class SessionNotifier extends StateNotifier<SessionState> {
-  static const String _iosTurboFallbackWarning =
-      'Turbo se na tomto iPhonu nevejde bezpečně do paměti. Přepínám na Cloud.';
+  static const String _iosTurboBlockedWarning =
+      'Turbo není na tomto zařízení podporován (předchozí selhání). Používá se Cloud.';
+  static const String _iosTurboExperimentalWarning =
+      'Turbo na tomto zařízení nebylo ověřeno. Může dojít k restartování aplikace.';
 
   final ReportService _reportService;
   final AudioService _audioService;
@@ -254,11 +313,16 @@ class SessionNotifier extends StateNotifier<SessionState> {
       return WhisperService.turboConfig;
     }
     if (model == TranscriptionModel.hybrid) {
-      final ramMB = await WhisperService.getDeviceRamMB();
-      final canUseTurbo = !Platform.isIOS && ramMB >= 8000;
-      return canUseTurbo
-          ? WhisperService.turboConfig
-          : WhisperService.smallConfig;
+      final capability = _ref.read(deviceCapabilityProvider);
+      if (capability.hybridShouldUseTurbo) {
+        return WhisperService.turboConfig;
+      }
+      // On Android, fall back to RAM heuristic for non-iOS devices
+      if (!Platform.isIOS) {
+        final ramMB = await WhisperService.getDeviceRamMB();
+        if (ramMB >= 8000) return WhisperService.turboConfig;
+      }
+      return WhisperService.smallConfig;
     }
     return WhisperService.smallConfig;
   }
@@ -431,15 +495,24 @@ class SessionNotifier extends StateNotifier<SessionState> {
     if (_isPreloading) return;
 
     if (Platform.isIOS && model == TranscriptionModel.turbo) {
-      await _ref.read(transcriptionModelProvider.notifier).setModel(
-            TranscriptionModel.cloud,
-          );
-      state = state.copyWith(
-        isModelLoaded: true,
-        clearDownload: true,
-        errorMessage: _iosTurboFallbackWarning,
-      );
-      return;
+      final capability = _ref.read(deviceCapabilityProvider);
+      if (capability.turboStatus == TurboCapabilityStatus.blocked) {
+        await _ref.read(transcriptionModelProvider.notifier).setModel(
+              TranscriptionModel.cloud,
+            );
+        state = state.copyWith(
+          isModelLoaded: true,
+          clearDownload: true,
+          errorMessage: _iosTurboBlockedWarning,
+        );
+        return;
+      }
+      if (capability.turboStatus != TurboCapabilityStatus.allowed) {
+        // discouraged or unknown — allow but warn
+        state = state.copyWith(
+          errorMessage: _iosTurboExperimentalWarning,
+        );
+      }
     }
 
     if (model == TranscriptionModel.cloud) {
@@ -604,12 +677,20 @@ class SessionNotifier extends StateNotifier<SessionState> {
       var selectedModel = _ref.read(transcriptionModelProvider);
 
       if (Platform.isIOS && selectedModel == TranscriptionModel.turbo) {
-        selectedModel = TranscriptionModel.cloud;
-        await _ref.read(transcriptionModelProvider.notifier).setModel(
-              TranscriptionModel.cloud,
-            );
-        if (mounted) {
-          state = state.copyWith(errorMessage: _iosTurboFallbackWarning);
+        final capability = _ref.read(deviceCapabilityProvider);
+        if (capability.turboStatus == TurboCapabilityStatus.blocked) {
+          selectedModel = TranscriptionModel.cloud;
+          await _ref.read(transcriptionModelProvider.notifier).setModel(
+                TranscriptionModel.cloud,
+              );
+          if (mounted) {
+            state = state.copyWith(errorMessage: _iosTurboBlockedWarning);
+          }
+        } else {
+          // Mark probe pending before attempting Turbo init
+          await _ref
+              .read(deviceCapabilityProvider.notifier)
+              .markTurboProbePending();
         }
       }
 
@@ -1008,6 +1089,11 @@ class SessionNotifier extends StateNotifier<SessionState> {
         } else if (lastError != null) {
           state = state.copyWith(errorMessage: lastError.toString());
         }
+      }
+
+      // --- Mark Turbo success if we completed a Turbo session on iOS ---
+      if (Platform.isIOS && selectedModel == TranscriptionModel.turbo) {
+        await _ref.read(deviceCapabilityProvider.notifier).markTurboSuccess();
       }
 
       // --- Auto-save to recording history ---
