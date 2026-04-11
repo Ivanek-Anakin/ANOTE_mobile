@@ -44,6 +44,9 @@ mobile/android/key.properties
 .DS_Store
 **/.DS_Store
 
+# ===== Secrets =====
+mobile/lib/config/secrets.dart
+
 # ===== IDE =====
 .idea/
 .vscode/

@@ -1,3 +1,5 @@
+import 'secrets.dart';
+
 class AppConstants {
   // Production: Azure Container Apps (West US 2)
   static const String defaultBackendUrl =
@@ -20,6 +22,5 @@ class AppConstants {
   // Azure OpenAI Whisper (cloud transcription)
   static const String defaultAzureWhisperUrl =
       'https://anote-openai.openai.azure.com/openai/deployments/whisper/audio/transcriptions?api-version=2024-06-01';
-  static const String defaultAzureWhisperKey =
-      'REDACTED_AZURE_WHISPER_KEY';
+  static const String defaultAzureWhisperKey = Secrets.azureWhisperKey;
 }
