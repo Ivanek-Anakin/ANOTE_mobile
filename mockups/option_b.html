@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANOTE — Option B: Floating Action + Timer Bar</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; background: #1a1a2e; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
+  }
+  .phone {
+    width: 390px; height: 844px; background: #f8f9fa; border-radius: 44px;
+    overflow: hidden; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    display: flex; flex-direction: column;
+  }
+  .status-bar {
+    height: 54px; padding: 14px 28px 0; display: flex; justify-content: space-between;
+    align-items: center; font-size: 14px; font-weight: 600; color: #1a1a1a;
+  }
+
+  /* App bar */
+  .app-bar {
+    padding: 10px 20px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .app-title { display: flex; align-items: center; gap: 8px; }
+  .app-title h1 { font-size: 20px; font-weight: 700; color: #1a1a1a; letter-spacing: 1.5px; }
+  .app-bar-right { display: flex; gap: 16px; align-items: center; }
+  .app-bar-right span { font-size: 20px; opacity: 0.85; cursor: pointer; }
+
+  /* Report card — edge to edge */
+  .report-area { flex: 1; padding: 0 12px; overflow: hidden; }
+  .report-card {
+    height: 100%; border: 1.5px solid #d0d7de; border-radius: 20px;
+    padding: 22px 20px; overflow-y: auto; background: #ffffff;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  }
+  .report-card h3 {
+    font-size: 13px; font-weight: 600; color: #409086; text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 16px;
+  }
+  .report-card .field { margin-bottom: 14px; }
+  .report-card .field-label {
+    font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 3px;
+  }
+  .report-card .field-value { font-size: 14px; color: #1f2937; line-height: 1.5; }
+
+  /* Bottom area with FAB */
+  .bottom-area {
+    padding: 12px 20px 36px; display: flex; flex-direction: column;
+    align-items: center; gap: 10px;
+  }
+
+  /* Recording bar */
+  .recording-bar {
+    width: 100%; background: #fef2f2; border-radius: 12px; padding: 10px 16px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    opacity: 0; transform: translateY(10px); transition: all 0.3s ease;
+    border: 1px solid #fecaca;
+  }
+  .recording-bar.active {
+    opacity: 1; transform: translateY(0);
+  }
+  .recording-bar .dot {
+    width: 10px; height: 10px; background: #dc2626; border-radius: 50%;
+    animation: blink 1s infinite;
+  }
+  .recording-bar .text { font-size: 14px; color: #dc2626; font-weight: 600; }
+  .recording-bar .timer { font-size: 14px; color: #dc2626; font-weight: 400; font-variant-numeric: tabular-nums; }
+
+  /* FAB */
+  .fab {
+    width: 72px; height: 72px; border-radius: 50%; border: none; cursor: pointer;
+    background: rgb(64, 144, 134); box-shadow: 0 6px 24px rgba(64,144,134,0.45);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s ease; position: relative;
+  }
+  .fab .icon { font-size: 30px; filter: brightness(0) invert(1); transition: all 0.2s; }
+  .fab:hover { transform: scale(1.06); }
+  .fab.recording {
+    background: #dc2626; box-shadow: 0 6px 24px rgba(220,38,38,0.45);
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(220,38,38,0.5); }
+    70% { box-shadow: 0 0 0 20px rgba(220,38,38,0); }
+    100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); }
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  .home-indicator {
+    width: 134px; height: 5px; background: #1a1a1a; border-radius: 3px;
+    margin: 0 auto 8px; opacity: 0.2;
+  }
+
+  .toggle-bar {
+    position: fixed; top: 20px; right: 20px; display: flex; gap: 8px; z-index: 100;
+  }
+  .toggle-bar button {
+    padding: 8px 16px; border-radius: 8px; border: 1px solid #ccc;
+    background: #fff; cursor: pointer; font-size: 13px; font-weight: 500;
+  }
+  .toggle-bar button.active { background: rgb(64,144,134); color: #fff; border-color: rgb(64,144,134); }
+</style>
+</head>
+<body>
+
+<div class="toggle-bar">
+  <button id="idleBtn" class="active" onclick="setIdle()">Idle</button>
+  <button id="recBtn" onclick="setRecording()">Recording</button>
+</div>
+
+<div class="phone">
+  <div class="status-bar">
+    <span>9:41</span>
+    <div style="display:flex;gap:6px"><span style="font-size:12px">📶</span><span style="font-size:12px">🔋</span></div>
+  </div>
+
+  <div class="app-bar">
+    <div class="app-title">
+      <h1>ANOTE</h1>
+    </div>
+    <div class="app-bar-right">
+      <span>⚙️</span>
+    </div>
+  </div>
+
+  <div class="report-area">
+    <div class="report-card">
+      <h3>Lékařská zpráva</h3>
+      <div class="field">
+        <div class="field-label">Pacient</div>
+        <div class="field-value">Muž, 45 let</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Anamnéza</div>
+        <div class="field-value">Pacient přichází s bolestmi na hrudi trvajícími 3 dny. Bolest je tupá, lokalizovaná retrosternálně, bez iradiace. Zhoršuje se při fyzické námaze.</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Objektivní nález</div>
+        <div class="field-value">TK 135/85, TF 78/min, pravidelná. Dýchání čisté, sklípkové. Břicho měkké, nebolestivé. Bez otoků DK.</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Závěr</div>
+        <div class="field-value">Suspektní stabilní angina pectoris. Doporučeno EKG, laboratorní vyšetření (troponin, KO, lipidový profil), zátěžový test.</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Terapie</div>
+        <div class="field-value">ASA 100mg 1-0-0, Atorvastatin 20mg 0-0-1. Kontrola za 1 týden s výsledky.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding: 6px 12px 0; display:flex; justify-content:space-between; align-items:center;">
+    <button style="background:none; border:1px solid rgb(64,144,134); color:rgb(64,144,134); font-size:13px; font-weight:600; cursor:pointer; padding:6px 14px; border-radius:8px;">✉️ Odeslat emailem</button>
+    <button style="background:none; border:none; font-size:18px; cursor:pointer; opacity:0.6; padding:4px 8px;" title="Kopírovat">📋</button>
+  </div>
+  <div class="bottom-area">
+    <div class="recording-bar" id="recBar">
+      <span class="dot"></span>
+      <span class="text">Nahrávání...</span>
+      <span class="timer" id="timer">0:42</span>
+    </div>
+    <button class="fab" id="fab" onclick="toggleRecording()">
+      <span class="icon" id="fabIcon">🎙</span>
+    </button>
+  </div>
+
+  <div class="home-indicator"></div>
+</div>
+
+<script>
+  let recording = false;
+  let seconds = 42;
+  let timerInterval;
+
+  function toggleRecording() {
+    recording = !recording;
+    recording ? setRecording() : setIdle();
+  }
+  function setRecording() {
+    recording = true;
+    document.getElementById('fab').classList.add('recording');
+    document.getElementById('recBar').classList.add('active');
+    document.getElementById('fabIcon').textContent = '⏹';
+    document.getElementById('recBtn').classList.add('active');
+    document.getElementById('idleBtn').classList.remove('active');
+    timerInterval = setInterval(() => {
+      seconds++;
+      const m = Math.floor(seconds/60);
+      const s = seconds % 60;
+      document.getElementById('timer').textContent = m + ':' + String(s).padStart(2,'0');
+    }, 1000);
+  }
+  function setIdle() {
+    recording = false;
+    clearInterval(timerInterval);
+    document.getElementById('fab').classList.remove('recording');
+    document.getElementById('recBar').classList.remove('active');
+    document.getElementById('fabIcon').textContent = '🎙';
+    document.getElementById('idleBtn').classList.add('active');
+    document.getElementById('recBtn').classList.remove('active');
+  }
+</script>
+</body>
+</html>

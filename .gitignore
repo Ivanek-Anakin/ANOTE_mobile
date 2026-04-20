@@ -60,3 +60,7 @@ mobile/lib/config/secrets.dart
 # ===== Test scripts with secrets =====
 test_gpt5mini.py
 test_gpt5mini_full.py
+
+# ===== Evaluation audio files =====
+backend/eval_dataset/*.wav
+backend/models/wav_cache/

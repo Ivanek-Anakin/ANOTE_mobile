@@ -193,7 +193,8 @@ class CloudTranscriptionService {
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final json = jsonDecode(responseBody) as Map<String, dynamic>;
-        return (json['text'] as String? ?? '').trim();
+        final raw = (json['text'] as String? ?? '').trim();
+        return WhisperService.removeHallucinations(raw);
       }
 
       throw Exception(

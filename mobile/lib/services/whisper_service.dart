@@ -882,13 +882,19 @@ class WhisperService {
         return;
       }
 
-      final String deduped = removeOverlap(_previousTailText, rawText);
+      final String cleaned = removeHallucinations(rawText);
+      if (cleaned.isEmpty) {
+        _lastSpeechBoundary = windowEnd;
+        return;
+      }
+
+      final String deduped = removeOverlap(_previousTailText, cleaned);
       if (deduped.isNotEmpty) {
         _fullTranscript =
             _fullTranscript.isEmpty ? deduped : '$_fullTranscript $deduped';
       }
 
-      _previousTailText = lastWords(rawText, 20);
+      _previousTailText = lastWords(cleaned, 20);
       _lastSpeechBoundary = windowEnd;
 
       if (!_transcriptController.isClosed) {
@@ -1106,5 +1112,92 @@ class WhisperService {
         text.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
     if (words.length <= n) return text;
     return words.sublist(words.length - n).join(' ');
+  }
+
+  // ── Whisper hallucination filter ──────────────────────────────────────────
+
+  /// Known Whisper hallucination phrases (Czech YouTube/subtitle artifacts).
+  /// Compared case-insensitively with diacritics stripped.
+  static const List<String> _hallucinationPhrases = [
+    'titulky vytvoril johnyx',
+    'titulky vytvoril',
+    'dekuji za zhlednuti',
+    'navstevy navstevani',
+    'hraje hudba',
+    'hudba hraje',
+    'subtitrari',
+    'napisy vytvoril',
+  ];
+
+  /// Regex to match URLs (www.* or http(s)://...).
+  static final RegExp _urlPattern =
+      RegExp(r'https?://\S+|www\.\S+', caseSensitive: false);
+
+  /// Regex to match emoji (common Unicode emoji ranges).
+  static final RegExp _emojiPattern = RegExp(
+    r'[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|'
+    r'[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|'
+    r'[\u{FE00}-\u{FE0F}]|[\u{1F900}-\u{1F9FF}]|[\u{200D}]|[\u{20E3}]|'
+    r'[\u{E0020}-\u{E007F}]',
+    unicode: true,
+  );
+
+  /// Remove known Whisper hallucination artifacts from [text].
+  ///
+  /// Strips hallucinated phrases, URLs, and emoji that Whisper injects
+  /// (especially on Czech audio with silence or noise).
+  static String removeHallucinations(String text) {
+    if (text.isEmpty) return text;
+
+    String result = text;
+
+    // Remove URLs
+    result = result.replaceAll(_urlPattern, '');
+
+    // Remove emoji
+    result = result.replaceAll(_emojiPattern, '');
+
+    // Remove known hallucinated phrases (case-insensitive, diacritics-aware)
+    for (final phrase in _hallucinationPhrases) {
+      result = _removePhraseNormalized(result, phrase);
+    }
+
+    // Collapse whitespace and trim
+    result = result.replaceAll(RegExp(r'\s+'), ' ').trim();
+
+    return result;
+  }
+
+  /// Remove all occurrences of [normalizedPhrase] from [text] using
+  /// diacritics-stripped, case-insensitive comparison while removing the
+  /// matching span from the original text.
+  static String _removePhraseNormalized(String text, String normalizedPhrase) {
+    final List<String> words =
+        text.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+    final List<String> phraseWords = normalizedPhrase.split(' ');
+    final int phraseLen = phraseWords.length;
+
+    if (words.length < phraseLen) return text;
+
+    final keepers = <String>[];
+    int i = 0;
+    while (i < words.length) {
+      if (i + phraseLen <= words.length) {
+        bool match = true;
+        for (int j = 0; j < phraseLen; j++) {
+          if (_normalizeWord(words[i + j]) != phraseWords[j]) {
+            match = false;
+            break;
+          }
+        }
+        if (match) {
+          i += phraseLen;
+          continue;
+        }
+      }
+      keepers.add(words[i]);
+      i++;
+    }
+    return keepers.join(' ');
   }
 }

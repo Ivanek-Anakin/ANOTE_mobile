@@ -39,7 +39,7 @@ class ReportService {
             Dio(BaseOptions(
               connectTimeout: const Duration(seconds: 30),
               sendTimeout: const Duration(seconds: 30),
-              receiveTimeout: const Duration(seconds: 120),
+              receiveTimeout: const Duration(seconds: 240),
             )),
         _storage = storage ?? const FlutterSecureStorage();
 

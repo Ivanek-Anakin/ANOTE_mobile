@@ -1,0 +1,98 @@
+[
+  {
+    "id": "fleurs_00",
+    "source": "FLEURS",
+    "file": "fleurs_00.wav",
+    "transcript": "Schengenský prostor nicméně v tomto ohledu funguje podobně jako jedna země.",
+    "duration": 7.0,
+    "gender": "MALE"
+  },
+  {
+    "id": "fleurs_01",
+    "source": "FLEURS",
+    "file": "fleurs_01.wav",
+    "transcript": "V neděli pak prezident Spojených států Donald Trump v prohlášení vydaném přes tiskového mluvčího oznámil, že se americká vojska stáhnou ze Sýrie.",
+    "duration": 9.7,
+    "gender": "MALE"
+  },
+  {
+    "id": "fleurs_02",
+    "source": "FLEURS",
+    "file": "fleurs_02.wav",
+    "transcript": "Jednoduchá a oblíbená večeře, zejména v létě se nazývá Pa amb Oli: chléb s olivovým olejem, rajčaty a jakýmikoliv dostupnými přísadami, jako je sýr, tuňák atd.",
+    "duration": 15.6,
+    "gender": "MALE"
+  },
+  {
+    "id": "fleurs_03",
+    "source": "FLEURS",
+    "file": "fleurs_03.wav",
+    "transcript": "Proto se tužka po svém vynalezení stala dobrým přítelem mnoha lidí.",
+    "duration": 9.7,
+    "gender": "MALE"
+  },
+  {
+    "id": "fleurs_04",
+    "source": "FLEURS",
+    "file": "fleurs_04.wav",
+    "transcript": "Možná se budete chtít raději podívat na rady jiných vlád než své vlastní, ale ty jsou určeny především pro jejich vlastní občany.",
+    "duration": 12.8,
+    "gender": "MALE"
+  },
+  {
+    "id": "fleurs_05",
+    "source": "FLEURS",
+    "file": "fleurs_05.wav",
+    "transcript": "Jsou to někdy zalidněné rodinné pláže s velkým výběrem obchodů podél břehu. Plavání je bezpečné.",
+    "duration": 8.8,
+    "gender": "MALE"
+  },
+  {
+    "id": "fleurs_06",
+    "source": "FLEURS",
+    "file": "fleurs_06.wav",
+    "transcript": "Obranná disciplína, zacházení s míčem a výborná týmová spolupráce je učinila výjimečnými a bylo jisté, že právě tento tým je potřeba porazit.",
+    "duration": 13.8,
+    "gender": "MALE"
+  },
+  {
+    "id": "fleurs_07",
+    "source": "FLEURS",
+    "file": "fleurs_07.wav",
+    "transcript": "Dejte pozor, aby se tkanina příliš nezahřála (což může způsobit sražení nebo v extrémním případě i spálení).",
+    "duration": 13.4,
+    "gender": "MALE"
+  },
+  {
+    "id": "fleurs_08",
+    "source": "FLEURS",
+    "file": "fleurs_08.wav",
+    "transcript": "Souhlasíme s prohlášením Olympijského výboru Spojených států amerických, že zájmy našich sportovců, jejich oddílů a samotných sportů budou lépe chráněny, pokud podpoříme smysluplné změny v rámci naší organizace, a nikoli pokud organizace ztratí oficiální pravomoci.",
+    "duration": 18.2,
+    "gender": "MALE"
+  },
+  {
+    "id": "fleurs_09",
+    "source": "FLEURS",
+    "file": "fleurs_09.wav",
+    "transcript": "Cestovatelům se důrazně doporučuje mít přehled o všech možných rizicích nepříznivého počasí v jejich oblasti, protože to může ovlivnit veškeré cestovní plány.",
+    "duration": 8.8,
+    "gender": "MALE"
+  },
+  {
+    "id": "fleurs_10",
+    "source": "FLEURS",
+    "file": "fleurs_10.wav",
+    "transcript": "Vlhko na vašich rukou bude reagovat s vnějšími vrstvami, což bude mít za následek zvláštní pocit a zformuje to jakousi skořápku.",
+    "duration": 9.7,
+    "gender": "MALE"
+  },
+  {
+    "id": "fleurs_11",
+    "source": "FLEURS",
+    "file": "fleurs_11.wav",
+    "transcript": "Dnes se v Atlantském oceánu zformovala desátá pojmenovaná bouře sezony atlantických hurikánů, subtropická bouře Jerry.",
+    "duration": 13.6,
+    "gender": "MALE"
+  }
+]

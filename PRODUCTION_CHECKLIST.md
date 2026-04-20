@@ -2,15 +2,15 @@
 
 **Goal:** Get the app into a real customer's hands on their Android phone.
 
-**Current state (1 March 2026):**
+**Current state (20 April 2026):**
 - ✅ Azure OpenAI resource created: `anote-openai` (West Europe, Standard S0, resource group `ANOTE`)
-- ✅ Model deployed: `gpt-4-1-mini` (gpt-4.1-mini, Standard SKU, 30K tokens/min)
-- ✅ Model comparison done: gpt-4.1-mini vs gpt-5-mini → gpt-4.1-mini selected (see MODEL_COMPARISON_TEST.md)
-- ✅ Report quality tested on 3 Hurvínek + 8 demo scenarios
-- Backend code still uses plain `openai.OpenAI` (needs Azure OpenAI switch)
+- ✅ Models deployed on Azure OpenAI: `gpt-4-1-mini` (primary), `gpt-5-nano` (fallback), `gpt-5-mini`, `gpt-5-chat`
+- ✅ Model comparison done: gpt-4.1-mini vs gpt-5-mini vs gpt-5-nano → gpt-4.1-mini selected (fastest, see compare_eu_models_results.txt)
+- ✅ Backend code uses `AzureOpenAI` client (done)
+- ✅ Backend deployed to Azure Container Apps EU (see Phase 2 below)
+- ✅ Report quality tested on 3 Hurvínek + 8 demo scenarios + 13 comparison tests
 - iOS version tested on physical iPhone via USB cable
 - Android SDK / Android Studio **not installed** on this MacBook
-- No production backend deployed anywhere yet
 - No .apk built yet
 
 ---
@@ -30,70 +30,90 @@ The backend currently uses plain `openai.OpenAI` with `OPENAI_API_KEY`. For prod
   - `AZURE_OPENAI_DEPLOYMENT` — `gpt-4-1-mini`
 - [ ] (Optional) Submit [Modified Access form](https://aka.ms/oai/modifiedaccess) to opt out of abuse monitoring → zero data retention
 
-### 1.2 Switch Backend Code to Azure OpenAI
+### 1.2 Switch Backend Code to Azure OpenAI ✅ DONE
 
-File: `backend/main.py`
+File: `backend/main.py` — already uses `AzureOpenAI` client.
 
-**Current (dev):**
-```python
-from openai import OpenAI
-client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
-CHAT_MODEL = os.environ.get("OPENAI_CHAT_MODEL", "gpt-4o-mini")
-```
-
-**Target (production):**
-```python
-from openai import AzureOpenAI
-client = AzureOpenAI(
-    api_key=os.environ["AZURE_OPENAI_KEY"],
-    api_version="2025-04-01-preview",
-    azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
-)
-CHAT_MODEL = os.environ.get("AZURE_OPENAI_DEPLOYMENT", "gpt-4-1-mini")
-```
-
-- [ ] Update `from openai import OpenAI` → `from openai import AzureOpenAI`
-- [ ] Update client initialization to use `AzureOpenAI(...)` with endpoint + api_version
-- [ ] Update env var names: `OPENAI_API_KEY` → `AZURE_OPENAI_KEY`, add `AZURE_OPENAI_ENDPOINT`
-- [ ] Update `CHAT_MODEL` env var to `AZURE_OPENAI_DEPLOYMENT`
-- [ ] Create a `.env` file with the real Azure values for local testing
-- [ ] Generate a real `APP_API_TOKEN` (not `dev-token`) — e.g. `python -c "import secrets; print(secrets.token_urlsafe(32))"`
+- [x] Backend uses `from openai import AzureOpenAI`
+- [x] Client initialization uses `AzureOpenAI(...)` with endpoint + api_version
+- [x] Env var names: `AZURE_OPENAI_KEY`, `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_DEPLOYMENT`
+- [x] Primary model: `gpt-4-1-mini`, Fallback: `gpt-5-nano`
+- [x] Production `APP_API_TOKEN` generated and configured
 - [ ] Test locally: `uvicorn main:app --port 8000` → `curl -X POST http://localhost:8000/report ...`
 
 ---
 
-## Phase 2 — Deploy Backend to Azure Container Apps
+## Phase 2 — Deploy Backend to Azure Container Apps ✅ DONE
 
-### 2.1 Prerequisites
+### Deployment Infrastructure
 
-- [ ] Install Azure CLI: `brew install azure-cli`
-- [ ] Login: `az login`
-- [ ] Create resource group: `az group create --name anote-rg --location westeurope`
+| Component | Value |
+|---|---|
+| **Container App** | `anote-api` |
+| **Resource Group** | `ANOTE` |
+| **Region** | West Europe |
+| **FQDN** | `anote-api.politesmoke-02c93984.westeurope.azurecontainerapps.io` |
+| **ACR Registry** | `cae82690c7c7acr.azurecr.io` |
+| **Image** | `cae82690c7c7acr.azurecr.io/anote-api:latest` |
+| **Azure Subscription** | Visual Studio Ultimate with MSDN |
 
-### 2.2 Deploy
+### How to Deploy (updated backend code)
 
 ```bash
-cd backend
+# 0. Activate venv (has az CLI installed via pip)
+source .venv/bin/activate
 
-az containerapp up \
+# 1. Login to Azure Container Registry
+az acr login --name cae82690c7c7acr
+
+# 2. Build Docker image from backend/
+cd backend
+docker build -t cae82690c7c7acr.azurecr.io/anote-api:latest .
+
+# 3. Push to ACR
+docker push cae82690c7c7acr.azurecr.io/anote-api:latest
+
+# 4. Update the Container App (pulls new image)
+az containerapp update \
   --name anote-api \
-  --resource-group anote-rg \
-  --location westeurope \
-  --source . \
-  --ingress external \
-  --target-port 8000 \
-  --env-vars \
-    AZURE_OPENAI_KEY=secretref:azure-openai-key \
-    AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com \
-    AZURE_OPENAI_DEPLOYMENT=gpt-4-1-mini \
-    APP_API_TOKEN=secretref:app-api-token
+  --resource-group ANOTE \
+  --image cae82690c7c7acr.azurecr.io/anote-api:latest
+
+# 5. (Optional) Update env vars if needed
+az containerapp update \
+  --name anote-api \
+  --resource-group ANOTE \
+  --set-env-vars "KEY=value"
+
+# 6. Verify
+curl https://anote-api.politesmoke-02c93984.westeurope.azurecontainerapps.io/health
+# → {"status":"ok"}
 ```
 
-- [ ] Run the deploy command
-- [ ] Note the assigned URL (e.g. `https://anote-api.westeurope.azurecontainerapps.io`)
-- [ ] Set secrets: `az containerapp secret set --name anote-api --resource-group anote-rg --secrets azure-openai-key=YOUR_KEY app-api-token=YOUR_TOKEN`
-- [ ] Test health: `curl https://anote-api.westeurope.azurecontainerapps.io/health` → `{"status":"ok"}`
-- [ ] Test report endpoint with Bearer token and a sample transcript
+### Environment Variables (configured on Container App)
+
+| Variable | Value |
+|---|---|
+| `AZURE_OPENAI_ENDPOINT` | `https://anote-openai.openai.azure.com` |
+| `AZURE_OPENAI_DEPLOYMENT` | `gpt-4-1-mini` |
+| `AZURE_OPENAI_FALLBACK_DEPLOYMENT` | `gpt-5-nano` |
+| `AZURE_OPENAI_API_VERSION` | `2025-04-01-preview` |
+| `AZURE_OPENAI_KEY` | secretref:azure-openai-key |
+| `APP_API_TOKEN` | secretref:app-api-token |
+| `SMTP_HOST` | smtp.gmail.com |
+| `SMTP_PORT` | 587 |
+| `SMTP_USE_TLS` | true |
+| `MOCK_MODE` | false |
+
+### Legacy US Instance (West US 2)
+
+There is also a legacy US backend at `anote-api.gentleriver-a61d304a.westus2.azurecontainerapps.io` (resource group `anote-rg`, ACR `ca859739e5daacr.azurecr.io`). The EU instance is the primary production backend.
+
+- [x] ACR created and Docker image pushed
+- [x] Container App running with external ingress on port 8000
+- [x] Secrets configured (Azure OpenAI key, API token)
+- [x] Health check passes: `{"status":"ok"}`
+- [x] `/report` endpoint generates correct Czech medical reports
 - [ ] Restrict CORS origins from `*` to the app only (or remove CORS — mobile apps don't need it)
 
 ---

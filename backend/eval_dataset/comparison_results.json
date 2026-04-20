@@ -1,0 +1,167 @@
+{
+  "whisper": [
+    {
+      "id": "fleurs_00",
+      "wer": 0.0,
+      "cer": 0.0,
+      "time": 1.20278000831604,
+      "hyp": "Schengenský prostor nicméně v tomto ohledu funguje podobně jako jedna země."
+    },
+    {
+      "id": "fleurs_01",
+      "wer": 0.18181818181818182,
+      "cer": 0.06293706293706294,
+      "time": 1.5987248420715332,
+      "hyp": "V neděli pak prezident Spojených států Donald Trump v prohlášení v výjedeném přes tiskového muhčího oznámil, že se americká vojska stáhnou ze Syrie."
+    },
+    {
+      "id": "fleurs_02",
+      "wer": 0.2692307692307692,
+      "cer": 0.058823529411764705,
+      "time": 1.673043966293335,
+      "hyp": "Jednoduchá a oblíbená večeře. Zjeměna v létě se nazývá Pa-Amp-Oli. Chleb s olivovým olejem, rajčaty a jakýmkoliv dostupnými přísadami, jako je sír, tuňák atd."
+    },
+    {
+      "id": "fleurs_04",
+      "wer": 0.045454545454545456,
+      "cer": 0.007874015748031496,
+      "time": 1.6872179508209229,
+      "hyp": "Možná se budete chtít raději podívat na rady jiných vlád než své vlastní, ale ty jsou učeny především pro jejich vlastní občany."
+    },
+    {
+      "id": "fleurs_05",
+      "wer": 0.06666666666666667,
+      "cer": 0.010638297872340425,
+      "time": 1.4681110382080078,
+      "hyp": "Jsou to někdy zalidněné rodinné pláže s velkým výběrem obchodů podel břehu. Plavání je bezpečné."
+    },
+    {
+      "id": "fleurs_06",
+      "wer": 0.045454545454545456,
+      "cer": 0.007246376811594203,
+      "time": 1.9920408725738525,
+      "hyp": "Obranná disciplína, zacházení s míčem a výborná týmová spolupráce je učinila výjimečními a bylo jisté, že právě tento tým je potřeba porazit."
+    },
+    {
+      "id": "fleurs_07",
+      "wer": 0.058823529411764705,
+      "cer": 0.009615384615384616,
+      "time": 1.623610258102417,
+      "hyp": "Dejte pozor, aby se tkanina příliš nezahrála, což může způsobit sražení nebo v extrémním případě i spálení."
+    },
+    {
+      "id": "fleurs_08",
+      "wer": 0.2,
+      "cer": 0.019230769230769232,
+      "time": 2.3538990020751953,
+      "hyp": "Souhlasíme s prohlášením Olimpijského výboru Spojených států amerických, že zájme našich sportovců, jejich oddílů a samotných sportů budou lépe chráněny, pokud podpoříme smyslu plné změny v rámci naší organizace a nikoliv pokud organizace ztratí oficiální pravo moci."
+    },
+    {
+      "id": "fleurs_09",
+      "wer": 0.0,
+      "cer": 0.0,
+      "time": 1.6841168403625488,
+      "hyp": "Cestovatelům se důrazně doporučuje mít přehled o všech možných rizicích nepříznivého počasí v jejich oblasti, protože to může ovlivnit veškeré cestovní plány."
+    },
+    {
+      "id": "fleurs_10",
+      "wer": 0.2857142857142857,
+      "cer": 0.07936507936507936,
+      "time": 1.581747055053711,
+      "hyp": "Vlhko na vašich rukou bude reagovat s mějšími vrstvami, což bude mít zanásadek zvláštní pocit a sformuje to jakousi z kořábků."
+    },
+    {
+      "id": "fleurs_11",
+      "wer": 0.4,
+      "cer": 0.1206896551724138,
+      "time": 1.6978468894958496,
+      "hyp": "Dnes se v Atlantickém oceánu sformovala desátá pojmenovaná bůře sezony Atlantického rykánu, subtropická bůře Jerry."
+    }
+  ],
+  "gpt-4o-mini-transcribe": [
+    {
+      "id": "fleurs_00",
+      "wer": 0.09090909090909091,
+      "cer": 0.013513513513513514,
+      "time": 1.4997539520263672,
+      "hyp": "Schenmenský prostor nicméně v tomto ohledu funguje podobně jako jedna země."
+    },
+    {
+      "id": "fleurs_01",
+      "wer": 0.13636363636363635,
+      "cer": 0.04195804195804196,
+      "time": 1.3627009391784668,
+      "hyp": "Neděle pak prezident Spojených států Donald Trump v prohlášení vyjednaném přes tiskového mluvčího oznámil, že se americká vojska stáhnou ze Sýrie."
+    },
+    {
+      "id": "fleurs_02",
+      "wer": 0.038461538461538464,
+      "cer": 0.006535947712418301,
+      "time": 1.5996851921081543,
+      "hyp": "Jednoduchá a oblíbená večeře, zejména v létě, se nazývá pa amb oli. Chléb s olivovým olejem, rajčaty a jakýmkoliv dostupnými přísadami, jako je sýr, tuňák atd."
+    },
+    {
+      "id": "fleurs_03",
+      "wer": 0.0,
+      "cer": 0.0,
+      "time": 1.8316991329193115,
+      "hyp": "Proto se tužka po svém vynalezení stala dobrým přítelem mnoha lidí."
+    },
+    {
+      "id": "fleurs_04",
+      "wer": 0.0,
+      "cer": 0.0,
+      "time": 1.4407920837402344,
+      "hyp": "Možná se budete chtít raději podívat na rady jiných vlád než své vlastní, ale ty jsou určeny především pro jejich vlastní občany."
+    },
+    {
+      "id": "fleurs_05",
+      "wer": 0.0,
+      "cer": 0.0,
+      "time": 1.5331640243530273,
+      "hyp": "Jsou to někdy zalidněné rodinné pláže s velkým výběrem obchodů podél břehu. Plavání je bezpečné."
+    },
+    {
+      "id": "fleurs_06",
+      "wer": 0.09090909090909091,
+      "cer": 0.021739130434782608,
+      "time": 2.9214839935302734,
+      "hyp": "Obrana a disciplína, zacházení s míčem a výborná týmová spolupráce je učinila výjimečnými a bylo jisté, že právě tento tým je potřeba porazit."
+    },
+    {
+      "id": "fleurs_07",
+      "wer": 0.058823529411764705,
+      "cer": 0.019230769230769232,
+      "time": 1.9947447776794434,
+      "hyp": "Dejte pozor, aby se tkáňina příliš nezahřála, což může způsobit sražení nebo v extrémním případě i spálení."
+    },
+    {
+      "id": "fleurs_08",
+      "wer": 0.0,
+      "cer": 0.0,
+      "time": 1.6774158477783203,
+      "hyp": "Souhlasíme s prohlášením Olympijského výboru Spojených států amerických, že zájmy našich sportovců, jejich oddílů a samotných sportů budou lépe chráněny, pokud podpoříme smysluplné změny v rámci naší organizace, a nikoli pokud organizace ztratí oficiální pravomoci."
+    },
+    {
+      "id": "fleurs_09",
+      "wer": 0.0,
+      "cer": 0.0,
+      "time": 1.6304280757904053,
+      "hyp": "Cestovatelům se důrazně doporučuje mít přehled o všech možných rizicích nepříznivého počasí v jejich oblasti, protože to může ovlivnit veškeré cestovní plány."
+    },
+    {
+      "id": "fleurs_10",
+      "wer": 0.047619047619047616,
+      "cer": 0.007936507936507936,
+      "time": 1.7068428993225098,
+      "hyp": "Vlhko na vašich rukou bude reagovat s vnějšími vrstvami, což bude mít za následek zvláštní pocit a sformuje to jakousi skořápku."
+    },
+    {
+      "id": "fleurs_11",
+      "wer": 0.13333333333333333,
+      "cer": 0.017241379310344827,
+      "time": 1.5512969493865967,
+      "hyp": "Dnes se v Atlantském oceánu sformovala desátá pojmenovaná bouře sezóny atlantických hurikánů, subtropická bouře Jerry."
+    }
+  ]
+}

@@ -202,4 +202,84 @@ void main() {
       expect(tailResult, fullResult);
     });
   });
+
+  group('WhisperService.removeHallucinations', () {
+    test('removes known Czech hallucination phrases', () {
+      expect(
+        WhisperService.removeHallucinations(
+            'pacient má teplotu Titulky vytvoril JohnyX a kašel'),
+        'pacient má teplotu a kašel',
+      );
+    });
+
+    test('removes "Děkuji za zhlédnutí" with diacritics', () {
+      expect(
+        WhisperService.removeHallucinations(
+            'bolest hlavy Děkuji za zhlédnutí!'),
+        'bolest hlavy',
+      );
+    });
+
+    test('removes "hraje hudba"', () {
+      expect(
+        WhisperService.removeHallucinations('hraje hudba pacient přichází'),
+        'pacient přichází',
+      );
+    });
+
+    test('removes URLs with www prefix', () {
+      expect(
+        WhisperService.removeHallucinations(
+            'vyšetření provedeno www.hradeckesluzby.cz správně'),
+        'vyšetření provedeno správně',
+      );
+    });
+
+    test('removes URLs with http prefix', () {
+      expect(
+        WhisperService.removeHallucinations(
+            'text https://example.com/path more text'),
+        'text more text',
+      );
+    });
+
+    test('removes emoji', () {
+      expect(
+        WhisperService.removeHallucinations('test 😘😘😘 result'),
+        'test result',
+      );
+    });
+
+    test('removes multiple hallucination types at once', () {
+      expect(
+        WhisperService.removeHallucinations(
+            'Titulky vytvoril JohnyX www.hradeckesluzby.cz '
+            'pacient má kašel 😘 Děkuji za zhlédnutí!'),
+        'pacient má kašel',
+      );
+    });
+
+    test('returns empty string when entire text is hallucination', () {
+      expect(
+        WhisperService.removeHallucinations('Titulky vytvoril JohnyX'),
+        '',
+      );
+    });
+
+    test('returns text unchanged when no hallucinations present', () {
+      const input = 'pacient přichází s bolestí na hrudi trvající dva dny';
+      expect(WhisperService.removeHallucinations(input), input);
+    });
+
+    test('handles empty input', () {
+      expect(WhisperService.removeHallucinations(''), '');
+    });
+
+    test('removes "Navstevy navstevani" case-insensitively', () {
+      expect(
+        WhisperService.removeHallucinations('Návštěvy navštěvání bolest'),
+        'bolest',
+      );
+    });
+  });
 }
