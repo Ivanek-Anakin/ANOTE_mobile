@@ -10,6 +10,9 @@ enum TranscriptionModel {
 
   /// Azure OpenAI Whisper cloud API
   cloud,
+
+  /// Hybrid: on-device live preview + cloud final transcript
+  hybrid,
 }
 
 extension TranscriptionModelApi on TranscriptionModel {
@@ -21,17 +24,21 @@ extension TranscriptionModelApi on TranscriptionModel {
         return 'turbo';
       case TranscriptionModel.cloud:
         return 'cloud';
+      case TranscriptionModel.hybrid:
+        return 'hybrid';
     }
   }
 
   String get label {
     switch (this) {
       case TranscriptionModel.small:
-        return 'Small (výchozí)';
+        return 'Small';
       case TranscriptionModel.turbo:
         return 'Turbo';
       case TranscriptionModel.cloud:
-        return 'Cloud';
+        return 'Cloud (výchozí)';
+      case TranscriptionModel.hybrid:
+        return 'Hybrid';
     }
   }
 
@@ -43,17 +50,23 @@ extension TranscriptionModelApi on TranscriptionModel {
         return '~1 GB · On-device · Bez internetu';
       case TranscriptionModel.cloud:
         return 'Azure OpenAI · Vyžaduje internet';
+      case TranscriptionModel.hybrid:
+        return 'On-device živý náhled + Cloud finální přepis';
     }
   }
 
   static TranscriptionModel fromString(String? value) {
     switch (value) {
+      case 'small':
+        return TranscriptionModel.small;
       case 'turbo':
         return TranscriptionModel.turbo;
       case 'cloud':
         return TranscriptionModel.cloud;
+      case 'hybrid':
+        return TranscriptionModel.hybrid;
       default:
-        return TranscriptionModel.small;
+        return TranscriptionModel.cloud;
     }
   }
 }

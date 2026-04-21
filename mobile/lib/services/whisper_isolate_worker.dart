@@ -78,7 +78,8 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
   String previousChunkTail = '';
 
   const int sampleRate = 16000;
-  const int windowInterval = 5 * sampleRate; // 5 s (matches Phase 1)
+  late int windowInterval; // set in 'init' based on device tier
+  windowInterval = 5 * sampleRate; // default 5 s, may be overridden
   const int overlapSamples = 3 * sampleRate; // 3 s
 
   /// Maximum raw audio buffer: 30 minutes @ 16 kHz = 28,800,000 samples.
@@ -166,7 +167,7 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
           sileroVad: sherpa.SileroVadModelConfig(
             model: vadModelPath,
             threshold:
-                0.45, // slightly lower for final pass — catch more speech
+                0.35, // lower for final pass — catch quiet trailing speech
             minSilenceDuration: 0.5,
             minSpeechDuration: 0.25,
             maxSpeechDuration: 30.0,
@@ -303,6 +304,9 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
   /// This is the fast path called after the user stops recording. Only the
   /// remaining tail (typically < 30s) needs decoding — all earlier chunks
   /// were already transcribed incrementally during recording.
+  ///
+  /// Includes a safety pass: always transcribe the last 15s of raw audio
+  /// regardless of VAD, to catch quiet trailing speech that VAD missed.
   String doTranscribeTail() {
     const int chunkSize = 30 * sampleRate;
     const int overlap = 5 * sampleRate;
@@ -343,7 +347,33 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
 
     final allParts = [...finalizedChunks];
     if (tailText.isNotEmpty) allParts.add(tailText);
-    final result = allParts.join(' ');
+    String result = allParts.join(' ');
+
+    // Safety pass: transcribe last 15s of raw audio regardless of VAD
+    // to catch quiet trailing speech the VAD may have missed.
+    const int safetyTailSamples = 15 * sampleRate;
+    if (rawAudioBuffer.length > safetyTailSamples) {
+      try {
+        final safetyTail = rawAudioBuffer.sublist(
+          rawAudioBuffer.length - safetyTailSamples,
+        );
+        final safetyText = transcribe(safetyTail);
+        if (safetyText.isNotEmpty) {
+          final deduped = WhisperService.removeOverlap(
+            WhisperService.lastWords(result, 20),
+            safetyText,
+          );
+          if (deduped.isNotEmpty && deduped.split(' ').length > 3) {
+            result = '$result $deduped';
+            workerLog(
+                '[Worker] Safety tail added ${deduped.split(' ').length} words');
+          }
+        }
+      } catch (e) {
+        workerLog('[Worker] Safety tail error: $e');
+      }
+    }
+
     workerLog('[Worker] transcribeTail done: '
         '${finalizedChunks.length} chunks + tail = ${result.length} chars');
     return result;
@@ -364,6 +394,12 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
           final tokensPath = message['tokensPath'] as String;
           vadModelPath = message['vadModelPath'] as String;
           hotwordsFilePath = (message['hotwordsFilePath'] as String?) ?? '';
+          final int numThreads = (message['numThreads'] as int?) ?? 4;
+          final int windowIntervalSec =
+              (message['windowIntervalSeconds'] as int?) ?? 5;
+          windowInterval = windowIntervalSec * sampleRate;
+          workerLog(
+              '[Worker] Config: numThreads=$numThreads, windowInterval=${windowIntervalSec}s');
 
           // Log paths and verify files exist before creating recognizer
           workerLog('[Worker] encoder: $encoderPath '
@@ -380,6 +416,10 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
           sherpa.initBindings();
 
           final sw = Stopwatch()..start();
+          // NOTE: hotwords are NOT supported for Whisper models (only
+          // transducer models support them in sherpa-onnx). Passing a
+          // non-empty hotwordsFile here causes "Failed to create offline
+          // recognizer", so we intentionally omit hotwordsFile/hotwordsScore.
           recognizer = sherpa.OfflineRecognizer(
             sherpa.OfflineRecognizerConfig(
               model: sherpa.OfflineModelConfig(
@@ -391,7 +431,7 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
                   tailPaddings: -1,
                 ),
                 tokens: tokensPath,
-                numThreads: 4,
+                numThreads: numThreads,
                 debug: false,
                 provider: 'cpu',
               ),
@@ -406,7 +446,7 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
               config: sherpa.VadModelConfig(
                 sileroVad: sherpa.SileroVadModelConfig(
                   model: vadModelPath,
-                  threshold: 0.5,
+                  threshold: 0.45,
                   minSilenceDuration: 0.5,
                   minSpeechDuration: 0.25,
                   maxSpeechDuration: 30.0,
@@ -545,6 +585,42 @@ void whisperWorkerEntryPoint(SendPort mainSendPort) {
         } catch (e) {
           mainSendPort
               .send({'type': 'transcribeTailError', 'error': e.toString()});
+        }
+
+      case 'flush':
+        try {
+          if (vad != null) {
+            vad!.flush();
+            while (!vad!.isEmpty()) {
+              final segment = vad!.front();
+              vad!.pop();
+              if (segment.samples.isNotEmpty) {
+                speechBuffer.addAll(segment.samples);
+                workerLog('[Worker] flush: VAD segment '
+                    '${segment.samples.length} samples');
+              }
+            }
+          }
+          mainSendPort.send({'type': 'flushDone'});
+        } catch (e) {
+          workerLog('[Worker] flush error: $e');
+          mainSendPort.send({'type': 'flushDone'});
+        }
+
+      case 'getRawAudio':
+        try {
+          workerLog('[Worker] getRawAudio: ${rawAudioBuffer.length} samples');
+          final float32 = Float32List.fromList(rawAudioBuffer);
+          mainSendPort.send({
+            'type': 'rawAudioData',
+            'samples': TransferableTypedData.fromList([float32]),
+          });
+        } catch (e) {
+          workerLog('[Worker] getRawAudio error: $e');
+          mainSendPort.send({
+            'type': 'rawAudioData',
+            'samples': TransferableTypedData.fromList([Float32List(0)]),
+          });
         }
 
       case 'reset':

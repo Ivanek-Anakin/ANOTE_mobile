@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANOTE — Option A: Clean Card</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; background: #1a1a2e; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
+  }
+  .phone {
+    width: 390px; height: 844px; background: #fafbfc; border-radius: 44px;
+    overflow: hidden; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    display: flex; flex-direction: column;
+  }
+  /* Status bar */
+  .status-bar {
+    height: 54px; padding: 14px 28px 0; display: flex; justify-content: space-between;
+    align-items: center; font-size: 14px; font-weight: 600; color: #1a1a1a;
+  }
+  .status-bar .time { font-weight: 700; }
+  .status-icons { display: flex; gap: 6px; align-items: center; }
+  .status-icons span { font-size: 12px; }
+
+  /* App bar */
+  .app-bar {
+    padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .app-title { display: flex; align-items: center; gap: 8px; }
+  .app-title .icon { font-size: 22px; }
+  .app-title h1 { font-size: 20px; font-weight: 700; color: #1a1a1a; letter-spacing: 1.5px; }
+  .app-bar .settings { font-size: 22px; opacity: 0.85; cursor: pointer; }
+
+  /* Report card */
+  .report-area {
+    flex: 1; padding: 0 16px; overflow: hidden;
+  }
+  .report-card {
+    height: 100%; border: 1.5px solid #d0d7de; border-radius: 16px;
+    padding: 20px; overflow-y: auto; background: #fff;
+  }
+  .report-card h3 {
+    font-size: 13px; font-weight: 600; color: #409086; text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 16px;
+  }
+  .report-card .field { margin-bottom: 14px; }
+  .report-card .field-label {
+    font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 3px;
+  }
+  .report-card .field-value { font-size: 14px; color: #1f2937; line-height: 1.5; }
+
+  /* Bottom area */
+  .bottom-area {
+    padding: 16px 20px 40px; display: flex; flex-direction: column;
+    align-items: center; gap: 10px;
+  }
+  .recording-label {
+    font-size: 13px; color: #dc2626; font-weight: 500; opacity: 0;
+    transition: opacity 0.3s; display: flex; align-items: center; gap: 6px;
+  }
+  .recording-label.active { opacity: 1; }
+  .recording-label .dot {
+    width: 8px; height: 8px; background: #dc2626; border-radius: 50%;
+    animation: blink 1s infinite;
+  }
+
+  .record-btn {
+    width: 68px; height: 68px; border-radius: 50%; border: none; cursor: pointer;
+    background: rgb(64, 144, 134); box-shadow: 0 4px 20px rgba(64,144,134,0.4);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s ease; position: relative;
+  }
+  .record-btn .mic { font-size: 28px; filter: brightness(0) invert(1); }
+  .record-btn:hover { transform: scale(1.05); }
+  .record-btn.recording {
+    background: #dc2626; box-shadow: 0 4px 20px rgba(220,38,38,0.4);
+    animation: pulse 1.5s infinite;
+  }
+  .record-btn.recording .mic::after { content: '⏹'; }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(220,38,38,0.5); }
+    70% { box-shadow: 0 0 0 18px rgba(220,38,38,0); }
+    100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); }
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* Home indicator */
+  .home-indicator {
+    width: 134px; height: 5px; background: #1a1a1a; border-radius: 3px;
+    margin: 0 auto 8px; opacity: 0.2;
+  }
+
+  /* Toggle buttons */
+  .toggle-bar {
+    position: fixed; top: 20px; right: 20px; display: flex; gap: 8px; z-index: 100;
+  }
+  .toggle-bar button {
+    padding: 8px 16px; border-radius: 8px; border: 1px solid #ccc;
+    background: #fff; cursor: pointer; font-size: 13px; font-weight: 500;
+  }
+  .toggle-bar button.active { background: rgb(64,144,134); color: #fff; border-color: rgb(64,144,134); }
+</style>
+</head>
+<body>
+
+<div class="toggle-bar">
+  <button id="idleBtn" class="active" onclick="setIdle()">Idle</button>
+  <button id="recBtn" onclick="setRecording()">Recording</button>
+</div>
+
+<div class="phone">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="status-icons">
+      <span>📶</span><span>🔋</span>
+    </div>
+  </div>
+
+  <div class="app-bar">
+    <div class="app-title">
+      <h1>ANOTE</h1>
+    </div>
+    <span class="settings">⚙️</span>
+  </div>
+
+  <div class="report-area">
+    <div class="report-card">
+      <h3>Lékařská zpráva</h3>
+      <div class="field">
+        <div class="field-label">Pacient</div>
+        <div class="field-value">Muž, 45 let</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Anamnéza</div>
+        <div class="field-value">Pacient přichází s bolestmi na hrudi trvajícími 3 dny. Bolest je tupá, lokalizovaná retrosternálně, bez iradiace. Zhoršuje se při fyzické námaze.</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Objektivní nález</div>
+        <div class="field-value">TK 135/85, TF 78/min, pravidelná. Dýchání čisté, sklípkové. Břicho měkké, nebolestivé. Bez otoků DK.</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Závěr</div>
+        <div class="field-value">Suspektní stabilní angina pectoris. Doporučeno EKG, laboratorní vyšetření (troponin, KO, lipidový profil), zátěžový test.</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Terapie</div>
+        <div class="field-value">ASA 100mg 1-0-0, Atorvastatin 20mg 0-0-1. Kontrola za 1 týden s výsledky.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding: 6px 16px 0; display:flex; justify-content:space-between; align-items:center;">
+    <button style="background:none; border:1px solid rgb(64,144,134); color:rgb(64,144,134); font-size:13px; font-weight:600; cursor:pointer; padding:6px 14px; border-radius:8px;">✉️ Odeslat emailem</button>
+    <button style="background:none; border:none; font-size:18px; cursor:pointer; opacity:0.6; padding:4px 8px;" title="Kopírovat">📋</button>
+  </div>
+  <div class="bottom-area">
+    <div class="recording-label" id="recLabel">
+      <span class="dot"></span> Nahrávání...
+    </div>
+    <button class="record-btn" id="recordBtn" onclick="toggleRecording()">
+      <span class="mic" id="micIcon">🎙</span>
+    </button>
+  </div>
+
+  <div class="home-indicator"></div>
+</div>
+
+<script>
+  let recording = false;
+  function toggleRecording() {
+    recording = !recording;
+    recording ? setRecording() : setIdle();
+  }
+  function setRecording() {
+    recording = true;
+    document.getElementById('recordBtn').classList.add('recording');
+    document.getElementById('recLabel').classList.add('active');
+    document.getElementById('micIcon').textContent = '⏹';
+    document.getElementById('recBtn').classList.add('active');
+    document.getElementById('idleBtn').classList.remove('active');
+  }
+  function setIdle() {
+    recording = false;
+    document.getElementById('recordBtn').classList.remove('recording');
+    document.getElementById('recLabel').classList.remove('active');
+    document.getElementById('micIcon').textContent = '🎙';
+    document.getElementById('idleBtn').classList.add('active');
+    document.getElementById('recBtn').classList.remove('active');
+  }
+</script>
+</body>
+</html>

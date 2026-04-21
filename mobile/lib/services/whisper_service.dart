@@ -56,6 +56,7 @@ Future<String> transcribeFullInIsolate(Map<String, dynamic> params) async {
   final String decoderPath = params['decoderPath'] as String;
   final String tokensPath = params['tokensPath'] as String;
   final String vadModelPath = params['vadModelPath'] as String;
+  final String hotwordsFilePath = (params['hotwordsFilePath'] as String?) ?? '';
 
   const int sampleRate = 16000;
 
@@ -75,7 +76,14 @@ Future<String> transcribeFullInIsolate(Map<String, dynamic> params) async {
     allSpeech.addAll(seg.toList());
   }
 
+  // Resolve hotwords path — only pass if file exists
+  final String resolvedHotwords =
+      hotwordsFilePath.isNotEmpty && File(hotwordsFilePath).existsSync()
+          ? hotwordsFilePath
+          : '';
+
   // Create recognizer (fresh — cannot reuse across isolate boundary)
+  // NOTE: hotwords are NOT supported for Whisper models in sherpa-onnx.
   final recognizer = sherpa.OfflineRecognizer(
     sherpa.OfflineRecognizerConfig(
       model: sherpa.OfflineModelConfig(
@@ -153,7 +161,7 @@ List<Float32List> _extractSpeechSegmentsStandalone(
       config: sherpa.VadModelConfig(
         sileroVad: sherpa.SileroVadModelConfig(
           model: vadModelPath,
-          threshold: 0.45,
+          threshold: 0.35,
           minSilenceDuration: 0.5,
           minSpeechDuration: 0.25,
           maxSpeechDuration: 30.0,
@@ -292,6 +300,8 @@ class WhisperService {
   Completer<void>? _initCompleter;
   Completer<String>? _transcribeFullCompleter;
   Completer<String>? _transcribeTailCompleter;
+  Completer<void>? _flushVadCompleter;
+  Completer<List<double>>? _rawAudioCompleter;
 
   // ---------------------------------------------------------------------------
   // Local state (test mode via withTranscriber — no worker spawned)
@@ -313,6 +323,20 @@ class WhisperService {
   String _previousTailText = '';
   String _fullTranscript = '';
   bool _isTranscribing = false;
+
+  /// When true, feedAudio only accumulates raw audio without attempting
+  /// local transcription. Used in cloud mode where no on-device model
+  /// is loaded.
+  bool _cloudOnlyMode = false;
+
+  /// Enable cloud-only buffering mode (no local transcription).
+  void setCloudOnlyMode(bool enabled) {
+    _cloudOnlyMode = enabled;
+    if (enabled) {
+      _speechBuffer.clear();
+      _lastSpeechBoundary = 0;
+    }
+  }
 
   // ---------------------------------------------------------------------------
   // Model paths (needed for download / verification on main isolate)
@@ -443,6 +467,23 @@ class WhisperService {
     }
   }
 
+  /// Detect device total RAM in MB. Uses /proc/meminfo on Android.
+  /// Returns 6000 (high tier default) on iOS or on error.
+  static Future<int> getDeviceRamMB() async {
+    try {
+      if (Platform.isAndroid) {
+        final meminfo = await File('/proc/meminfo').readAsString();
+        final match = RegExp(r'MemTotal:\s+(\d+)\s+kB').firstMatch(meminfo);
+        if (match != null) {
+          return int.parse(match.group(1)!) ~/ 1024;
+        }
+      }
+      return 6000;
+    } catch (_) {
+      return 6000;
+    }
+  }
+
   /// Simple debug logger that works in both debug and release.
   static void debugLog(String message) {
     // ignore: avoid_print
@@ -513,6 +554,14 @@ class WhisperService {
 
     _workerSendPort = await workerSendPortCompleter.future;
 
+    // Detect device tier for adaptive thread/window config
+    final ramMB = await getDeviceRamMB();
+    final bool isLowTier = Platform.isIOS || ramMB < 6000;
+    final int numThreads = Platform.isIOS ? 1 : (isLowTier ? 2 : 4);
+    final int windowIntervalSeconds = Platform.isIOS ? 10 : (isLowTier ? 8 : 5);
+    debugLog(
+        '[WhisperService] Device RAM: ${ramMB}MB, tier: ${isLowTier ? "low" : "high"}');
+
     // Send init command with model paths
     _workerSendPort!.send(<String, dynamic>{
       'cmd': 'init',
@@ -521,6 +570,8 @@ class WhisperService {
       'tokensPath': _tokensPath,
       'vadModelPath': _vadModelPath,
       'hotwordsFilePath': _hotwordsFilePath,
+      'numThreads': numThreads,
+      'windowIntervalSeconds': windowIntervalSeconds,
     });
 
     try {
@@ -549,6 +600,14 @@ class WhisperService {
   ///
   /// In test mode (via [withTranscriber]), samples are buffered locally.
   void feedAudio(List<double> samples) {
+    // Cloud-only mode MUST be checked first: a worker isolate from a previous
+    // turbo/hybrid session may still be alive, but in cloud mode all audio
+    // must be accumulated locally for the Azure Whisper API call on stop.
+    if (_cloudOnlyMode) {
+      _rawAudioBuffer.addAll(samples);
+      return;
+    }
+
     if (_workerSendPort != null) {
       // --- Phase 3: send to persistent worker isolate ---
       final float32 = Float32List.fromList(samples);
@@ -658,6 +717,52 @@ class WhisperService {
     _isTranscribing = false;
   }
 
+  /// Flush VAD internal buffers to ensure all pending speech segments
+  /// are pushed into the speech buffer before final transcription.
+  Future<void> flushVad() async {
+    if (_workerSendPort != null) {
+      debugLog('[WhisperService] flushVad → sending to worker');
+      _flushVadCompleter = Completer<void>();
+      _workerSendPort!.send(<String, dynamic>{'cmd': 'flush'});
+      try {
+        await _flushVadCompleter!.future.timeout(const Duration(seconds: 5));
+      } catch (e) {
+        debugLog('[WhisperService] flushVad timeout/error: $e');
+      } finally {
+        _flushVadCompleter = null;
+      }
+      return;
+    }
+    // Test mode: no-op (no VAD in test mode)
+  }
+
+  /// Retrieve the raw audio buffer from the worker isolate.
+  /// Used in hybrid mode to send raw audio to cloud transcription.
+  Future<List<double>> getRawAudioBufferFromWorker() async {
+    if (_workerSendPort != null) {
+      debugLog(
+          '[WhisperService] getRawAudioBufferFromWorker → sending to worker');
+      _rawAudioCompleter = Completer<List<double>>();
+      _workerSendPort!.send(<String, dynamic>{'cmd': 'getRawAudio'});
+      try {
+        final result = await _rawAudioCompleter!.future
+            .timeout(const Duration(seconds: 30));
+        _rawAudioCompleter = null;
+        debugLog('[WhisperService] getRawAudioBufferFromWorker: '
+            '${result.length} samples '
+            '(${(result.length / _sampleRate).toStringAsFixed(1)}s)');
+        return result;
+      } catch (e) {
+        _rawAudioCompleter = null;
+        debugLog('[WhisperService] getRawAudioBufferFromWorker error: $e');
+        rethrow;
+      }
+    }
+
+    // Test mode: return local buffer
+    return List<double>.unmodifiable(_rawAudioBuffer);
+  }
+
   /// Release all resources.
   void dispose() {
     _killWorker();
@@ -705,6 +810,8 @@ class WhisperService {
     _initCompleter = null;
     _transcribeFullCompleter = null;
     _transcribeTailCompleter = null;
+    _flushVadCompleter = null;
+    _rawAudioCompleter = null;
   }
 
   /// Handle messages coming back from the worker isolate.
@@ -734,6 +841,14 @@ class WhisperService {
             Exception(message['error'] as String? ?? 'Unknown worker error'));
       case 'finalChunkDone':
         break; // informational — could expose for UI progress indicator
+      case 'flushDone':
+        _flushVadCompleter?.complete();
+      case 'rawAudioData':
+        final TransferableTypedData transferable =
+            message['samples'] as TransferableTypedData;
+        final ByteBuffer buffer = transferable.materialize();
+        final Float32List samples = buffer.asFloat32List();
+        _rawAudioCompleter?.complete(samples.toList());
       case 'resetDone':
         break; // fire-and-forget
       case 'disposeDone':
@@ -767,13 +882,19 @@ class WhisperService {
         return;
       }
 
-      final String deduped = removeOverlap(_previousTailText, rawText);
+      final String cleaned = removeHallucinations(rawText);
+      if (cleaned.isEmpty) {
+        _lastSpeechBoundary = windowEnd;
+        return;
+      }
+
+      final String deduped = removeOverlap(_previousTailText, cleaned);
       if (deduped.isNotEmpty) {
         _fullTranscript =
             _fullTranscript.isEmpty ? deduped : '$_fullTranscript $deduped';
       }
 
-      _previousTailText = lastWords(rawText, 20);
+      _previousTailText = lastWords(cleaned, 20);
       _lastSpeechBoundary = windowEnd;
 
       if (!_transcriptController.isClosed) {
@@ -991,5 +1112,92 @@ class WhisperService {
         text.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
     if (words.length <= n) return text;
     return words.sublist(words.length - n).join(' ');
+  }
+
+  // ── Whisper hallucination filter ──────────────────────────────────────────
+
+  /// Known Whisper hallucination phrases (Czech YouTube/subtitle artifacts).
+  /// Compared case-insensitively with diacritics stripped.
+  static const List<String> _hallucinationPhrases = [
+    'titulky vytvoril johnyx',
+    'titulky vytvoril',
+    'dekuji za zhlednuti',
+    'navstevy navstevani',
+    'hraje hudba',
+    'hudba hraje',
+    'subtitrari',
+    'napisy vytvoril',
+  ];
+
+  /// Regex to match URLs (www.* or http(s)://...).
+  static final RegExp _urlPattern =
+      RegExp(r'https?://\S+|www\.\S+', caseSensitive: false);
+
+  /// Regex to match emoji (common Unicode emoji ranges).
+  static final RegExp _emojiPattern = RegExp(
+    r'[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|'
+    r'[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|'
+    r'[\u{FE00}-\u{FE0F}]|[\u{1F900}-\u{1F9FF}]|[\u{200D}]|[\u{20E3}]|'
+    r'[\u{E0020}-\u{E007F}]',
+    unicode: true,
+  );
+
+  /// Remove known Whisper hallucination artifacts from [text].
+  ///
+  /// Strips hallucinated phrases, URLs, and emoji that Whisper injects
+  /// (especially on Czech audio with silence or noise).
+  static String removeHallucinations(String text) {
+    if (text.isEmpty) return text;
+
+    String result = text;
+
+    // Remove URLs
+    result = result.replaceAll(_urlPattern, '');
+
+    // Remove emoji
+    result = result.replaceAll(_emojiPattern, '');
+
+    // Remove known hallucinated phrases (case-insensitive, diacritics-aware)
+    for (final phrase in _hallucinationPhrases) {
+      result = _removePhraseNormalized(result, phrase);
+    }
+
+    // Collapse whitespace and trim
+    result = result.replaceAll(RegExp(r'\s+'), ' ').trim();
+
+    return result;
+  }
+
+  /// Remove all occurrences of [normalizedPhrase] from [text] using
+  /// diacritics-stripped, case-insensitive comparison while removing the
+  /// matching span from the original text.
+  static String _removePhraseNormalized(String text, String normalizedPhrase) {
+    final List<String> words =
+        text.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+    final List<String> phraseWords = normalizedPhrase.split(' ');
+    final int phraseLen = phraseWords.length;
+
+    if (words.length < phraseLen) return text;
+
+    final keepers = <String>[];
+    int i = 0;
+    while (i < words.length) {
+      if (i + phraseLen <= words.length) {
+        bool match = true;
+        for (int j = 0; j < phraseLen; j++) {
+          if (_normalizeWord(words[i + j]) != phraseWords[j]) {
+            match = false;
+            break;
+          }
+        }
+        if (match) {
+          i += phraseLen;
+          continue;
+        }
+      }
+      keepers.add(words[i]);
+      i++;
+    }
+    return keepers.join(' ');
   }
 }

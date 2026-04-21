@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/constants.dart';
+import '../models/device_capability.dart';
 import '../models/session_state.dart';
 import '../providers/session_provider.dart';
 import '../services/report_service.dart';
@@ -286,8 +287,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               builder: (context, ref, _) {
                 final currentModel = ref.watch(transcriptionModelProvider);
                 final sessionState = ref.watch(sessionProvider);
+                final capability = ref.watch(deviceCapabilityProvider);
                 final isRecording =
                     sessionState.status == RecordingStatus.recording;
+                final turboBlocked =
+                    capability.turboStatus == TurboCapabilityStatus.blocked;
+                final turboDiscouraged =
+                    capability.turboStatus == TurboCapabilityStatus.discouraged;
+                final turboUnknown =
+                    capability.turboStatus == TurboCapabilityStatus.unknown;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -300,10 +308,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ButtonSegment(
                           value: TranscriptionModel.turbo,
                           label: Text(TranscriptionModel.turbo.label),
+                          enabled: !turboBlocked,
                         ),
                         ButtonSegment(
                           value: TranscriptionModel.cloud,
                           label: Text(TranscriptionModel.cloud.label),
+                        ),
+                        ButtonSegment(
+                          value: TranscriptionModel.hybrid,
+                          label: Text(TranscriptionModel.hybrid.label),
                         ),
                       ],
                       selected: {currentModel},
@@ -325,7 +338,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       currentModel.description,
                       style: theme.textTheme.bodySmall,
                     ),
-                    if (currentModel == TranscriptionModel.cloud) ...[
+                    if (turboBlocked &&
+                        currentModel != TranscriptionModel.turbo) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'Turbo bylo po předchozím selhání na tomto zařízení vypnuto.',
+                        style: theme.textTheme.bodySmall
+                            ?.copyWith(color: theme.colorScheme.error),
+                      ),
+                    ],
+                    if ((turboDiscouraged || turboUnknown) &&
+                        currentModel == TranscriptionModel.turbo) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'Turbo na tomto zařízení nebylo ověřeno — experimentální.',
+                        style: theme.textTheme.bodySmall
+                            ?.copyWith(color: theme.colorScheme.tertiary),
+                      ),
+                    ],
+                    if (currentModel == TranscriptionModel.cloud ||
+                        currentModel == TranscriptionModel.hybrid) ...[
                       const SizedBox(height: 12),
                       TextField(
                         controller: _azureWhisperUrlController,

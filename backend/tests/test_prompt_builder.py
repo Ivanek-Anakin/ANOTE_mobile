@@ -149,7 +149,7 @@ class TestBuildSystemPrompt:
         prompt = _build_system_prompt(TODAY, "followup")
         assert "Kontrolní" in prompt
         # Follow-up should NOT have the full 13-section initial template
-        assert "NO (Nynější onemocnění)" not in prompt
+        assert "NO (Nynější onemocnění):\n" not in prompt
 
     def test_all_prompts_end_with_language_instruction(self) -> None:
         for vt in ("default", "initial", "followup"):

@@ -1,0 +1,1704 @@
+
+================================================================================
+  TEST 1/13: 1. Short / simple (cold, headache)
+  Transcript length: 100 chars
+  Transcript (full):
+    Pacient přišel s bolestí hlavy a teplotou 38.5. Kašel a rýma trvají 3 dny. Doporučuji Paralen 500mg.
+================================================================================
+
+  >>> gpt-4-1-mini ...
+      3.2s | 679 chars | tokens: prompt=346, completion=271
+
+  >>> gpt-5-mini ...
+      54.0s | 845 chars | tokens: prompt=345, completion=1885
+
+  --- gpt-4-1-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Jméno: neuvedeno
+  - Věk: neuvedeno
+  - Datum návštěvy: 19. 04. 2026
+
+  NO (Nynější onemocnění):
+  - Bolest hlavy
+  - Teplota 38,5 °C
+  - Kašel a rýma trvající 3 dny
+
+  RA (Rodinná anamnéza):
+  - neuvedeno
+
+  OA (Osobní anamnéza):
+  - neuvedeno
+
+  FA (Farmakologická anamnéza):
+  - neuvedeno
+
+  AA (Alergologická anamnéza):
+  - neuvedeno
+
+  SA (Sociální anamnéza):
+  - neuvedeno
+
+  Objektivní nález:
+  - Teplota těla 38,5 °C
+  - Pacient subjektivně uvádí bolest hlavy a přítomnost kašle a rýmy
+
+  Hodnocení:
+  - Akutní infekční onemocnění pravděpodobně virového původu
+
+  Návrh vyšetření:
+  - neuvedeno
+
+  Návrh terapie:
+  - Paralen 500 mg dle potřeby
+
+  Pokyny a plán kontrol:
+  - neuvedeno
+
+  --- gpt-5-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Jméno / Věk / Datum návštěvy
+  - Jméno: neuvedeno
+  - Věk: neuvedeno
+  - Datum návštěvy: 19. 04. 2026
+
+  NO (Nynější onemocnění)
+  - Subjektivně: bolest hlavy; kašel a rýma trvají 3 dny.
+  - Objektivně (v rámci NO zmíněno): teplota 38.5.
+
+  RA (Rodinná anamnéza)
+  - neuvedeno
+
+  OA (Osobní anamnéza)
+  - neuvedeno
+
+  FA (Farmakologická anamnéza)
+  - neuvedeno
+
+  AA (Alergologická anamnéza)
+  - neuvedeno
+
+  SA (Sociální anamnéza)
+  - neuvedeno
+
+  Objektivní nález
+  - Teplota: 38.5 (jednotka neuvedena)
+  - Jiné objektivní nálezy: neuvedeno
+
+  Hodnocení
+  - Diagnóza/závěr: neuvedeno (v rozhovoru nebyla uvedena diagnóza). Shrnutí nálezu: bolest hlavy, horečka (38.5), kašel a rýma 3 dny.
+
+  Návrh vyšetření
+  - neuvedeno
+
+  Návrh terapie
+  - Paralen 500mg – doporučeno.
+  - Dávkování/frekvence/doba užívání: neuvedeno
+
+  Pokyny a plán kontrol
+  - neuvedeno
+
+================================================================================
+  TEST 2/13: 2. Follow-up (post pneumonia)
+  Transcript length: 487 chars
+  Transcript (full):
+    Dobrý den paní doktorko, přicházím na kontrolu. Minulý týden jsem měl zápal plic, byl jsem tady a dostal jsem antibiotika Augmentin. Bral jsem je pravidelně, horečka ustoupila asi po třech dnech. Teď už se cítím mnohem líp, ale pořád trochu kašlu, hlavně ráno. Dýchání je lepší, žádná bolest na hrudi. Spím lépe, jím normálně. Alergie na penicilin nemám, jiné léky neberu žádné. V rodině nikdo nemá plicní problémy. Nekouřím, alkohol příležitostně. Pracuji jako učitel na základní škole.
+================================================================================
+
+  >>> gpt-4-1-mini ...
+      3.8s | 1322 chars | tokens: prompt=471, completion=475
+
+  >>> gpt-5-mini ...
+      42.7s | 1438 chars | tokens: prompt=470, completion=1556
+
+  --- gpt-4-1-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:  
+  - Jméno: neuvedeno  
+  - Věk: neuvedeno  
+  - Datum návštěvy: 19. 04. 2026  
+
+  NO (Nynější onemocnění):  
+  - Pacient přichází na kontrolu po prodělaném zápalu plic před týdnem.  
+  - Byl léčen antibiotiky Augmentin, které užíval pravidelně.  
+  - Horečka ustoupila po třech dnech od začátku léčby.  
+  - Aktuálně se cítí lépe, přetrvává mírný ranní kašel.  
+  - Dýchání se zlepšilo, bez bolesti na hrudi.  
+  - Spánek a chuť k jídlu jsou v normě.  
+
+  RA (Rodinná anamnéza):  
+  - V rodině nejsou plicní nemoci.  
+
+  OA (Osobní anamnéza):  
+  - Neuvedeno jinak.  
+
+  FA (Farmakologická anamnéza):  
+  - Neuvedeno jiné léky mimo Augmentin při posledním onemocnění.  
+
+  AA (Alergologická anamnéza):  
+  - Alergie na penicilin není přítomna.  
+
+  SA (Sociální anamnéza):  
+  - Nekouří.  
+  - Alkohol užívá příležitostně.  
+  - Zaměstnání: učitel na základní škole.  
+
+  Objektivní nález:  
+  - Neuveden.  
+
+  Hodnocení:  
+  - Stav po antibiotické léčbě zápalu plic s ústupem horečky a zlepšením dýchání.  
+  - Přetrvávající mírný ranní kašel bez bolesti na hrudi, což je v rámci rekonvalescence.  
+
+  Návrh vyšetření:  
+  - Neuvedeno.  
+
+  Návrh terapie:  
+  - Pokračovat v monitoraci stavu, neuvádí se další medikace.  
+
+  Pokyny a plán kontrol:  
+  - Kontrola po týdnu nebo při zhoršení obtíží.  
+  - Doporučit dostatečný odpočinek a hydrataci.
+
+  --- gpt-5-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Jméno / Věk / Datum návštěvy
+  - Jméno: neuvedeno / Věk: neuvedeno / Datum návštěvy: 19. 04. 2026
+
+  NO (Nynější onemocnění)
+  - Subjektivně: Minulý týden měl pacient zápal plic, byl ošetřen a dostal antibiotikum Augmentin. Antibiotika užíval pravidelně. Horečka ustoupila asi po třech dnech. Aktuálně se cítí mnohem lépe, dýchání je lepší, přetrvává kašel, zejména ráno. Žádná bolest na hrudi. Spí lépe, jí normálně.
+
+  RA (Rodinná anamnéza)
+  - V rodině nikdo nemá plicní problémy.
+
+  OA (Osobní anamnéza)
+  - Chronická onemocnění / jiné relevantní nemoci: neuvedeno
+
+  FA (Farmakologická anamnéza)
+  - Užívá/užíval: Augmentin (antibiotikum), užíváno pravidelně.
+  - Jiné léky: neužívá žádné další léky.
+
+  AA (Alergologická anamnéza)
+  - Alergie na penicilin: nemá.
+  - Jiné alergie: neuvedeno
+
+  SA (Sociální anamnéza)
+  - Kouření: nekouří.
+  - Alkohol: příležitostně.
+  - Zaměstnání: učitel na základní škole.
+  - Ostatní sociální údaje: neuvedeno
+
+  Objektivní nález
+  - Neuvedeno (v záznamu nejsou uvedeny fyzikální nálezy, vitální funkce ani laboratorní/obrazová vyšetření).
+
+  Hodnocení
+  - Podle anamnézy pacient v průběhu minulého týdne prodělal zápal plic léčený Augmentinem. Subjektivně došlo ke zlepšení stavu s ústupem horečky přibližně po třech dnech; přetrvává kašel, převážně ranní. Dýchání subjektivně lepší, bez bolesti na hrudi.
+
+  Návrh vyšetření
+  - Neuvedeno
+
+  Návrh terapie
+  - Neuvedeno
+
+  Pokyny a plán kontrol
+  - Neuvedeno
+
+================================================================================
+  TEST 3/13: 3. Complex (angina + otitis, vitals, meds, allergy)
+  Transcript length: 785 chars
+  Transcript (full):
+    Tak pojďte dál, posaďte se. Co vás trápí? Hele doktore, já mám takový problém, bolí mě strašně v krku, nemůžu polykat, a mám horečku asi 39. To trvá od včerejška. A taky mě bolí uši, hlavně to pravé. Rozumím. A berete nějaké léky pravidelně? No, beru Enalapril na tlak, 10 miligramů, a pak Metformin na cukrovku, 500 dvakrát denně. A jste na něco alergický? Jo, na Biseptol, z toho dostanu vyrážku. Dobře. Tak se podíváme. Otevřete pusu... Tak tady vidím zarudlé mandle s bílými čepy. Uši - pravé ucho je zarudlé, bubínek zánětlivé změny. Teplota 39.1. Tlak 145 na 85. Tep 88. Váha 92 kilo. Výška 178. Tak to vypadá na angínu a ještě ten zánět středního ucha. Předepíšu vám antibiotika, Klarithromycin 500 dvakrát denně na 7 dní, a Ibuprofen 400 na bolest a horečku. Kontrola za týden.
+================================================================================
+
+  >>> gpt-4-1-mini ...
+      3.6s | 1136 chars | tokens: prompt=600, completion=430
+
+  >>> gpt-5-mini ...
+      48.4s | 1209 chars | tokens: prompt=599, completion=1823
+
+  --- gpt-4-1-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:  
+  - Jméno: neuvedeno  
+  - Věk: neuvedeno  
+  - Datum návštěvy: 19. 04. 2026  
+
+  NO (Nynější onemocnění):  
+  - Bolest v krku, výrazná, s obtížemi při polykání  
+  - Horečka cca 39 °C trvající od včerejška  
+  - Bolest uší, zejména pravého ucha  
+
+  RA (Rodinná anamnéza):  
+  - neuvedeno  
+
+  OA (Osobní anamnéza):  
+  - Hypertenze  
+  - Diabetes mellitus  
+
+  FA (Farmakologická anamnéza):  
+  - Enalapril 10 mg, pravidelně na tlak  
+  - Metformin 500 mg, 2× denně na cukrovku  
+
+  AA (Alergologická anamnéza):  
+  - Alergie na Biseptol (vyrážka)  
+
+  SA (Sociální anamnéza):  
+  - neuvedeno  
+
+  Objektivní nález:  
+  - Zarudlé mandle s bílými čepy  
+  - Pravé ucho zarudlé, bubínek s viditelnými zánětlivými změnami  
+  - Teplota 39,1 °C  
+  - Krevní tlak 145/85 mmHg  
+  - Tepová frekvence 88/min  
+  - Váha 92 kg  
+  - Výška 178 cm  
+
+  Hodnocení:  
+  - Angína s přítomností bolestivých krčních mandlí a horečky  
+  - Zánět středního ucha pravého ucha  
+
+  Návrh vyšetření:  
+  - Neuvedeno  
+
+  Návrh terapie:  
+  - Klarithromycin 500 mg, 2× denně, 7 dní  
+  - Ibuprofen 400 mg na bolest a horečku dle potřeby  
+
+  Pokyny a plán kontrol:  
+  - Kontrola za 7 dní
+
+  --- gpt-5-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Jméno / Věk / Datum návštěvy
+  - neuvedeno / neuvedeno / 19. 04. 2026
+
+  NO (Nynější onemocnění)
+  - Subjektivní údaje: Bolest v krku, neschopnost polykat, horečka asi 39 od včerejška, bolest uší zejména vpravo.
+  - Objektivní údaje (viz níže).
+
+  RA (Rodinná anamnéza)
+  - neuvedeno
+
+  OA (Osobní anamnéza)
+  - Užívá Enalapril na tlak (10 miligramů).
+  - Užívá Metformin na cukrovku (500 dvakrát denně).
+  - Jiné osobní anamnestické údaje neuvedeny.
+
+  FA (Farmakologická anamnéza)
+  - Enalapril 10 miligramů.
+  - Metformin 500 dvakrát denně.
+  - Léky předepsané při vyšetření: Klarithromycin 500 dvakrát denně na 7 dní; Ibuprofen 400 na bolest a horečku.
+
+  AA (Alergologická anamnéza)
+  - Alergie na Biseptol – vyrážka.
+
+  SA (Sociální anamnéza)
+  - neuvedeno
+
+  Objektivní nález
+  - Hrdlo: zarudlé mandle s bílými čepy.
+  - Uši: pravé ucho zarudlé, bubínek s zánětlivými změnami.
+  - Teplota: 39.1 °C.
+  - Krevní tlak: 145/85 mmHg.
+  - Tep: 88 /min.
+  - Váha: 92 kilo.
+  - Výška: 178 cm.
+
+  Hodnocení
+  - Angína.
+  - Zánět středního ucha (pravé ucho).
+
+  Návrh vyšetření
+  - neuvedeno
+
+  Návrh terapie
+  - Klarithromycin 500 dvakrát denně na 7 dní.
+  - Ibuprofen 400 na bolest a horečku.
+
+  Pokyny a plán kontrol
+  - Kontrola za týden.
+
+================================================================================
+  TEST 4/13: 4. Pediatric (bronchitis, 4yr girl)
+  Transcript length: 318 chars
+  Transcript (full):
+    Tak maminka přivedla holčičku, je jí 4 roky, má rýmu a kašel asi 5 dní. Horečka do 38 stupňů. Antibiotika zatím nedostávala. Alergie žádné. Poslechově pískoty oboustranně. Nález: oboustranná bronchitida. Předepisuji Mucosolvan sirup třikrát denně a inhalace Ventolinu. Kontrola za 3 dny, pokud se zhorší, přijít dříve.
+================================================================================
+
+  >>> gpt-4-1-mini ...
+      2.6s | 959 chars | tokens: prompt=425, completion=361
+
+  >>> gpt-5-mini ...
+      344.6s | 839 chars | tokens: prompt=424, completion=1559
+
+  --- gpt-4-1-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Jméno: neuvedeno
+  - Věk: 4 roky
+  - Datum návštěvy: 19. 04. 2026
+
+  NO (Nynější onemocnění):
+  - Rýma a kašel trvající přibližně 5 dní
+  - Horečka do 38 °C
+  - Antibiotika v minulosti neužívána
+  - Poslechově pískoty oboustranně
+  - Diagnóza: oboustranná bronchitida
+
+  RA (Rodinná anamnéza):
+  - neuvedeno
+
+  OA (Osobní anamnéza):
+  - neuvedeno
+
+  FA (Farmakologická anamnéza):
+  - dosud užívána žádná antibiotika
+
+  AA (Alergologická anamnéza):
+  - žádné alergie
+
+  SA (Sociální anamnéza):
+  - neuvedeno
+
+  Objektivní nález:
+  - Poslechově oboustranné pískoty
+  - Klinické příznaky oboustranné bronchitidy
+
+  Hodnocení:
+  - Oboustranná bronchitida se středně vysokou horečkou a respiračním průběhem s pískoty
+
+  Návrh vyšetření:
+  - Neuvedeno (v rámci kontroly sledování klinického stavu)
+
+  Návrh terapie:
+  - Mucosolvan sirup, dávkování 3× denně
+  - Inhalace Ventolinu
+
+  Pokyny a plán kontrol:
+  - Kontrola za 3 dny
+  - V případě zhoršení stavu doporučeno dostavit se dříve
+
+  --- gpt-5-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Jméno / Věk / Datum návštěvy
+  - Jméno: neuvedeno / Věk: 4 roky / Datum návštěvy: 19. 04. 2026
+
+  NO (Nynější onemocnění)
+  - Subjektivní údaje: rýma a kašel asi 5 dní, horečka do 38 stupňů (údaj od matky). Antibiotika zatím nedostávala.
+
+  RA (Rodinná anamnéza)
+  - neuvedeno
+
+  OA (Osobní anamnéza)
+  - neuvedeno
+
+  FA (Farmakologická anamnéza)
+  - Antibiotika: zatím nedostávala
+  - Ostatní medikace: neuvedeno
+
+  AA (Alergologická anamnéza)
+  - Alergie žádné
+
+  SA (Sociální anamnéza)
+  - neuvedeno
+
+  Objektivní nález
+  - Poslechově pískoty oboustranně
+  - Nález: oboustranná bronchitida
+
+  Hodnocení
+  - Oboustranná bronchitida
+
+  Návrh vyšetření
+  - neuvedeno
+
+  Návrh terapie
+  - Předepsáno: Mucosolvan sirup třikrát denně
+  - Předepsáno: inhalace Ventolinu
+
+  Pokyny a plán kontrol
+  - Kontrola za 3 dny
+  - Pokud se stav zhorší, přijít dříve
+
+================================================================================
+  TEST 5/13: 5. Minimal (stomach pain only)
+  Transcript length: 84 chars
+  Transcript (full):
+    Bolí mě břicho, hlavně nahoře uprostřed, po jídle se to zhoršuje. Trvá to asi týden.
+================================================================================
+
+  >>> gpt-4-1-mini ...
+      3.8s | 1275 chars | tokens: prompt=337, completion=454
+
+  >>> gpt-5-mini ...
+      24.0s | 851 chars | tokens: prompt=336, completion=844
+
+  --- gpt-4-1-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Jméno: neuvedeno
+  - Věk: neuvedeno
+  - Datum návštěvy: 19. 04. 2026
+
+  NO (Nynější onemocnění):
+  Pacient si stěžuje na bolest břicha, lokalizovanou nahoře uprostřed. Bolest se zhoršuje po jídle. Potíže trvají přibližně týden.
+
+  RA (Rodinná anamnéza):
+  neuvedeno
+
+  OA (Osobní anamnéza):
+  neuvedeno
+
+  FA (Farmakologická anamnéza):
+  neuvedeno
+
+  AA (Alergologická anamnéza):
+  neuvedeno
+
+  SA (Sociální anamnéza):
+  neuvedeno
+
+  Objektivní nález:
+  neuvedeno
+
+  Hodnocení:
+  Bolest epigastria s postprandiálním zhoršením trvající týden. Diferenciálně diagnosticky je nutné zvážit gastrointestinální příčiny, např. gastritidu, refluxní chorobu jícnu či případné komplikace v nadbřišku.
+
+  Návrh vyšetření:
+  - Fyzikální vyšetření břicha.
+  - Laboratorní testy (zejména základní krevní obraz, zánětlivé markery).
+  - Eventuálně gastroskopie.
+  - Ultrazvuk břicha.
+
+  Návrh terapie:
+  - Zatím není indikována specifická terapie bez dalšího vyšetření.
+  - Doporučení dietních opatření (lehčí strava, vyhýbat se dráždivým jídlům).
+  - Symptomatická léčba dle potřeby (např. antacida).
+
+  Pokyny a plán kontrol:
+  - Kontrola za 7-10 dní nebo dříve při zhoršení stavu.
+  - Pacient vyzván k akutnímu kontaktu při rozvoji alarmujících příznaků (např. silná bolest, zvracení krve, výrazné hubnutí).
+
+  --- gpt-5-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Jméno / Věk / Datum návštěvy
+  - Jméno: neuvedeno
+  - Věk: neuvedeno
+  - Datum návštěvy: 19. 04. 2026
+
+  NO (Nynější onemocnění)
+  - Subjektivní údaje: Bolest břicha lokalizovaná nahoře uprostřed (epigastrium). Bolest se zhoršuje po jídle. Trvá asi týden.
+  - Objektivní údaje: neuvedeno
+
+  RA (Rodinná anamnéza)
+  - neuvedeno
+
+  OA (Osobní anamnéza)
+  - neuvedeno
+
+  FA (Farmakologická anamnéza)
+  - neuvedeno
+
+  AA (Alergologická anamnéza)
+  - neuvedeno
+
+  SA (Sociální anamnéza)
+  - neuvedeno
+
+  Objektivní nález
+  - neuvedeno
+
+  Hodnocení
+  - Subjektivní nález: epigastrická bolest trvající přibližně 1 týden, zhoršující se po jídle.
+  - Přesná diagnóza není v přepisu uvedena a na základě poskytnutých informací nelze jednoznačně stanovit příčinu bolesti.
+
+  Návrh vyšetření
+  - neuvedeno
+
+  Návrh terapie
+  - neuvedeno
+
+  Pokyny a plán kontrol
+  - neuvedeno
+
+================================================================================
+  TEST 6/13: 6. Cardiology emergency (chest pain, ECG)
+  Transcript length: 468 chars
+  Transcript (full):
+    Pacient muž 62 let přivezen záchrankou s bolestí na hrudi, trvá asi 2 hodiny, svíravá bolest za hrudní kostí s propagací do levé ruky. Pocení, nauzea. Anamnéza: hypertenze, hyperlipidémie, kouří 20 cigaret denně 30 let. Léky: Prestarium 5mg, Atorvastatin 20mg, Anopyrin 100mg. EKG: elevace ST ve svodech II, III, aVF. Troponin pozitivní. Diagnóza: akutní infarkt myokardu spodní stěny. Zahájena duální antiagregace, heparin, překlad na katetrizační sál k urgentní PCI.
+================================================================================
+
+  >>> gpt-4-1-mini ...
+      3.7s | 1101 chars | tokens: prompt=476, completion=399
+
+  >>> gpt-5-mini ...
+      54.0s | 1027 chars | tokens: prompt=475, completion=2194
+
+  --- gpt-4-1-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Jméno: neuvedeno
+  - Věk: 62 let
+  - Datum návštěvy: 19. 04. 2026
+
+  NO (Nynější onemocnění):
+  Pacient přivezen záchrannou službou s bolestí na hrudi trvající přibližně 2 hodiny. Bolest svíravá za hrudní kostí s propagací do levé ruky, doprovázená pocením a nauzeou.
+
+  RA (Rodinná anamnéza):
+  neuvedeno
+
+  OA (Osobní anamnéza):
+  Hypertenze, hyperlipidémie, kouření 20 cigaret denně po dobu 30 let.
+
+  FA (Farmakologická anamnéza):
+  Prestarium 5 mg, Atorvastatin 20 mg, Anopyrin 100 mg.
+
+  AA (Alergologická anamnéza):
+  neuvedeno
+
+  SA (Sociální anamnéza):
+  Kouření 20 cigaret denně po dobu 30 let.
+
+  Objektivní nález:
+  EKG ukazuje elevaci ST segmentu ve svodech II, III a aVF. Troponin pozitivní.
+
+  Hodnocení:
+  Akutní infarkt myokardu spodní stěny potvrzený klinickými příznaky, EKG změnami a zvýšeným troponinem.
+
+  Návrh vyšetření:
+  Neuvedeno (probíhá urgentní kardiální katetrizace).
+
+  Návrh terapie:
+  Zahájena duální antiagregace, podán heparin, překlad na katetrizační sál k urgentní perkutánní koronární intervence (PCI).
+
+  Pokyny a plán kontrol:
+  Neuvedeno (pokračování léčby po PCI).
+
+  --- gpt-5-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Jméno / Věk / Datum návštěvy
+  - Jméno: neuvedeno / Věk: 62 let / Datum návštěvy: 19. 04. 2026
+
+  NO (Nynější onemocnění)
+  - Subjektivně: bolest na hrudi trvající asi 2 hodiny, svíravá bolest za hrudní kostí s propagací do levé ruky, pocení, nauzea.
+
+  RA (Rodinná anamnéza)
+  - neuvedeno
+
+  OA (Osobní anamnéza)
+  - Hypertenze
+  - Hyperlipidémie
+
+  FA (Farmakologická anamnéza)
+  - Prestarium 5 mg
+  - Atorvastatin 20 mg
+  - Anopyrin 100 mg
+
+  AA (Alergologická anamnéza)
+  - neuvedeno
+
+  SA (Sociální anamnéza)
+  - Kouření 20 cigaret denně, 30 let
+
+  Objektivní nález
+  - Přivezen záchrankou
+  - EKG: elevace ST ve svodech II, III, aVF
+  - Troponin: pozitivní
+  - Zahájena duální antiagregace, podán heparin
+  - Překlad na katetrizační sál k urgentní PCI
+  - Vital signs / fyzikální vyšetření: neuvedeno
+
+  Hodnocení
+  - Diagnóza: akutní infarkt myokardu spodní stěny
+
+  Návrh vyšetření
+  - neuvedeno
+
+  Návrh terapie
+  - Zahájena duální antiagregace a heparin
+  - Překlad na katetrizační sál k urgentní PCI
+
+  Pokyny a plán kontrol
+  - neuvedeno
+
+================================================================================
+  TEST 7/13: 7. Pediatric checkup (Tomášek, preventivní)
+  Transcript length: 1199 chars
+  Transcript (full):
+    Dobrý den, pojďte dál. Tak to je Tomášek, viďte? Ahoj, Tomáši.
+    Dobrý den, doktorko. Jdeme na tu preventivní prohlídku.
+    Ahoj.
+    Tak jak se máš, Tomáši? Chodíš do školy rád?
+    Jo, chodím do druhé třídy. Máme novou učitelku.
+    Prospívá dobře, žádné problémy ve škole nemá, adaptoval se bez potíží.
+    To je výborné. A jak je na tom se sportem?
+    Chodí na plavání dvakrát týdně a hraje fotbal v oddíle.
+    Skvělé. Tak pojď, Tomáši, zvážíme tě a změříme. Tak, dvacet čtyři kilo, výška sto dvacet dva centimetrů, to je krásně v normě pro jeho věk.
+    To mě těší.
+    Očkování má aktuální podle kalendáře, to jsem si ověřila. Teď se kouknu na oči a uši. Tomáši, přečti mi tyhle písmenka na tabuli. Výborně, zrak je v pořádku. Sluch taky bez problémů. Otevři pusu, ááá. Mlékový chrup se stálými prvními moláry, zuby vypadají dobře, ale doporučila bych zajít na preventivní prohlídku k zubaři.
+    Dobře, objednáme se.
+    Nějaké alergie, paní Krejčí? Na jídlo, léky?
+    Ne, žádné alergie nemá. Jí dobře, vyváženou stravu.
+    Výborně. Tomáši, ty jsi šikovný kluk. Všechno je v naprostém pořádku. Pokračujte v tom zdravém životním stylu, sporty, strava, to je přesně ono. Další kontrolu uděláme za rok.
+    Děkujeme, doktorko. Na shledanou.
+    Nashle!
+================================================================================
+
+  >>> gpt-4-1-mini ...
+      4.4s | 1187 chars | tokens: prompt=762, completion=454
+
+  >>> gpt-5-mini ...
+      55.6s | 2141 chars | tokens: prompt=761, completion=2268
+
+  --- gpt-4-1-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Jméno: Tomášek
+  - Věk: neuvedeno (chodí do druhé třídy, přibližně 7–8 let)
+  - Datum návštěvy: 19. 04. 2026
+
+  NO (Nynější onemocnění)
+  - Pacient bez subjektivních potíží, v dobrém zdravotním stavu.
+
+  RA (Rodinná anamnéza)
+  - neuvedeno
+
+  OA (Osobní anamnéza)
+  - Adaptace ve škole bez problémů, žádné školní obtíže.
+  - Chodí do druhé třídy.
+  - Aktivní, sportuje – plavání 2x týdně, hraje fotbal v oddíle.
+  - Strava vyvážená.
+
+  FA (Farmakologická anamnéza)
+  - neuvedeno
+
+  AA (Alergologická anamnéza)
+  - Bez alergií na léky či potraviny.
+
+  SA (Sociální anamnéza)
+  - neuvedeno
+
+  Objektivní nález
+  - Váha: 24 kg
+  - Výška: 122 cm
+  - Stav očí: zrak v normě (vyšetření čtením písmen na tabuli)
+  - Sluch bez problémů
+  - Orální stav: mléčný chrup se stálými prvními moláry, zuby v pořádku, doporučena preventivní prohlídka u zubaře
+  - Očkování aktuální dle kalendáře
+
+  Hodnocení
+  - Vše v normě pro věk pacienta
+  - Dobrá tělesná kondice a fyzická aktivita
+  - Očkování kompletní
+  - Bez alergií
+
+  Návrh vyšetření
+  - Preventivní prohlídka u zubaře
+
+  Návrh terapie
+  - Pokračovat ve zdravém životním stylu (sporty, vyvážená strava)
+
+  Pokyny a plán kontrol
+  - Kontrola za 1 rok preventivní prohlídky
+
+  --- gpt-5-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Jméno: Tomášek
+  - Věk: neuvedeno
+  - Datum návštěvy: 19. 04. 2026
+
+  NO (Nynější onemocnění)
+  - Subjektivně: preventivní prohlídka, bez stížností. Prospívá dobře, žádné problémy ve škole, adaptoval se bez potíží. Chodí do druhé třídy. Chodí na plavání 2× týdně a hraje fotbal v oddíle. Jí dobře, vyváženou stravu.
+  - Objektivně: neuvedeno (viz oddíl Objektivní nález).
+
+  RA (Rodinná anamnéza)
+  - neuvedeno
+
+  OA (Osobní anamnéza)
+  - Očkování: aktuální podle očkovacího kalendáře (ověřeno lékařkou).
+  - Zubní: mléčný chrup se stálými prvními moláry, zuby vypadají dobře; doporučena preventivní prohlídka u zubaře.
+  - Jiné historické údaje (nemoci, operace, hospitalizace, průběh těhotenství apod.): neuvedeno
+
+  FA (Farmakologická anamnéza)
+  - neuvedeno
+
+  AA (Alergologická anamnéza)
+  - Žádné alergie (subjektivně uvádí matka).
+
+  SA (Sociální anamnéza)
+  - Chodí do školy (2. třída). Sportuje: plavání 2× týdně, fotbal v oddíle. Strava: vyvážená.
+
+  Objektivní nález
+  - Hmotnost: 24 kg
+  - Výška: 122 cm
+  - Zrak: bez patologického nálezu při orientačním vyšetření (přečetl písmena na tabuli).
+  - Sluch: bez problémů (orientační vyšetření).
+  - Ústní dutina: mléčný chrup se stálými prvními moláry, zuby celkově v pořádku.
+  - Očkování: aktuální podle kalendáře (ověřeno).
+  - Jiné vyšetření / vitální funkce (TK, puls, teplota apod.): neuvedeno
+
+  Hodnocení
+  - Preventivní prohlídka bez patologických nálezů.
+  - Somatický vývoj v rámci normy pro věk (vypočteno dle hmotnosti a výšky dle lékařova hodnocení).
+  - Očkování aktuální. Žádné známé alergie.
+  - Doporučení zubního vyšetření k preventivní kontrole.
+
+  Návrh vyšetření
+  - Preventivní prohlídka u zubaře (objednání plánováno).
+  - Jiná doplňující vyšetření nebyla navržena.
+
+  Návrh terapie
+  - Žádná farmakoterapie nebyla indikována.
+  - Doporučení pokračovat ve fyzické aktivitě (plavání, fotbal) a v dodržování vyvážené stravy.
+
+  Pokyny a plán kontrol
+  - Doporučeno zajít na preventivní prohlídku k zubaři (objednání bude provedeno).
+  - Kontrola: opakovaná preventivní prohlídka za 1 rok.
+  - Instrukce pro rodiče: pokračovat v dosavadním zdravém životním stylu; v případě potíží dřívější kontrola.
+
+================================================================================
+  TEST 8/13: 8. Food poisoning (mořské plody)
+  Transcript length: 1212 chars
+  Transcript (full):
+    Dobrý den, pojďte dál, posaďte se. Co se vám stalo?
+
+    Dobrý den, doktore. Je mi strašně špatně od rána, zvracím a mám průjem. Nemůžu nic udržet.
+
+    Od kdy přesně to trvá?
+
+    Začalo to kolem šesté ráno. Večer jsme byli s přítelem v restauraci na večeři, dala jsem si mořské plody.
+
+    A přítel má podobné potíže?
+
+    Ano, taky zvrací, ale ne tak hrozně jako já. Zůstal doma.
+
+    Kolik vám je let?
+
+    Dvacet osm.
+
+    Berete nějaké léky? Máte na něco alergii?
+
+    Ne, nic neužívám a alergii nemám.
+
+    Tak se na vás podívám. Změřím teplotu, máte třicet sedm celá osm. Tlak sto na šedesát pět, puls devadesát pět. Vidím, že jste trochu dehydratovaná, 
+    máte suché sliznice. Lehněte si, prohmatám vám břicho. Bolí to tady?
+
+    Jo, celé břicho je citlivé, ale nejvíc tady dole.
+
+    Břicho je měkké, citlivé difúzně, slyším zvýšenou peristaltiku. Paní Horáková, jedná se o alimentární intoxikaci, tedy otravu z jídla, pravděpodobně z těch 
+    mořských plodů. Potřebujete hlavně doplnit tekutiny. Předepíšu vám rehydratační roztoky, budete pít po malých doušcích často. K tomu probiotika a lehká dieta, 
+    rýže, banány, suchary. Kdyby se vám do dvaceti čtyř hodin neudělalo lépe nebo by se přidaly vysoké teploty, přijďte hned na kontrolu.
+
+    Děkuji, doktore.
+================================================================================
+
+  >>> gpt-4-1-mini ...
+      5.2s | 1495 chars | tokens: prompt=751, completion=558
+
+  >>> gpt-5-mini ...
+      62.4s | 1376 chars | tokens: prompt=750, completion=2586
+
+  --- gpt-4-1-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:  
+  - Jméno: neuvedeno  
+  - Věk: 28 let  
+  - Datum návštěvy: 19. 04. 2026  
+
+  NO (Nynější onemocnění):  
+  - Subjektivně: od rána nevolnost, zvracení, průjem, nemožnost udržet potravu. Náhlý začátek kolem 6. hodiny ráno. Večer před nástupem příznaků konzumace mořských plodů v restauraci. Pacientka uvádí i podobné, ale mírnější obtíže u přítele.  
+  - Objektivně: tělesná teplota 37,8 °C, krevní tlak 100/65 mmHg, puls 95/min. Suché sliznice dle klinického vyšetření (znaky dehydratace). Břicho měkké, difúzně citlivé s nejvýraznější bolestivostí v dolní oblasti břicha, zvýšená peristaltika.  
+
+  RA (Rodinná anamnéza): neuvedeno  
+
+  OA (Osobní anamnéza): neuvedeno  
+
+  FA (Farmakologická anamnéza): pacientka neužívá žádné léky  
+
+  AA (Alergologická anamnéza): bez alergií  
+
+  SA (Sociální anamnéza): neuvedeno  
+
+  Objektivní nález:  
+  - Teplota: 37,8 °C  
+  - TK: 100/65 mmHg  
+  - Puls: 95/min  
+  - Suché sliznice (dehydratace)  
+  - Břicho měkké, difúzně citlivé, bolestivost v dolní části, zvýšená peristaltika  
+
+  Hodnocení:  
+  - Pravděpodobná alimentární intoxikace (otrava z jídla) po konzumaci mořských plodů.  
+
+  Návrh vyšetření:  
+  - Neuvedeno  
+
+  Návrh terapie:  
+  - Doplnění tekutin – používání rehydratačních roztoků po malých částečných doušcích často.  
+  - Podání probiotik.  
+  - Dodržování lehké diety (rýže, banány, suchary).  
+
+  Pokyny a plán kontrol:  
+  - Pokud do 24 hodin nedojde ke zlepšení nebo se přidají vysoké teploty, pacientka má okamžitě přijít na kontrolu.
+
+  --- gpt-5-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Jméno / Věk / Datum návštěvy
+  - Horáková / 28 let / 19. 04. 2026
+
+  NO (Nynější onemocnění)
+  - Subjektivně: Od rána nauzea, zvracení, průjem, „nemůžu nic udržet“. Začátek kolem 6:00. Večer předtím konzumace mořských plodů v restauraci. Přítel má podobné potíže, méně výrazné.
+  - Objektivně: viz sekce „Objektivní nález“.
+
+  RA (Rodinná anamnéza)
+  - Neuvedeno
+
+  OA (Osobní anamnéza)
+  - Neuvedeno
+
+  FA (Farmakologická anamnéza)
+  - Pacientka neužívá žádné léky.
+
+  AA (Alergologická anamnéza)
+  - Pacientka uvádí, že žádné alergie nemá.
+
+  SA (Sociální anamnéza)
+  - Večer byla s přítelem v restauraci, konzumovala mořské plody; přítel má podobné potíže. Jiné sociální údaje neuvedeny.
+
+  Objektivní nález
+  - Tělesná teplota: 37,8 °C
+  - Krevní tlak: 100/65 mmHg
+  - Srdeční frekvence: 95/min
+  - Stav hydratace: viditelně trocha dehydratace, suché sliznice
+  - Břicho: měkké, difúzně citlivé, nejvíce v dolní části břicha; zvýšená peristaltika
+
+  Hodnocení
+  - Alimentární intoxikace (otrava z jídla), pravděpodobně z mořských plodů.
+  - Trocha dehydratace.
+
+  Návrh vyšetření
+  - Neuvedeno
+
+  Návrh terapie
+  - Předepisuje se rehydratační roztoky (perorální rehydratace).
+  - Probiotika.
+  - Lehká dieta: rýže, banány, suchary.
+  - Doporučení: pít po malých doušcích často.
+
+  Pokyny a plán kontrol
+  - Pokud se do 24 hodin nezlepší nebo se přidají vysoké teploty, přijít ihned na kontrolu.
+
+================================================================================
+  TEST 9/13: 9. Respiratory infection (pneumonie)
+  Transcript length: 1216 chars
+  Transcript (full):
+    Dobrý den, paní Svobodová. Pojďte dál, posaďte se. Co vás k nám přivádí?
+
+    Dobrý den, doktorko. Už pět dní kašlu a špatně se mi dýchá. Nemůžu to přejít, pořád se to zhoršuje.
+
+    Máte teploty?
+
+    Ano, měřila jsem si doma, bylo mi až třicet osm a půl. A jsem strašně unavená, bolí mě v krku.
+
+    Začalo to nějak náhle, nebo postupně?
+
+    Vlastně dost náhle. V práci byl kolega nemocný minulý týden, tak jsem to asi chytila od něj.
+
+    Rozumím. Kouříte?
+
+    Ne, nikdy jsem nekouřila.
+
+    Léčíte se s něčím chronicky? Berete nějaké léky?
+
+    Ne, nic neužívám, jsem zdravá. Je mi třicet čtyři.
+
+    Alergie na léky?
+
+    Ne, žádné.
+
+    Dobře, tak vás teď poslechnu. Nadechněte se zhluboka a vydechněte. Ještě jednou. Tak, slyším vlhké chrůpky vpravo na bázi plic. 
+    Změříme saturaci, máte devadesát šest procent, teplota třicet osm celá jedna. Kašel je produktivní, vykašláváte něco?
+
+    Ano, takový žlutozelený hlen.
+
+    Paní Svobodová, podle nálezu máte zápal plic, konkrétně komunitní pneumonii na pravé straně. Předepíšu vám antibiotika, amoxicilin s klavulanátem, 
+    osmset sedmdesát pět lomeno sto dvacet pět miligramů, budete je brát dvakrát denně sedm dní. Důležitý je klid, hodně pijte. Přijďte na kontrolu za pět dní, 
+    nebo dříve, kdyby se vám přitížilo.
+================================================================================
+
+  >>> gpt-4-1-mini ...
+      3.4s | 1114 chars | tokens: prompt=761, completion=443
+
+  >>> gpt-5-mini ...
+      55.1s | 1819 chars | tokens: prompt=760, completion=2229
+
+  --- gpt-4-1-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Jméno: paní Svobodová
+  - Věk: 34 let
+  - Datum návštěvy: 19. 04. 2026
+
+  NO (Nynější onemocnění)
+  - Doba trvání: 5 dní
+  - Příznaky: kašel, dušnost, únava, bolest v krku, produktivní kašel s vykašláváním žlutozeleného hlenu
+  - Teplota: do 38,5 °C měřená doma, při vyšetření 38,1 °C
+  - Náhlý začátek onemocnění
+  - Kontakt s nemocným kolegou v práci předám týdnem
+
+  RA (Rodinná anamnéza)
+  - Neuvedeno
+
+  OA (Osobní anamnéza)
+  - Chronická onemocnění: neuvedeno, pacientka je zdravá
+  - Kouření: nikdy nekouřila
+
+  FA (Farmakologická anamnéza)
+  - Neužívá žádné léky
+
+  AA (Alergologická anamnéza)
+  - Alergie na léky: žádné
+
+  SA (Sociální anamnéza)
+  - Neuvedeno
+
+  Objektivní nález
+  - Poslech plic: vlhké chrůpky vpravo na bázi plic
+  - Saturace kyslíku: 96 %
+  - Teplota: 38,1 °C
+
+  Hodnocení
+  - Diagnóza: komunitní pneumonie na pravé straně
+
+  Návrh vyšetření
+  - Neuvedeno další vyšetření
+
+  Návrh terapie
+  - Antibiotika: amoxicilin s klavulanátem 875/125 mg, 2x denně, po dobu 7 dní
+  - Doporučení: klid na lůžku, dostatečný příjem tekutin
+
+  Pokyny a plán kontrol
+  - Kontrola za 5 dní nebo dříve v případě zhoršení stavu
+
+  --- gpt-5-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Jméno / Věk / Datum návštěvy
+  - Svobodová / 34 let / 19. 04. 2026
+
+  NO (Nynější onemocnění)
+  - Trvání: 5 dní.
+  - Hlavní potíže (subjektivně): kašel, dušnost, únava, bolest v krku.
+  - Kašel: produktivní, pacientka udává žlutozelený hlen.
+  - Horečka: pacientka měřila doma až 38,5 °C; v ordinaci naměřena teplota 38,1 °C.
+  - Průběh: začalo náhle, postupné zhoršování.
+  - Možná expozice: v práci byl minulý týden nemocný kolega (pacientka uvádí pravděpodobné nakažení).
+  - Další subjektivní údaje: nemožnost „to přejít“, stav se zhoršuje.
+
+  RA (Rodinná anamnéza)
+  - neuvedeno
+
+  OA (Osobní anamnéza)
+  - Chronická onemocnění: pacientka uvádí, že je zdravá (žádná chronická onemocnění neuvedena).
+  - Kouření: nikdy nekouřila.
+  - Jiné informace (operace, chronické nemoci): neuvedeno
+
+  FA (Farmakologická anamnéza)
+  - Užívání léků: neuvedeno (pacientka uvedla „ne, nic neužívám“)
+
+  AA (Alergologická anamnéza)
+  - Alergie na léky: pacientka uvedla „ne, žádné“
+
+  SA (Sociální anamnéza)
+  - Pracovní kontakt: v práci byl minulý týden nemocný kolega (pacientka uvádí možný přenos).
+  - Kouření: nikdy nekouřila (viz OA).
+  - Ostatní sociální údaje (zaměstnání, bydlení, alkohol apod.): neuvedeno
+
+  Objektivní nález
+  - Vyzvánění plic: slyšitelné vlhké chrůpky vpravo na bázi plic.
+  - SpO2: 96 %.
+  - Teplota (v ordinaci): 38,1 °C.
+  - Krevní tlak, tepová frekvence, dechová frekvence: neuvedeno
+  - Jiné fyzikální nálezy: neuvedeno
+
+  Hodnocení
+  - Diagnóza: komunitní pneumonie, pravostranná (komunitní pneumonie na pravé straně).
+
+  Návrh vyšetření
+  - neuvedeno
+
+  Návrh terapie
+  - Antibiotikum: amoxicilin s klavulanátem 875/125 mg, 2× denně, po dobu 7 dní.
+  - Doporučení: klid na lůžku, dostatečný příjem tekutin.
+
+  Pokyny a plán kontrol
+  - Kontrola: přijít na kontrolu za 5 dní, nebo dříve v případě zhoršení příznaků („přitížilo“).
+
+================================================================================
+  TEST 10/13: 10. Cardiac ER (infarkt, urgentní)
+  Transcript length: 1047 chars
+  Transcript (full):
+    Dobrý den, já jsem doktor Procházka, jste na urgentním příjmu. Můžete mi říct, co se stalo?
+    Dobrý den, doktore. Strašně mě bolí na hrudi, začalo to asi před půl hodinou. Nemůžu se pořádně nadechnout.
+    Kde přesně tu bolest cítíte? Vyzařuje někam?
+    Tady uprostřed, ale táhne mi to do levé ruky a je mi hrozně špatně, potím se.
+    Rozumím. Kolik vám je let?
+    Osmdesát... ne, padesát osm. Promiňte, nemůžu se soustředit.
+    To je v pořádku. Berete nějaké léky pravidelně?
+    Jenom aspirin stovku, předepsal mi ho obvoďák jako prevenci.
+    Máte alergii na nějaké léky?
+    Ne, na nic.
+    Tak teď vás vyšetřím. Sestřičko, změřte prosím tlak a natočte EKG. Takže tlak máte 150 na 95, puls 98, nepravidelný. Na EKG vidím elevaci ST segmentu ve svodech II, III a aVF.
+    Co to znamená, doktore? Je to vážné?
+    Pane Nováku, máte akutní infarkt myokardu, konkrétně spodní stěny srdce. Musíme jednat rychle. Dáme vám heparin a nitráty a okamžitě vás převezeme na katetrizační sál, kde provedeme koronární angiografii. Sestřičko, volejte katetrizační tým a připravte pacienta na překlad.
+================================================================================
+
+  >>> gpt-4-1-mini ...
+      3.6s | 1051 chars | tokens: prompt=683, completion=392
+
+  >>> gpt-5-mini ...
+      49.8s | 1467 chars | tokens: prompt=682, completion=1892
+
+  --- gpt-4-1-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Jméno: neuvedeno (osoba oslovena jako pane Nováku)
+  - Věk: 58 let
+  - Datum návštěvy: 19. 04. 2026
+
+  NO (Nynější onemocnění)
+  - Bolest na hrudi uprostřed, začala před cca 30 minutami
+  - Bolest vyzařující do levé ruky
+  - Dušnost, pocení, celková nevolnost
+  - Puls nepravidelný
+
+  RA (Rodinná anamnéza)
+  - neuvedeno
+
+  OA (Osobní anamnéza)
+  - neuvedeno
+
+  FA (Farmakologická anamnéza)
+  - Aspirin 100 mg denně jako prevence (předepsán praktickým lékařem)
+
+  AA (Alergologická anamnéza)
+  - Bez známých alergií na léky
+
+  SA (Sociální anamnéza)
+  - neuvedeno
+
+  Objektivní nález
+  - Krevní tlak 150/95 mmHg
+  - Puls 98 /min, nepravidelný
+  - EKG: elevace ST segmentu ve svodech II, III a aVF
+
+  Hodnocení
+  - Akutní infarkt myokardu spodní stěny
+
+  Návrh vyšetření
+  - Koronární angiografie na katetrizačním sále
+
+  Návrh terapie
+  - Podání heparinu
+  - Podání nitroglycerinu (nitráty)
+  - Okamžitý převoz na katetrizační sál
+
+  Pokyny a plán kontrol
+  - Připravení pacienta na urgentní transfer na katetrizační sál
+  - Následná péče dle výsledků koronární angiografie
+
+  --- gpt-5-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Novák / 58 let / 19. 04. 2026
+
+  NO (Nynější onemocnění)
+  - Subjektivně: bolest na hrudi začala cca před půl hodinou, lokalizace uprostřed hrudníku, vyzařování do levé ruky, dušnost („nemůžu se pořádně nadechnout“), pocení („potím se“), celkově „je mi hrozně špatně“. Při vyšetření porucha koncentrace (nejprve uvedl věk chybně).
+
+  RA (Rodinná anamnéza)
+  - neuvedeno
+
+  OA (Osobní anamnéza)
+  - neuvedeno
+
+  FA (Farmakologická anamnéza)
+  - chronicky užívá aspirin 100 mg (předepsal obvodní lékař jako prevence)
+  - ostatní léky neuvedeny
+
+  AA (Alergologická anamnéza)
+  - bez známých alergií na léky („Ne, na nic.“)
+
+  SA (Sociální anamnéza)
+  - neuvedeno
+
+  Objektivní nález
+  - Krevní tlak: 150/95 mmHg
+  - Puls: 98/min, nepravidelný
+  - EKG: elevace ST segmentu ve svodech II, III a aVF
+  - Jiné objektivní nálezy neuvedeny
+
+  Hodnocení
+  - Akutní infarkt myokardu, typicky spodní stěny srdce (inferiorní STEMI), na základě kliniky a ST elevací ve svodech II, III, aVF.
+
+  Návrh vyšetření
+  - Okamžitá koronární angiografie (převoz na katetrizační sál, vyžádání katetrizačního týmu)
+  - Další vyšetření neuvedena
+
+  Návrh terapie
+  - Podání heparinu (dávka neuvedena)
+  - Podání nitrá­tů (forma/dávka neuvedena)
+  - Okamžitý překlad pacienta na katetrizační sál k provedení koronární angiografie
+
+  Pokyny a plán kontrol
+  - Volejte katetrizační tým a připravte pacienta na překlad na katetrizační sál (pokyn zadán při vyšetření)
+  - Dálší plán kontrol/pooperační péče neuveden
+
+================================================================================
+  TEST 11/13: 11. LONG: Hurvínek – Nachlazení (6.6KB)
+  Transcript length: 5849 chars
+  Transcript (full):
+    ♪ Stůně myš i slůně, to jistě dobře víš, ♪ ♪ a když máš smůlu smůlovatou, i ty ochoříš. ♪ ♪ Když stůně myš, je to potíž, ale víc se vyleká, ♪ ♪ když úraz či nemoc zlá, stíhne člověka. ♪ ♪ Když vám život zavaří, mějte úsměv na tváři, ♪ ♪ dětství vládí jen stáří, jí si rady lékaři. ♪
+
+    Když jsem se dneska ráno probudila, vůbec mi nebylo dobře. Asi na mě něco leze. Lepší by bylo zůstat doma v posteli, ale dneska jdeme se školou do divadla na hurvínka a to si přece nemůžu nechat ujít. Koukou.
+
+    Tak jsem tam celou dobu kašlala a smrkala, všechny rušila, takže jsem z toho divadla neměla vůbec nic. Děkuji. Nazdár. Je, nazdár, Hurvínku. Neměla jsi raději zůstat v posteli? Takže já jsem se do divadla moc těšila. Je, víš co?
+
+    Budeme s tím muset něco udělat, než dostaneme křípku. Každý ví, že otužování pomáhá, že ano? A já proto navrhuji sundat čepici i šálu. No, já nevím, ale máma vždycky trvá na tom, abych se oblekla teple.
+
+    No když jsem nastydla, tak abych nenastydla ještě víc. Můž mi to ajo, vážně.
+
+    Otužená hlava dá pokyn tělu a hned se na to otužování bude třást. Brrr, no podívej, už se celý čas uhlá. Já víš co, neškodilo by se združku zahrát. Máš mamu? Kájo, pojď, jezírko četá.
+
+    Ty, podvínku, není to nesmysl? Nesmysl to není, he he he, horši! Musíme to otužování urychlit! No jo, když to říkáš ty. Brrr, teda ta voda je jako led. Podvínku! Co? Já bych to snad už i věděla na doktora. A jo, proč myslíš hned na to nejhorší? Že ty se bojíš.
+
+    Já mám jednoho moc hodnýho kamaráda, doktora, aby mi vždycky pomůže. O prosím tebe, co bych se bál. Víš co, já mu zavolám. Dobrý den, tady Kája. Mohla bych se u vás zastavit? Asi budu nemocná. A někoho vám přivedu, to budete koukat. Koukáme.
+
+    Já jsem dneska tak umořený. Aby to tak byl mor. Na zdraví všem ve spět. Kájo, ještě mě napadlo, že bychom tu nemoc mohli rozhodit.
+
+    Radši ne, nějak mě rozbolala hlava. Na bolení hlavy je nejlepší strčit si fazoli do ucha. Na velké velkou, na malé malou a nebo. Pane, prosím vás, mohu vás vyrušit ve vaší nemoci? Neměli byste... Slivovice, to je přeci všelék. Tak to jsem v koncích.
+
+    Další, Hurlínek a Kája. To jsou k nám hosti, no tak pojďte oba dál. Pojď se tady posadit a pověz mi, co tě trápí. Ale pane doktore, to vůbec nestojí za vét. My jsme tu nemoc hned podchytili a skoro jsme se jí i zbavili.
+
+    Samým jistě víte, že otožování je zdravé. Žádno zvlášť na zdravém vzduchu a to dělá divy. No to jste tomu teda dali. S chřipkou se kájo přece mezi lidi nechodí. Kýcháním a smrkáním člověk ruší všechny okolo a navíc je může nakazit.
+
+    Otužovat se to ano, ale dřív než člověk onemocní, pak už je pozdě a je to dokonce i škodlivý. Fazole v uchu, slivovice a ostatní hurvínkovy rady jsou ve směs nesmysly, které mohou být i nebezpečné. Tak je nejvyšší čas, abychom se na tu nemoc podívali, viď? Ale já si vůbec nejsem jistý, jestli byste se k nám měl přivližovat. Ale bez vyšetření nemůžeme stanovit správnou léčbu, tak se na ten krk musíme podívat, viď?
+
+    Tak, Kaš, vyplázně na mě jazyk a řekni a. A. Bolí tohleto? Máš tady trochu hmatné úzliny. Cože? Úzliny? Úzliny jsou takový sítka v těle, který blokují průnik bakterií, aby se nedostali po celém těle. A když je člověk nemocen, tak mohou zduřet. Měřila jsi si teplotu? Kdepak? Já jsem chladnokrevnej! Urvaj si, já jsem se ptal Káji. Měřila jsi si teplotu? Neměřila.
+
+    No asi ji budeš mít, ale bude lepší, když ji změříme. Tak a jo, teď ti musím poslechnout fonendoskopem. Jo, vyhrn si to tričko. Co by mě zajímalo, co vlastně tím fonendoskopem slyšíte? No když mi do toho kejcháš, tak nic, ale zkus si to sama vlastně. Tady slyšíš srdíčko a když se posuneme dál, tak slyšíš, jak dýcháš. Je, můžu si to taky zkusit? To je, že můžeš. Je.
+
+    Ty kluku, ty kluku, ty kluku. To jsou teda srdční ozvy. To asi jak taťulda na nuláteřil. Ukáž. Ty kluku, ty kluku, ty kluku. No jo, to je parádní chřipka. Nebo spíš dřevomorka. To uvidíme. Tak to vypadá u vás obou na pořádné nachlazení. Budete muset být pěkně v klidu, v teple a napíšu vám nějaké léky. Léky.
+
+    Léky jsou většinou nedobrý. No, léky nejsou žádný bombóny. Léky užíváš proto, aby jsi se vyléčila, ne proto, aby jsi si pochutnala. A musí se brát pravidelně? Když nebudeš brát léky pravidelně, každá nemoc se bude léčit mnohem déle. Proto musíš brát léky pravidelně, tak jak ti předepíšu. A proč se musí brát, když už jim je dobře? Všechny léky musíš doužívat. Ono se ty můžeš cítit dobře, ale ta nemoc ještě není zvládnutá. Ty slíbené léky...
+
+    Vy zvednete si je v lekárně a pak honem do postele, do tepla. Ale pane doktore, mě se nechce, ať si jde lehnout, tady hleká já. Kdepak, lehnete si oba dva a já si vás přijdu odpoledne zkontrolovat, vy má rodi.
+
+    Mně stačí, že mě lékal ten doktor. A teď, abych ještě hledal lékárnu. Lékárnu poznáš podle zeleného křížku. Podle křížku? Na kterém je had. Podívej. Pan doktor ti předepsal léky na kašel. Budeš užívat třikrát denně jednu tabletku po jídle. A já taky? Ty taky.
+
+    Tak jak se mají moji dva pacienti? Co? Ne to, až na to pocení, to nesnáším. Je přitom hrozný vedro a ta rýma je protivná. Kdybych aspoň mohla dýchat. Nenech se svou nemocí spoutat. Hurvínku neblábol. To víš, každá rýma, ale i chřipka trvá těch 8 až 10 dní. To se nedá nic dělat, to se musí vydržet.
+
+    Snad to vydržím. Tak to je dobře, ale stejně si myslím, že je lepší vůbec nenastydnout. Ta čepice, co mi máma ráno dala, docela sluší. Je lepší nosit, než nastydnout, i kdyby mi neslušela. Nahlédě k tomu, že ti opravdu sluší. Takže...
+
+    Milá děťulata i nemocňata, něco vám pojím. Úplně nejlepší je vůbec se nenastydnout. A na to mám jednu zaručenou radu. Prospěte celou zimu.
+
+    Občas stůně myš i slůně, to jistě dobře víš, a když máš smůlu smůlovatou, i ty ochoříš. Když stůně myš, je to potíž, ale víc se vyleká, když uraz či nemoc zlá, stihne člověka. Když vám život zavaří, mějte úsměv na tváři, věc tvý vládí je stáří, víc rady lékaři.
+================================================================================
+
+  >>> gpt-4-1-mini ...
+      7.4s | 2972 chars | tokens: prompt=2462, completion=1076
+
+  >>> gpt-5-mini ...
+      79.3s | 2289 chars | tokens: prompt=2461, completion=2910
+
+  --- gpt-4-1-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Jméno: neuvedeno
+  - Věk: dítě (předpoklad školního věku)
+  - Datum návštěvy: 19. 04. 2026
+
+  NO (Nynější onemocnění):
+  - Subjektivní obtíže: ranní pocit malátnosti, kašel, rýma, kýchání, bolesti hlavy, pocení, ucpaný nos, obtížné dýchání, celková únava.
+  - Pacientka odmítala zůstat doma z důvodu plánované školní akce (návštěva divadla).
+  - Nebyl změřená tělesná teplota (pacientka tvrdí, že "je chladnokrevná" a teplotu neměřila).
+  - Objektivně při vyšetření přítomny hmatné zvětšené krční lymfatické uzliny.
+  - Subspekt vícero příznaků běžného virového onemocnění dýchacích cest (nachlazení, pravděpodobně chřipka).
+  - Poslech plic fonendoskopem bez bližšího popisu nálezu; slyšitelné srdeční ozvy v normě.
+  - Diagnostika ze strany lékaře: pravděpodobné virové onemocnění, nutnost vyloučit zánět krčních mandlí.
+
+  RA (Rodinná anamnéza):
+  - neuvedeno
+
+  OA (Osobní anamnéza):
+  - neuvedeno explicitně, z rozhovoru vyplývá, že pacientka je obecně zdravá a otužuje se podle vlastní iniciativy.
+
+  FA (Farmakologická anamnéza):
+  - Podávány léky na kašel, dávkování: 1 tableta 3x denně po jídle.
+  - Pacientka má dodržovat pravidelné užívání léků i po mizení subjektivních příznaků.
+
+  AA (Alergologická anamnéza):
+  - neuvedeno
+
+  SA (Sociální anamnéza):
+  - Pacientka je školou povinná, aktivní účast na školních aktivitách (návštěva divadla).
+  - Podpora matky v otázce oblékání (dravá obava z podchlazení).
+  - Pacientka má strach z lékaře, ale má důvěru k jednomu lékaři (přítel rodiny/dobrá zkušenost).
+
+  Objektivní nález:
+  - Zvýšené krční lymfatické uzliny (palpačně).
+  - Pacientka kašle a smrká.
+  - Výrazná únava, bolesti hlavy, pocit ucpaného nosu.
+  - Fonendoskopie: normální srdeční ozvy, slyšitelný dechový vzor.
+  - Teplota těla nebyla změřena během vyšetření.
+
+  Hodnocení:
+  - Virové onemocnění dýchacích cest s pravděpodobnou chřipkou, průvodní znaky infekce horních cest dýchacích.
+  - Zduření lymfatických uzlin typické pro virovou infekci.
+  - Nutnost klidového režimu a sledování příznaků.
+  - Není indikace k hospitalizaci.
+  - Riziko přenosu infekce na okolí, doporučeno omezit kontakt s ostatními osobami.
+
+  Návrh vyšetření:
+  - Měření tělesné teploty (doporučeno pacientce).
+  - Klinické sledování vývoje obtíží.
+  - Při přetrvávání nebo zhoršení příznaků zvážit doplňující laboratorní vyšetření a ORL vyšetření.
+
+  Návrh terapie:
+  - Podávání léků na kašel, 1 tableta 3x denně po jídle.
+  - Klidový režim, dostatek tekutin, pobyt v teple, omezit kontakt s okolím.
+  - Nepoužívat nevědecké či neověřené metody (např. fazole v uchu, slivovice jako léčivo) – tyto doporučení jsou neúčinné a mohou být potenciálně nebezpečné.
+  - Otužování je vhodné jako prevence, ne však v akutní fázi onemocnění.
+
+  Pokyny a plán kontrol:
+  - Dodržovat předepsanou medikaci pravidelně i po zlepšení příznaků.
+  - Důsledný odpočinek a regenerace.
+  - Pacientka bude kontrolována odpoledne lékařem.
+  - V případě zhoršení příznaků (vysoká teplota, bolesti v krku, dušnost) neodkladně vyhledat lékařskou pomoc.
+
+  --- gpt-5-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Jméno / Věk / Datum návštěvy
+  - Kája / neuvedeno / 19. 04. 2026
+
+  NO (Nynější onemocnění)
+  - Subjektivní údaje: Ráno po probuzení „vůbec mi nebylo dobře, asi na mě něco leze“. Kašel a rýma (smrkání), rušení okolí při představení. Bolest hlavy: „nějak mě rozbolala hlava“. Nepřiměřená únava („tak jsem dneska tak umořený“ - pozn. kontext dialogu). Pacientka neuvedla, že by si měřila teplotu; na dotaz odpověděla „neměřila“.
+
+  RA (Rodinná anamnéza)
+  - neuvedeno
+
+  OA (Osobní anamnéza)
+  - neuvedeno
+
+  FA (Farmakologická anamnéza)
+  - Neuvedeno chronické léky. Ze zprávy: byly předepsány léky na kašel; konkrétní preparát neuveden. Dávkování předepsaného léku: 1 tableta 3× denně po jídle.
+
+  AA (Alergologická anamnéza)
+  - neuvedeno
+
+  SA (Sociální anamnéza)
+  - Chodí se školou; dnes byla se školou v divadle. Rodič (matka) instruje oblékat se tepleji.
+
+  Objektivní nález
+  - Inspekce hrdla: vyzvání k vyslovení „a“ a vyplaznutí jazyka (vyšetření prováděno).
+  - Hmat: „trochu hmatné úzliny“ (zdurení regionálních lymfatických uzlin).
+  - Auskultace: poslech fonendoskopem – slyšitelné srdeční ozvy a dýchání (bez bližší specifikace patologických šelestů či pískotů). Tělesná teplota nebyla změřena během rozhovoru (pacientka neuvedla hodnotu).
+
+  Hodnocení
+  - Klinický obraz odpovídá „pořádnému nachlazení“ (akutní horní respirační infekce) — dle vyjádření lékaře. Možné lymfadenopatie drobného rozsahu v souvislosti s infekcí. Stav bez uvedených laboratorních nebo zobrazovacích vyšetření.
+
+  Návrh vyšetření
+  - Doporučeno/naplánováno: změření tělesné teploty (uvedeno v dialogu jako nutné). Další specifická vyšetření neuvedena.
+
+  Návrh terapie
+  - Předepsány léky na kašel (název neuveden). Dávkování: 1 tableta 3× denně po jídle.
+  - Obecná léčebná doporučení: klid, pobyt v teple, lůžkový režim, vyhnout se kontaktu s ostatními / nechodit mezi lidi při onemocnění, léky užívat pravidelně a doužívat celou kúru.
+  - Léky vyzvednout v lékárně (zmíněno: rozpoznání lékárny podle zeleného křížku).
+
+  Pokyny a plán kontrol
+  - Pacienti mají zůstat v klidu a v teple, jít do postele.
+  - Kontrolní vyšetření: lékař přislíbil kontrolu odpoledne („já si vás přijdu odpoledne zkontrolovat“).
+  - Další pokyny: užívat předepsané léky pravidelně, dokončit léčebnou kúru, vyzvednout léky v lékárně.
+
+================================================================================
+  TEST 12/13: 12. LONG: Hurvínek – Zlomenina (6.0KB)
+  Transcript length: 5297 chars
+  Transcript (full):
+    Občas stůně myš i slůně, to jistě dobře víš, a když máš smůlu smůlovatou, i ty ochoříš. Když stůně myš, je to potíž, ale víc se vyleká, když úraz činemoc zlá, stíhne člověka. Když vám život zavaří, mějte úsměv na tváři, dětství vládí je stáří, jí si rady lékaři.
+
+    Dneska odpoledne jsem to zase vymělkl. Neměl jsem co dělat, doma mě nic nebavilo, tak jsem přišel ven hrát. Třeba bude někdo na hřišti. Jenomže na hřišti jako na schlá nebyli žádní kamarádi. Jak já jsem se vám nudil, to si vůbec nedovedete představit.
+
+    No proč si to děláš?! A zima mi byla a taky smutná. To jsou věci tohleto. No, co se děje ve světě, toho zajímá. Ale co se děje v parku s promrznutým hurvínkem, to ne! Hurvínku! Co je?
+
+    Já se těžšně nudím, nepůjdeš se začutat? To se musíš zeptat tadyhle kláska, jestli můžu. Pojď! Ale jo, klásku, jdeme! Jeje, když tomu dalůlí.
+
+    Ale prosím tě, nemysli si, že dospěláci mají ve všem jasno. Proč by taky pořád četli noviny? A taky jsou to pěkní lenoši. Do ničeho se jim nechce a tak vymýšlejí všelijaké zákazy. Fakt? Hele, když já si rád vždycky všechno vyzkouším. No, neboj. Ty tam vyležeš? Jasně, prosím tebe. Tak pojď. Ale až po tobě.
+
+    Já budu zatím hlídat, jestli někdo nejde, víš? No, jseš přece dobrý, ne? Tak jo. Honastar, Martinech, Bachar, schovej se rychle! Sležeš dolů? Jou, jou!
+
+    Páni, ten sebou sekl, jako když mu někdo přešvihl nítě. Martine, prosím tě, je ti něco? Čau, vajstu, bojí moje noha. No, nazdar. Musím pro pomoc. Pane doktore! Tak co se stalo, že jsem musel všeho nechat a hned sem běžit? Protože Martin trošičku upadl a to, no...
+
+    Dobrý den. Ahoj Martine, tak co se ti stalo? Neboj tohle je fajn člověk, ten do tebe zbytečně nepíchne. Kde tě to bolí? To bolí... Tady dolů. Jdou, jdou. Aha, aha. A jak se to stalo? Já jsem při zhlivínkem tak kopal a ona se mi ta noha najednou... Jo? A co ta větev tady? No, nedá se nic dělat Martine, budeme muset do nemocnice. Musíme udělat rengén a uvidíme, co s tou nohou je.
+
+    Je, pane docente, a co je to ten rentgen? To je něco z genama. Že nechcete Martinovi tu nohu naklonovat? To víš, že nechceme. Rentgen je záření, které vymyslel pan Rentgen, proto se to mu říká Rentgen. A je to záření, kterým prosvítíme lidské tělo a zůstane po něm na filmovém pásu obrázek. Podle toho můžeme poznat, jestli je záření,
+
+    Ta daná část těla nemocná. Tak pojď, Martinku. Tak pojď, my tě teď podáme na stůl. A uděláme snímek té nohy. A nebude to bolet? Rengen přeci nebolí. To je jenom takový vyfocení kostiček, jak vypadaj. Jo? Tak, my se teď musíme jít zkovat. A proč? No, protože rengenový záření jednou za čas nevadí, ale kdyby jsme byli osnímkovaný u každého pacienta jako sešty, tak asi bysme byli nemocní.
+
+    Tak jaký to bylo? Vůbec nic, a vidíš skrze sebe. Vážně? A mohl bych to taky zkusit, že jo? Tatě Holda totiž tvrdí, že jsem skrz náskrz prolezlý zlobenináma. Hurvá, jest nezlo.
+
+    No Martine, na operaci to není, ale sádra tě nemine. Co vlastně o těch divných fotkách vidíte? No vidíme na nich všechno, co potřebujeme. Tady na té vidíme kosti, vidíme na ní klouby a viděli bychom na nich, i kdyby byli zlomený. Je, pane docente, já bych taky potřeboval sádru na prst. Taky odatotíž tvrdí, že doma nehnu prstem, tak bych měl aspoň jednu pravdu a to by bylo moc rád.
+
+    Ale vždyť by se ti rozmočila ruka. Tak trochu zvedneme nohu opatrně. A proč musí být zlomení na sádře? No, protože ta sádra tu nohu fixuje, aby se ti nehýbala, protože každý pohyb by tě přeci bolel. A proč ta nová sádra tak moc zeje? No, protože ti nohu hezky zabalíme. Zabalíme ji do punčochy, pak i do vaty. No a ta sádra je namočená v teplý vodě, takže to za začátku hřeje. A budu moc normálně chodit?
+
+    No, ze začátku nebudeš moc na tu sádru šlapat, protože bys ji rozlámal, ale my ti přiděláme za tři dny podpatek a pak už na to budeš moc i šlapat. A kde mi tu sádru sundáte? No, to záleží na kontrolním rengenu, ale bude to asi za pět až šest týdnů. Takhle vypadá porušení souvislostí jasným mechanickým násilím v praxi. Chudáčku.
+
+    No vidíš, Martine, mohlo to dopadnout ještě daleko hůř. To je věc, když člověk padá ze stromu, tak se můžou přihodit různý úrazy. Pád z výšky může dopadnout skutečně podstatně hůř. Může dojít k poranění hlavy, může dojít k bezvědomí, může dojít k poranění páteře s trvalými následky pro celý život. Teď to dopadlo ještě dobře, ale je vždycky lépe nechodit tam, kde je vypsán zákaz a je nutné těmto zákazům věřit. Oni je tam dospělí, nepíšou pro nic za nic.
+
+    Tak já si to budu pamatat, protože ležet v posteli není žádná zábava, hlavně když mý kamarádi bobojí a sánkují. No to je materiál tohleto. Já jsem věděl, že ti bude sádrovej trpaslík slušet. Vždyť je to podepíš, jo? Ty se možná bavíš, Hulvínku, ale já ne. Jestli jsem se opravdu někdy nudil, tak je to zrovna teď. To neříkáš!
+
+    Prosím tebe, nudou to začalo a podívej. No sáda. Počkej. Kam jdeš? O zlomeném srdci. Promiň. Martinovi. Navida. Byl jednou jeden Martin a ten se celé odpoledne nudil. A tak se rozhodl, že vyleze na strom.
+
+    Měl s sebou jednoho poťuhlého kamaráda, teda to je nudá tohleto.
+
+    Občas stůně myš i slůně, to jistě dobře víš, a když máš smůlu smůlovatou, i ty ochoříš. Když stůně myš, je to potíž, ale víc se vyleká, když úraz či nemoc zlá, stihne člověka. Když vám život zavaří, mějte úsměv na tváři, dětství vládí nezkáří, víc se rady lékaři.
+================================================================================
+
+  >>> gpt-4-1-mini ...
+      6.8s | 2302 chars | tokens: prompt=2234, completion=824
+
+  >>> gpt-5-mini ...
+      60.5s | 2570 chars | tokens: prompt=2233, completion=2145
+
+  --- gpt-4-1-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Jméno: Martin
+  - Věk: neuvedeno
+  - Datum návštěvy: 19. 04. 2026
+
+  NO (Nynější onemocnění)
+  - Úraz dolní končetiny při pádu ze stromu, podezření na zlomeninu.
+  - Subjektivně bolest v dolní části nohy, nemožnost plného zatížení.
+  - Pacient hlásí bolesti a omezení hybnosti nohy.
+
+  RA (Rodinná anamnéza)
+  - Neuvedeno.
+
+  OA (Osobní anamnéza)
+  - Neuvedeno.
+
+  FA (Farmakologická anamnéza)
+  - Neuvedeno.
+
+  AA (Alergologická anamnéza)
+  - Neuvedeno.
+
+  SA (Sociální anamnéza)
+  - Pacient se běžně pohybuje venku a aktivně si hraje s kamarády.
+  - Sdíleno, že rád zkouší nové věci a někdy porušuje zákazy týkající se bezpečnosti.
+
+  Objektivní nález
+  - Fyzikální vyšetření: bolestivost dolní končetiny v oblasti nohy, nutnost ošetření.
+  - Rentgenové vyšetření nohy: zjištěna zlomenina bez nutnosti operačního řešení.
+  - Diagnóza: porušení souvislosti kosti v dolní končetině (zlomenina).
+
+  Hodnocení
+  - Pacient má zlomeninu nohy, která nevyžaduje chirurgický zákrok.
+  - Je nutná imobilizace sádrovou fixací k zabránění pohybu a podpoře hojení.
+  - Dítě není schopno zezačátku plně nohu zatěžovat, plánován postupný návrat k chůzi.
+
+  Návrh vyšetření
+  - Rentgenové snímky dolní končetiny potvrzující zlomeninu.
+  - Kontrolní rentgen za 5-6 týdnů k posouzení hojení a rozhodnutí o sejmuti sádry.
+
+  Návrh terapie
+  - Nasazení sádrové dlahy fixující nohu, aplikace na bérci.
+  - Instrukce nosit sádru po dobu 5 až 6 týdnů.
+  - První tři dny bez zatěžování, poté přidání podpatek pro částečné zatížení nohy.
+  - Udržování nohy zvednuté a opatrná manipulace.
+
+  Pokyny a plán kontrol
+  - Pacientovi sděleno, aby se vyhýbal plnému zatížení nohy první dny.
+  - Doporučena kontrola u ortopeda za 3 dny pro přidání podpatku.
+  - Další kontrola a kontrolní rentgen po 5-6 týdnech k posouzení stavu zlomeniny a rozhodnutí o odstranění sádry.
+  - Edukace o bezpečném chování při hrách, vyhýbání se nebezpečným místům a dodržování zákazu vstupu na riziková místa.
+  - Poučení rodičů a pacienta o symptomech, kdy vyhledat lékaře dříve (např. zvýšená bolest, otok, změna barvy končetiny).
+
+  Závěr:
+  Pacient utrpěl zlomeninu dolní končetiny po pádu ze stromu. Stav je stabilizovaný, není nutná operace. Doporučeno imobilizovat nohu sádrovou fixací a postupně zatěžovat. Riziko komplikací je redukováno správnou léčbou a edukací o prevenci úrazů.
+
+  --- gpt-5-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Jméno / Věk / Datum návštěvy
+  - Martin / neuvedeno / 19. 04. 2026
+
+  NO (Nynější onemocnění)
+  - Subjektivní údaje: Pacient (Martin) uvedl pád ze stromu během hraní v parku. Stěžuje si na bolest nohy: "to bolí... tady dolů", "bojí moje noha". Událost popsal: při hře na hřišti vylezl na strom a upadl.
+  - Průběh: bez dalších údajů o době od úrazu, intenzitě bolesti, ztrátě vědomí nebo jiných příznaků (neuvedeno).
+
+  RA (Rodinná anamnéza)
+  - neuvedeno
+
+  OA (Osobní anamnéza)
+  - neuvedeno
+
+  FA (Farmakologická anamnéza)
+  - neuvedeno
+
+  AA (Alergologická anamnéza)
+  - neuvedeno
+
+  SA (Sociální anamnéza)
+  - Pacient byl venku na hřišti/parku, hrál si s kamarády; v době úrazu se nudil a vylezl na strom. Jinak údaje o bydlení, škole, kouření, alkoholu apod. neuvedeny.
+
+  Objektivní nález
+  - Vyšetření: Proveden rentgen postižené končetiny.
+  - Radiologický nález (z rozhovoru): popisováno jako "porušení souvislostí jasným mechanickým násilím" (tj. porucha kontinuitní kosti/zlomenina). Nebyl indikovaný operační zákrok.
+  - Terapeutické opatření na místě: aplikována sádrová fixace (sádra), noha zabalena do punčochy a vaty, sádra byla namočená v teplé vodě při aplikaci (při aplikaci zahřívá). Pacientovi bylo doporučeno počátečně na sádru moc nešlapat, po třech dnech přidělán podpatek, poté bude možné částečné zatížení.
+  - Další objektivní údaje (vitaliy, neurovaskulární stav, přesná lokalizace zlomeniny, rozsah posunutí) neuvedeny.
+
+  Hodnocení
+  - Zlomenina dolní končetiny (přesná lokalizace neuvedena), bez indikace k operačnímu řešení v současnosti. Stabilizováno sádrou.
+
+  Návrh vyšetření
+  - Rentgen již proveden.
+  - Kontrolní rentgen plánován přibližně za 5–6 týdnů (údaj z rozhovoru).
+
+  Návrh terapie
+  - Konzervativní léčba: aplikace sádrové fixace (provedeno).
+  - Doporučení: počátečně nechodit na sádru / omezit zátěž; po 3 dnech přidělen podpatek, poté možné zatížení podle stavu.
+  - Doba aplikace sádry odhadnuta na přibližně 5–6 týdnů (dle kontrolního rentgenu).
+  - Analgetika, fyzioterapie nebo jiné medikace neuvedeny.
+
+  Pokyny a plán kontrol
+  - Zvedat nohu opatrně (elevace) a chránit sádru před namočením.
+  - Dodržet zákaz chození na nebezpečná místa (vysvětlení rizik pádu a možných těžších poranění, edukace provedena).
+  - Kontrolní rentgen cca za 5–6 týdnů pro rozhodnutí o dobu trvání sádry a dalším postupu.
+  - V případě zhoršení stavu nebo komplikací (zhoršení bolesti, znecitlivění, otok, porucha barvy nebo teploty končetiny, rozmočení sádry apod.) návrat k lékaři dříve.
+  - Další specifické pokyny ohledně medikace či rehabilitace neuvedeny.
+
+================================================================================
+  TEST 13/13: 13. LONG: Hurvínek – Angína (6.9KB)
+  Transcript length: 6114 chars
+  Transcript (full):
+    Občas stůně myš i slůně, to jistě dobře víš, a když máš smůlu smůlevatou, i ty ochoříš. Když stůně myš, je to potíž, ale víc se vyleká, když úraz činemoc zlá, stihne člověka. Když vám život zavaří, mějte úsměv na tváři, věc tmý vládí jen stáví, víc se tak vyleká, když...
+
+    Dneska jsme se s Hurvínkem vydali na dlouhou cestu. Bylo moc hezky a taky docela teplo. Tak jsme si řekli, že trochu propájáte ráme okolí. Ten čas, co jsme byli na horách, hrozně rychle utekl a ani jsme si to tady nestihli všechno pořádně prohlídnout. Co to čepit se, Hurvínku? Tatelina mě počká, vždyť je docela teplo. To je pravda. Tak nesedni, jdeme. Ahoj! Prvná vlastůj!
+
+    To jsou panoramata. Ale možná bysme se už měli vrátit, už jen je docela zima. No, do mě se dala taky. No jo, ale kudy? Já jsem úplně zapomněla, kudy jsme sem přišli. No jo, tak půjdeme jako indiáni po stopách ve sněhu. Tak jo. Hurvínku, já nevím kudy. Na postup.
+
+    Ale po kterých? Je jich tu nějak moc? No jo, to máš pravdu. My jsme vlastně jako Jenček a Mařenka. Kájo, znáš tu pohádku o těch dvou, co se dali na orientační běh po lese? Jenomže oni si sypali hrášek. A my jsme si nesypali nic. Já fakt nevím kudy. Hrášek ve sněhu, to by ti tak pomohlo. Nech toho. Promiň, teda...
+
+    Jak stop tu ale je, jako by nám šel někdo v patách. Někdo nás sleduje. Šmankoté, jak by to byl myslivec, jako by za sebou něco táhnul. Dřevorubec. Ne, já už vím, je to Baba Jaga a táhla za sebou koště. Bojím, bojím. Baba Jaga?
+
+    Znáš dobře pohádky? Znám. Tak mi řekni, co teď? Jak to v pohádkách bývá, když hrdiny v lese pro následuje šílená ježibaba? No Jeníček vyleze na strom, aby se podíval dodaleka. Jestli v dálce neuvidí světýlko.
+
+    Zvládneš to, Horvínku? Zvládl, co bych to nezvládl? Prosím tě! Jeníček to zvládl jako prvňák, tak se přeci jako čtvrťák nenechám zahámbit. Jdeme na to! Horvínku, pozběž! Mně už je strašná zima! To siš na tom ještě dobře! Mně je taky zima! A navíc mám strach! Au! Počkej, já to zkusím sama. Na to jsem zvědavej.
+
+    Tak to je marný, to nezvládnem. Tak teď už nám jenom zbývá zaskočit do perníkové chaloupky a posadit se na lopatu. Pššš, slyšíš to co já? Je! A jejet skútr, snad sem nejede Baba Jaga na skútru. Tak to jsme v loji a tím pádem v troubě?
+
+    Co vy důvatejtej děláte? Ale nic, babičko, nevšímejte si nás. My jsme jen maličtí netuční, jen s 0,1% tuku. Ochránci smrků. Kontroletu na hůru. Já vám dám náhodou. Chcete tady zmrznout? Pojďte si sednout. Radši zmrznout, než usmažit. Hurvájs.
+
+    Děkujem, my jsme totiž popravdě řečenou trošku zabloudili. No jo. Kájo, a tobě je takhle po ránu dobře? Jak mě po včerešku bolí v krku. Mě zase píchá v uchu. To asi na mě vzpomíná ta Čulda, protože našel prach pod mojí postelí.
+
+    Asi bychom to měli říct panu doktorovi. Ani nápad! Teď jsem u něj pečený, vařený. Kdybych byl Baba Jaga, tak to by měla si radost, ale takhle... Tak to se nedá nic dělat. A čím později to řekneme, tím to bude horší. A dejte prosím tě, nejsme z cukru! Přece za ním na poru pokaždé, když mi někde píchne. Je! Baba Jaga! Jeje, pane doktor!
+
+    No vy jste tomu včera dali. Víte, jak to mohlo dopadnout? Doufám, že jste oba v pořádku. No jasně, jsme chillí a hlavně zdraví. A mě trochu bolí hlava. No pojď se ukázat. No jo, máš teplotu, otevři ústa.
+
+    No, to vypadá na parádní angínu. Pojedeme k doktorovi. A pane doktore, proč nás vůbec vodíte za jinými doktory, když jste sám doktor? No, nejsem doktor na všechno. Nerozumím všemu. Pospícháme, pojď. Ale hurvínka vezmeme taky sebou.
+
+    Myslím, že to bude potřebovat. Radši ne, Kajo, nebo mě v tom uchu začne zase píchat. Jo, tak v oušku tě píchá. No tak to pojedeme k lékaři všichni. Přece by si nenechal jet Kajou samotnou. No jasně. V nájezdech na nemocnici jsme sehraná dvojka.
+
+    Hele, orlo. Tady asi pěstujou orly a jeden jim uklovl písmenko. Tak pojďem. Letuzdar. Dobrý den. Dobrý den, pojďte dál. Pan doktor mě už o vás říkal. Tak Kajo, pojď se posadit. Tak, copak se přihodilo?
+
+    Pane Orle, ani se neptejte. Dost jsme včera lítali, však to znáte, a tak jsme se nějak unavili. Nestojí to za řeč. Jo, a Káju z toho bolí v krku. A hlava. No, tak se na to podíváme. Pěkně otevři pusinku, neboj se, jenom si posvítím. Všechno tam krásně uvidíme. No, povleklý jazyk, béliké, rudé mandle, no, není divu, že ti to bolí.
+
+    Tak a tady tě to bolí taky, viď Kájo? No, to bych řekl. A pane doktore, když je v krku a v nose a v uchu taková tma, jak tam můžete něco vidět? To je jednoduché. Já mám tady přeci zrcátko a tím zrcátkem si vrhám světlo. A když si někam vrhnu světlo, tak tam přeci taky vidím. A jak vypadá...
+
+    Takový krk zevnitř. Kájo, tam je toho spousta, co musíme vidět. Hlavně si musíme všimnout, jak vypadají mandličky, jak vypadá zadní stěna toho krku, jak vypadá jazyk. No a všechno to musíme dohromady zhodnotit, abychom věděli, co ti vlastně je. Takže mám vážně angínu? No, bohužel ano. Je to docela pěkná, rozvinutá angína, takže budeš muset zůstat doma. A?
+
+    musíme nasadit antibiotika. Dostaneš penicillín. Teda to je divné slovo? Tahle antibiotika? Anti znamená proti, to vím jistě. Aby to tak bylo! Něco protivného? Holvinku, tyhle lajky už jsem párkrát měla. To jsou lajky, který se musí brát pravidelně. Jinak, pane lektore, co by se vlastně stalo, kdyby se nebrali pravidelně?
+
+    No, ty léky jsou proti mikrobům, říká se jim taky bacily. Ty léky se musí brát pravě, proto pravidelně, aby mikroby všechny z těla vymizely. Jinak oni by si mohli na to antibiotikum zvyknout, no a pak by přestali pomáhat. Měli byste si pamatovat, že se máte dobře obléci, abyste neprochladli, máte se orientovat, abyste se dokázali včas vrátit,
+
+    A když vám není dobře, musíte rychle přijít na ošetření, protože když se zahájí dříve léčba, tak se také dříve uzdravíte. Děťuleta, jedno je jasný, člověk musí zkrátka mít za ušima a když mu něco je, hlavně se nebát a včas to někomu povědět, protože pak to vždycky dobře dopadne.
+
+    Občas stůně myš i slůně, to jistě dobře víš, a když máš smůlu smůlovatou, i ty ochozíš. Když stůně myš, je to potíž, ale víc se vyleká, když úraz činemoc zlá, stihne člověka.
+
+    Když vám život zavaří, mějte úsměch na tváři, dětský, mládý, bezkáří, ví se rady lékaři.
+================================================================================
+
+  >>> gpt-4-1-mini ...
+      6.9s | 2225 chars | tokens: prompt=2573, completion=813
+
+  >>> gpt-5-mini ...
+      62.2s | 2150 chars | tokens: prompt=2572, completion=2195
+
+  --- gpt-4-1-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:  
+  - Jméno: neuvedeno  
+  - Věk: neuvedeno  
+  - Datum návštěvy: 19. 04. 2026
+
+  NO (Nynější onemocnění):  
+  - Bolest v krku, bolest hlavy, bolest v uchu, pocit zimy, únava po fyzické aktivitě v přírodě, zvýšená teplota (horečka).  
+  - Subjektivní potíže hlášené pacientem: bolest v krku, bolest ucha, bolest hlavy, celková únava, pocit chladu.
+
+  RA (Rodinná anamnéza):  
+  - Neuvedeno.
+
+  OA (Osobní anamnéza):  
+  - Neuvedeno.
+
+  FA (Farmakologická anamnéza):  
+  - Neuvedeno před návštěvou.  
+  - Po vyšetření u lékaře předepsán penicilin (antibiotikum) k léčbě angíny, s důrazem na pravidelné užívání.
+
+  AA (Alergologická anamnéza):  
+  - Neuvedeno.
+
+  SA (Sociální anamnéza):  
+  - Pacienti (děti) se bavili během pobytu venku (výlet v přírodě).  
+  - Aktivní pohyb v přírodě, orientační běh v lese.  
+  - Neuvedeno o bydlení, rodinném zázemí, škole apod.
+
+  Objektivní nález:  
+  - Zvýšená teplota (horečka).  
+  - Mandličky zvětšené, bílé povlaky na mandlích (povleklý jazyk, bílé povlaky, rudé mandle).  
+  - Začervenání zadní stěny hltanu.  
+  - Použití zrcátka k vyšetření krku, nosu a ucha s viditelnými změnami odpovídajícími zánětu.  
+  - Celkově odpovídá obraz angíny.
+
+  Hodnocení:  
+  - Vyšetřená pacientka s klinickými příznaky a objektivním nálezem parádní (rozvinuté) angíny.  
+  - Vyžaduje léčbu antibiotiky a klid na lůžku.  
+  - Riziko zhoršení stavu při opožděném zahájení léčby.
+
+  Návrh vyšetření:  
+  - Fyzikální vyšetření krku, ucha a celkového stavu.  
+  - Neuvedeno další laboratorní nebo zobrazovací vyšetření.
+
+  Návrh terapie:  
+  - Nasazení penicilinu – antibiotika s doporučením pravidelného podávání po celou dobu léčby.  
+  - Doporučen klid na lůžku, dostatečný odpočinek.  
+  - Adekvátní oblečení, vyhýbání se prochladnutí.
+
+  Pokyny a plán kontrol:  
+  - Důraz na pravidelné užívání antibiotik.  
+  - Pacient je informován o nutnosti včasného hlášení zhoršení nebo nových obtíží.  
+  - Kontrola stavu dle potřeby, zejména při zhoršení symptomů nebo neúspěchu léčby.  
+  - Doporučeno včasné vyhledání lékařské péče při zhoršení stavu.
+
+  Závěr:  
+  Pacient má rozvinutou angínu léčenou penicilinem. Doporučeno dodržovat předepsaný režim léčby a kontroly. Pacient informován o důležitosti dodržování léčby a o prevenci komplikací.
+
+  --- gpt-5-mini report (FULL) ---
+  Lékařská zpráva
+
+  Identifikace pacienta:
+  - Jméno / Věk / Datum návštěvy: Kája; Hurvínek / věk: neuvedeno / 19. 04. 2026
+
+  NO (Nynější onemocnění)
+  - Subjektivní údaje: Kája uvádí bolest v krku, bolest hlavy; Hurvínek uvádí píchání v uchu. Oba pacienti byli unavení po předchozí aktivitě ("včerejšek", "lítali", byli na horách). Pacienti zmínili, že se necítí dobře a zabloudili (kontext cesty). Doba trvání příznaků neuvedena.
+
+  RA (Rodinná anamnéza)
+  - neuvedeno
+
+  OA (Osobní anamnéza)
+  - neuvedeno
+
+  FA (Farmakologická anamnéza)
+  - neuvedeno (před zahájením terapie nejsou uváděna chronická medikace ani aktuální léky)
+
+  AA (Alergologická anamnéza)
+  - neuvedeno
+
+  SA (Sociální anamnéza)
+  - Subjektivně zmíněno: pacienti byli na výletě/horách, unavení; jinak sociální informace neuvedeny.
+
+  Objektivní nález
+  - Teplota: přítomna (lékař konstatoval "má teplotu"), přesná hodnota neuvedena.
+  - Orofaryngeální nález: povleklý (pokrytý) jazyk, bílé (béliké) změny, rudé (zánětlivé) mandle; zadní stěna hrdla posuzována při vyšetření.
+  - Ušní nález: Hurvínkovo subjektivní píchání v uchu zmíněno; objektivní otoskopické nálezy neuvedeny.
+  - Vyšetření: klinické vyšetření krku provedené lékařem s pomocí zrcátka/světla (inspekce).
+
+  Hodnocení
+  - Klinická diagnóza: akutní angína (tonzilitida), označena lékařem jako "parádní, rozvinutá angína".
+  - U Hurvínka podezření na bolest ucha (píchání v uchu) — objektivní potvrzení neuvedeno.
+
+  Návrh vyšetření
+  - Neuvedeno (žádné další laboratorní či zobrazovací vyšetření v záznamu navrženo ani provedené kromě klinického prohlédnutí krku zrcátkem).
+
+  Návrh terapie
+  - Antibiotická léčba: nasazení penicillínu (konkrétní preparát, dávkování, způsob podání a délka terapie neuvedeny).
+  - Doporučení zůstat doma (seznámení s potřebou klidu/odpočinku).
+
+  Pokyny a plán kontrol
+  - Instrukce k pravidelnému užívání předepsaných antibiotik (léky se mají brát pravidelně, jinak risk rezistence nebo selhání léčby).
+  - Doporučeno řádně se obléci, vyhýbat se prochlazení, včas vyhledat lékařské ošetření při zhoršení nebo nových potížích.
+  - Plán kontrol: konkrétní termín kontroly neuveden; obecné doporučení včasného návratu k ošetření při potřeby.
+
+
+====================================================================================================
+  SUMMARY — EU West Europe: gpt-4-1-mini vs gpt-5-mini
+====================================================================================================
+  Test                                                      Input   gpt-4-1-mini     gpt-5-mini    Ratio
+  ------------------------------------------------------- ------- -------------- -------------- --------
+  1. Short / simple (cold, headache)                        100ch         3.2s        54.0s    17.2x
+  2. Follow-up (post pneumonia)                             487ch         3.8s        42.7s    11.4x
+  3. Complex (angina + otitis, vitals, meds, allergy)       785ch         3.6s        48.4s    13.3x
+  4. Pediatric (bronchitis, 4yr girl)                       318ch         2.6s       344.6s   134.7x
+  5. Minimal (stomach pain only)                             84ch         3.8s        24.0s     6.2x
+  6. Cardiology emergency (chest pain, ECG)                 468ch         3.7s        54.0s    14.5x
+  7. Pediatric checkup (Tomášek, preventivní)              1199ch         4.4s        55.6s    12.8x
+  8. Food poisoning (mořské plody)                         1212ch         5.2s        62.4s    12.0x
+  9. Respiratory infection (pneumonie)                     1216ch         3.4s        55.1s    16.2x
+  10. Cardiac ER (infarkt, urgentní)                       1047ch         3.6s        49.8s    13.8x
+  11. LONG: Hurvínek – Nachlazení (6.6KB)                  5849ch         7.4s        79.3s    10.8x
+  12. LONG: Hurvínek – Zlomenina (6.0KB)                   5297ch         6.8s        60.5s     9.0x
+  13. LONG: Hurvínek – Angína (6.9KB)                      6114ch         6.9s        62.2s     9.1x
+  ------------------------------------------------------- ------- -------------- -------------- --------
+  AVERAGE                                                                 4.5s        76.4s    17.1x
+
+  Avg completion tokens: gpt-4-1-mini=535 | gpt-5-mini=2007
+
+====================================================================================================
+  DONE
+====================================================================================================
+
+  Full results saved to: /Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/backend/compare_eu_models_results.txt

@@ -150,6 +150,10 @@ class _RecordingHistoryListState extends ConsumerState<RecordingHistoryList> {
       final fullEntry = await storage.loadEntry(indexEntry.id);
       if (!mounted) return;
       ref.read(sessionProvider.notifier).loadRecording(fullEntry);
+      // Close the bottom sheet so the loaded recording is immediately visible.
+      if (mounted && Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

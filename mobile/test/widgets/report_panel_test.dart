@@ -145,7 +145,7 @@ void main() {
   testWidgets('save button hidden when no loaded recording', (tester) async {
     await tester.pumpWidget(buildTestApp(
       overrides: defaultOverrides(),
-      child: const ReportPanel(showCloseButton: false),
+      child: const ReportPanel(),
     ));
     await tester.pumpAndSettle();
 
@@ -165,7 +165,7 @@ void main() {
 
     await tester.pumpWidget(buildTestApp(
       overrides: defaultOverrides(),
-      child: const ReportPanel(showCloseButton: false),
+      child: const ReportPanel(),
     ));
     await tester.pumpAndSettle();
 
@@ -202,7 +202,7 @@ void main() {
 
     await tester.pumpWidget(buildTestApp(
       overrides: defaultOverrides(),
-      child: const ReportPanel(showCloseButton: false),
+      child: const ReportPanel(),
     ));
     await tester.pumpAndSettle();
 
@@ -248,7 +248,7 @@ void main() {
 
     await tester.pumpWidget(buildTestApp(
       overrides: defaultOverrides(),
-      child: const ReportPanel(showCloseButton: false),
+      child: const ReportPanel(),
     ));
     await tester.pumpAndSettle();
 
@@ -296,7 +296,7 @@ void main() {
 
     await tester.pumpWidget(buildTestApp(
       overrides: defaultOverrides(),
-      child: const ReportPanel(showCloseButton: false),
+      child: const ReportPanel(),
     ));
     await tester.pumpAndSettle();
 

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANOTE — Option C: Full Immersion</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; background: #1a1a2e; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
+  }
+  .phone {
+    width: 390px; height: 844px; background: #f2f4f5; border-radius: 44px;
+    overflow: hidden; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    display: flex; flex-direction: column;
+  }
+  .status-bar {
+    height: 54px; padding: 14px 28px 0; display: flex; justify-content: space-between;
+    align-items: center; font-size: 14px; font-weight: 600; color: #1a1a1a;
+  }
+
+  /* Transparent app bar */
+  .app-bar {
+    padding: 8px 20px; display: flex; justify-content: space-between; align-items: center;
+    background: transparent;
+  }
+  .app-bar h1 {
+    font-size: 18px; font-weight: 600; color: #374151; letter-spacing: 2px;
+  }
+  .app-bar .settings { font-size: 22px; opacity: 0.85; cursor: pointer; }
+
+  /* Report — immersive full screen */
+  .report-area { flex: 1; padding: 0 10px; overflow: hidden; }
+  .report-card {
+    height: 100%; border: 1px solid #e0e4e8; border-radius: 24px;
+    padding: 24px 22px; overflow-y: auto; background: #ffffff;
+  }
+  .report-card h3 {
+    font-size: 12px; font-weight: 600; color: #409086; text-transform: uppercase;
+    letter-spacing: 1.2px; margin-bottom: 20px;
+  }
+  .report-card .field { margin-bottom: 16px; }
+  .report-card .field-label {
+    font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 4px;
+  }
+  .report-card .field-value { font-size: 14.5px; color: #111827; line-height: 1.55; }
+
+  /* Bottom — just the button */
+  .bottom-area {
+    padding: 14px 20px 38px; display: flex; flex-direction: column;
+    align-items: center; gap: 0; position: relative;
+  }
+
+  /* Glow ring for recording */
+  .record-btn-wrapper {
+    position: relative; display: flex; align-items: center; justify-content: center;
+  }
+  .glow-ring {
+    position: absolute; width: 72px; height: 72px; border-radius: 50%;
+    border: 2px solid transparent; transition: all 0.3s;
+  }
+  .glow-ring.active {
+    width: 96px; height: 96px; border-color: rgba(220,38,38,0.25);
+    animation: glowPulse 2s infinite;
+  }
+
+  .record-btn {
+    width: 72px; height: 72px; border-radius: 50%; border: none; cursor: pointer;
+    background: rgb(64, 144, 134); box-shadow: 0 6px 28px rgba(64,144,134,0.4);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s ease; z-index: 2;
+  }
+  .record-btn .icon { font-size: 30px; filter: brightness(0) invert(1); }
+  .record-btn:hover { transform: scale(1.05); }
+  .record-btn.recording {
+    background: #dc2626;
+    box-shadow: 0 6px 28px rgba(220,38,38,0.4);
+    animation: pulse 1.5s infinite;
+  }
+
+  /* Recording overlay at bottom of card */
+  .recording-overlay {
+    position: absolute; top: -36px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 6px;
+    opacity: 0; transition: all 0.3s ease; pointer-events: none;
+  }
+  .recording-overlay.active { opacity: 1; }
+  .recording-overlay .dot {
+    width: 8px; height: 8px; background: #dc2626; border-radius: 50%;
+    animation: blink 1s infinite;
+  }
+  .recording-overlay .text {
+    font-size: 13px; color: #dc2626; font-weight: 500;
+  }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(220,38,38,0.5); }
+    70% { box-shadow: 0 0 0 20px rgba(220,38,38,0); }
+    100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); }
+  }
+  @keyframes glowPulse {
+    0% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.15); opacity: 0.2; }
+    100% { transform: scale(1); opacity: 0.6; }
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  .home-indicator {
+    width: 134px; height: 5px; background: #1a1a1a; border-radius: 3px;
+    margin: 0 auto 8px; opacity: 0.2;
+  }
+
+  .toggle-bar {
+    position: fixed; top: 20px; right: 20px; display: flex; gap: 8px; z-index: 100;
+  }
+  .toggle-bar button {
+    padding: 8px 16px; border-radius: 8px; border: 1px solid #ccc;
+    background: #fff; cursor: pointer; font-size: 13px; font-weight: 500;
+  }
+  .toggle-bar button.active { background: rgb(64,144,134); color: #fff; border-color: rgb(64,144,134); }
+</style>
+</head>
+<body>
+
+<div class="toggle-bar">
+  <button id="idleBtn" class="active" onclick="setIdle()">Idle</button>
+  <button id="recBtn" onclick="setRecording()">Recording</button>
+</div>
+
+<div class="phone">
+  <div class="status-bar">
+    <span>9:41</span>
+    <div style="display:flex;gap:6px"><span style="font-size:12px">📶</span><span style="font-size:12px">🔋</span></div>
+  </div>
+
+  <div class="app-bar">
+    <h1>ANOTE</h1>
+    <span class="settings">⚙️</span>
+  </div>
+
+  <div class="report-area">
+    <div class="report-card">
+      <h3>Lékařská zpráva</h3>
+      <div class="field">
+        <div class="field-label">Pacient</div>
+        <div class="field-value">Muž, 45 let</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Anamnéza</div>
+        <div class="field-value">Pacient přichází s bolestmi na hrudi trvajícími 3 dny. Bolest je tupá, lokalizovaná retrosternálně, bez iradiace. Zhoršuje se při fyzické námaze.</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Objektivní nález</div>
+        <div class="field-value">TK 135/85, TF 78/min, pravidelná. Dýchání čisté, sklípkové. Břicho měkké, nebolestivé. Bez otoků DK.</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Závěr</div>
+        <div class="field-value">Suspektní stabilní angina pectoris. Doporučeno EKG, laboratorní vyšetření (troponin, KO, lipidový profil), zátěžový test.</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Terapie</div>
+        <div class="field-value">ASA 100mg 1-0-0, Atorvastatin 20mg 0-0-1. Kontrola za 1 týden s výsledky.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding: 6px 10px 0; display:flex; justify-content:space-between; align-items:center;">
+    <button style="background:none; border:1px solid rgb(64,144,134); color:rgb(64,144,134); font-size:13px; font-weight:600; cursor:pointer; padding:6px 14px; border-radius:8px;">✉️ Odeslat emailem</button>
+    <button style="background:none; border:none; font-size:18px; cursor:pointer; opacity:0.6; padding:4px 8px;" title="Kopírovat">📋</button>
+  </div>
+  <div class="bottom-area">
+    <div class="recording-overlay" id="recOverlay">
+      <span class="dot"></span>
+      <span class="text">Nahrávání...</span>
+    </div>
+    <div class="record-btn-wrapper">
+      <div class="glow-ring" id="glowRing"></div>
+      <button class="record-btn" id="recordBtn" onclick="toggleRecording()">
+        <span class="icon" id="btnIcon">🎙</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="home-indicator"></div>
+</div>
+
+<script>
+  let recording = false;
+  function toggleRecording() {
+    recording = !recording;
+    recording ? setRecording() : setIdle();
+  }
+  function setRecording() {
+    recording = true;
+    document.getElementById('recordBtn').classList.add('recording');
+    document.getElementById('recOverlay').classList.add('active');
+    document.getElementById('glowRing').classList.add('active');
+    document.getElementById('btnIcon').textContent = '⏹';
+    document.getElementById('recBtn').classList.add('active');
+    document.getElementById('idleBtn').classList.remove('active');
+  }
+  function setIdle() {
+    recording = false;
+    document.getElementById('recordBtn').classList.remove('recording');
+    document.getElementById('recOverlay').classList.remove('active');
+    document.getElementById('glowRing').classList.remove('active');
+    document.getElementById('btnIcon').textContent = '🎙';
+    document.getElementById('idleBtn').classList.add('active');
+    document.getElementById('recBtn').classList.remove('active');
+  }
+</script>
+</body>
+</html>

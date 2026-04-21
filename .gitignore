@@ -44,6 +44,9 @@ mobile/android/key.properties
 .DS_Store
 **/.DS_Store
 
+# ===== Secrets =====
+mobile/lib/config/secrets.dart
+
 # ===== IDE =====
 .idea/
 .vscode/
@@ -57,3 +60,7 @@ mobile/android/key.properties
 # ===== Test scripts with secrets =====
 test_gpt5mini.py
 test_gpt5mini_full.py
+
+# ===== Evaluation audio files =====
+backend/eval_dataset/*.wav
+backend/models/wav_cache/
