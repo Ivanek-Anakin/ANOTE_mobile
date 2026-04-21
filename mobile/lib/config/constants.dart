@@ -1,4 +1,13 @@
+import 'package:flutter/material.dart';
 import 'secrets.dart';
+
+class AppColors {
+  /// ANOTE brand green used for the record FAB and primary actions.
+  static const Color anoteGreen = Color(0xFF409086);
+
+  /// Red used while recording (pulse FAB and blinking indicator dot).
+  static const Color recordingRed = Color(0xFFDC2626);
+}
 
 class AppConstants {
   // Production: Azure Container Apps (West Europe)

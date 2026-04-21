@@ -1348,6 +1348,23 @@ class SessionNotifier extends StateNotifier<SessionState> {
     }
   }
 
+  /// Manually send the current report via email to the configured address.
+  ///
+  /// Throws [StateError] if no email is configured, or rethrows any
+  /// transport error so the UI can show a snackbar.
+  Future<void> sendReportEmailNow({required String report}) async {
+    final email = _ref.read(emailReportAddressProvider);
+    if (email.isEmpty) {
+      throw StateError('no-email-configured');
+    }
+    final vt = await _getVisitTypeApi();
+    await _reportService.sendReportEmail(
+      report: report,
+      email: email,
+      visitType: vt,
+    );
+  }
+
   @override
   void dispose() {
     _preloadTimer?.cancel();
