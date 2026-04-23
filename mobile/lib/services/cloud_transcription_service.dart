@@ -7,6 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../config/constants.dart';
 import '../utils/wav_encoder.dart';
+import 'vad_service.dart';
 import 'whisper_service.dart' show WhisperService;
 
 /// Azure OpenAI Whisper cloud transcription service.
@@ -40,9 +41,25 @@ class CloudTranscriptionService {
   /// For recordings longer than 10 minutes, automatically splits into
   /// overlapping chunks and deduplicates at boundaries.
   Future<String> transcribe(List<double> samples) async {
-    if (samples.length <= _maxChunkSamples) {
+    // Tier A: VAD-gate before upload to suppress silence hallucinations.
+    // On failure (model missing, VAD error, or <20% speech kept) we fall
+    // back to the raw buffer so behaviour is never worse than before.
+    final Float32List? gated = await VadService.extractSpeech(samples);
+    final List<double> effective =
+        gated != null ? List<double>.from(gated) : samples;
+    if (gated != null) {
+      WhisperService.debugLog(
+          '[CloudTranscriptionService] Using VAD-gated audio '
+          '(${effective.length} samples, down from ${samples.length})');
+    } else {
+      WhisperService.debugLog(
+          '[CloudTranscriptionService] VAD unavailable/low-confidence — '
+          'uploading raw ${samples.length} samples');
+    }
+
+    if (effective.length <= _maxChunkSamples) {
       // Short recording — single request
-      return _transcribeChunk(samples);
+      return _transcribeChunk(effective);
     }
 
     // Long recording — chunked transcription
@@ -50,10 +67,10 @@ class CloudTranscriptionService {
     String previousTail = '';
 
     for (int start = 0;
-        start < samples.length;
+        start < effective.length;
         start += _maxChunkSamples - _overlapSamples) {
-      final int end = min(start + _maxChunkSamples, samples.length);
-      final chunk = samples.sublist(start, end);
+      final int end = min(start + _maxChunkSamples, effective.length);
+      final chunk = effective.sublist(start, end);
 
       final text = await _transcribeChunk(chunk);
       if (text.isEmpty) continue;
@@ -107,21 +124,9 @@ class CloudTranscriptionService {
     bodyParts.add(utf8.encode(
         'Content-Disposition: form-data; name="language"\r\n\r\ncs\r\n'));
 
-    // Prompt field — guides Whisper toward Czech medical terminology
-    bodyParts.add(utf8.encode('--$boundary\r\n'));
-    bodyParts.add(utf8.encode(
-        'Content-Disposition: form-data; name="prompt"\r\n\r\n'
-        'Lékařská prohlídka, anamnéza pacienta, nynější onemocnění. '
-        'Homansovo znamení, Murphyho znamení, Lasègueovo znamení. '
-        'Hluboká žilní trombóza, plicní embolie, infarkt myokardu, fibrilace síní. '
-        'CT angiografie, RTG plic, EKG, echokardiografie, gastroskopie, kolonoskopie. '
-        'Chrůpky, krepitace, vrzoty, dýchání sklípkové, poklep plný jasný. '
-        'Krevní tlak, tepová frekvence, saturace kyslíkem, dechová frekvence. '
-        'Metformin, Prestarium, bisoprolol, atorvastatin, warfarin, heparin, furosemid. '
-        'Cirhóza, pneumonie, cholecystitida, appendicitida, pankreatitida. '
-        'Alergická anamnéza, farmakologická anamnéza, rodinná anamnéza. '
-        'Hypertenze, diabetes mellitus, hypercholesterolémie. '
-        'Objektivní nález, subjektivní potíže, pracovní diagnóza.\r\n'));
+    // Prompt field intentionally omitted — even a short prompt was observed
+    // being regurgitated by Whisper during silent/low-signal regions.
+    // Spelling of eponyms/drug names is corrected downstream by the LLM.
 
     // Response format field
     bodyParts.add(utf8.encode('--$boundary\r\n'));
