@@ -137,7 +137,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   /// Save current session to history (if any) and clear the screen.
   /// When [thenStartRecording] is true, immediately starts a new recording
-  /// after the save+clear completes.
+  /// after the save+clear completes via the canonical [restartRecording]
+  /// path so Journey B (post-stop "Start") matches Journey A ("+" → mic).
   Future<void> _saveAndClear({required bool thenStartRecording}) async {
     FocusScope.of(context).unfocus();
     final notifier = ref.read(sessionProvider.notifier);
@@ -145,15 +146,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final hadContent =
         session.transcript.isNotEmpty || session.report.isNotEmpty;
 
-    await notifier.startNewRecording(); // saves + resets session
+    if (thenStartRecording) {
+      // Single canonical path: save existing → resetSession → startRecording.
+      await notifier.restartRecording();
+    } else {
+      await notifier.startNewRecording(); // saves + resets session
+    }
     if (!mounted) return;
     setState(() {
       _reportHasEdits = false;
       _showTranscript = false;
     });
-    if (thenStartRecording) {
-      notifier.startRecording();
-    } else if (hadContent) {
+    if (!thenStartRecording && hadContent) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Nahrávka uložena'),
         duration: Duration(seconds: 2),

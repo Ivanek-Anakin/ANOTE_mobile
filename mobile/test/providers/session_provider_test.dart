@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mockito/annotations.dart';
@@ -95,6 +96,23 @@ void main() {
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
+    // Stub flutter_secure_storage so SessionNotifier._seedDefaultCloudSettings
+    // does not throw MissingPluginException during construction.
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      (MethodCall call) async {
+        if (call.method == 'read' || call.method == 'readAll') return null;
+        return null;
+      },
+    );
+    // Stub wakelock_plus to avoid PlatformException during resetSession.
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel(
+          'dev.flutter.pigeon.wakelock_plus_platform_interface.WakelockPlusApi.toggle'),
+      (MethodCall call) async => null,
+    );
     mockReportService = MockReportService();
     fakeAudioService = _FakeAudioService();
     fakeWhisperService = _FakeWhisperService();
@@ -327,6 +345,113 @@ void main() {
     final state = container.read(sessionProvider);
     expect(state.transcript, 'Loaded from history');
     expect(state.report, 'Historical report');
+  });
+
+  // ---------------------------------------------------------------------------
+  // TASK-0035: Journey A ("+" then mic) and Journey B (post-stop "Start" mic)
+  // must produce identical pre-recording SessionState.
+  // ---------------------------------------------------------------------------
+
+  test('Journey A and Journey B produce identical SessionState (TASK-0035)',
+      () async {
+    SessionState seedDirtyState(ProviderContainer c) {
+      // Simulate a stopped recording with transcript + report present.
+      final notifier = c.read(sessionProvider.notifier);
+      notifier.startRecording();
+      // Mutate state directly is not allowed; use loadRecording to simulate
+      // a populated post-stop session.
+      notifier.resetSession();
+      notifier.loadRecording(RecordingEntry(
+        id: 'seed-${c.hashCode}',
+        createdAt: DateTime(2026, 5, 1),
+        transcript: 'Pacient si stěžuje na bolesti hlavy.',
+        report: 'Lékařská zpráva: bolesti hlavy.',
+        visitType: 'default',
+        durationSeconds: 60,
+        wordCount: 5,
+      ));
+      return c.read(sessionProvider);
+    }
+
+    SessionState snapshotPreRecord(ProviderContainer c) {
+      // Capture state immediately after reset/restart but before status flips
+      // to recording. We snapshot after startRecording sets recording status,
+      // so we compare the recording-start state instead.
+      return c.read(sessionProvider);
+    }
+
+    // Journey A: "+" (startNewRecording) then mic (startRecording)
+    final containerA = makeContainer();
+    addTearDown(containerA.dispose);
+    seedDirtyState(containerA);
+    await containerA.read(sessionProvider.notifier).startNewRecording();
+    containerA.read(sessionProvider.notifier).startRecording();
+    final stateA = snapshotPreRecord(containerA);
+    final loadedIdA = containerA.read(loadedRecordingIdProvider);
+
+    // Journey B: post-stop "Start" mic-tap (restartRecording)
+    final containerB = makeContainer();
+    addTearDown(containerB.dispose);
+    seedDirtyState(containerB);
+    await containerB.read(sessionProvider.notifier).restartRecording();
+    final stateB = snapshotPreRecord(containerB);
+    final loadedIdB = containerB.read(loadedRecordingIdProvider);
+
+    // Both journeys must end on a recording session with empty transcript,
+    // empty report, no error, no carry-over visit type drift, no loaded id.
+    expect(stateA.status, RecordingStatus.recording);
+    expect(stateB.status, RecordingStatus.recording);
+    expect(stateA.transcript, stateB.transcript);
+    expect(stateA.transcript, isEmpty);
+    expect(stateA.report, stateB.report);
+    expect(stateA.report, isEmpty);
+    expect(stateA.errorMessage, stateB.errorMessage);
+    expect(stateA.errorMessage, isNull);
+    expect(stateA.visitTypeChanged, stateB.visitTypeChanged);
+    expect(stateA.visitTypeChanged, isFalse);
+    expect(stateA.visitType, stateB.visitType);
+    expect(loadedIdA, loadedIdB);
+    expect(loadedIdA, isNull);
+  });
+
+  test('resetSession preserves isModelLoaded based on whisper service',
+      () async {
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    // Fake whisper service reports isModelLoaded == true.
+    container.read(sessionProvider.notifier).startRecording();
+    container.read(sessionProvider.notifier).resetSession();
+    final state = container.read(sessionProvider);
+    expect(state.status, RecordingStatus.idle);
+    expect(state.isModelLoaded, isTrue,
+        reason:
+            'resetSession must reflect the loaded model so the UI does not '
+            'flicker into "model not loaded" between sessions (TASK-0035).');
+  });
+
+  test('startRecording auto-resets when called from a dirty state', () {
+    final container = makeContainer();
+    addTearDown(container.dispose);
+
+    container.read(sessionProvider.notifier).loadRecording(RecordingEntry(
+          id: 'dirty-1',
+          createdAt: DateTime(2026, 5, 1),
+          transcript: 'Stale transcript',
+          report: 'Stale report',
+          visitType: 'default',
+          durationSeconds: 30,
+          wordCount: 2,
+        ));
+    expect(container.read(sessionProvider).transcript, 'Stale transcript');
+
+    container.read(sessionProvider.notifier).startRecording();
+
+    final state = container.read(sessionProvider);
+    expect(state.status, RecordingStatus.recording);
+    expect(state.transcript, isEmpty);
+    expect(state.report, isEmpty);
+    expect(container.read(loadedRecordingIdProvider), isNull);
   });
 }
 

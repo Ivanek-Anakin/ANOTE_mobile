@@ -660,6 +660,16 @@ class SessionNotifier extends StateNotifier<SessionState> {
   /// 4. Subscribes to live transcript updates.
   /// 5. Starts a periodic timer that generates report previews.
   void startRecording() {
+    // Defensive: ensure a clean slate even if the caller did not route
+    // through resetSession() / restartRecording().  Idempotent on an
+    // already-clean state.  Guarantees Journey A ("+ → mic") and Journey B
+    // ("mic after stop+report") produce identical pre-recording state.
+    if (state.transcript.isNotEmpty ||
+        state.report.isNotEmpty ||
+        state.visitTypeChanged ||
+        _ref.read(loadedRecordingIdProvider) != null) {
+      resetSession();
+    }
     _recordingStartTime = DateTime.now();
     // Clear any loaded recording reference since this is a new session
     _ref.read(loadedRecordingIdProvider.notifier).state = null;
@@ -667,6 +677,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
       status: RecordingStatus.recording,
       transcript: '',
       report: '',
+      visitTypeChanged: false,
       clearError: true,
     );
     _startRecordingAsync();
@@ -1218,6 +1229,17 @@ class SessionNotifier extends StateNotifier<SessionState> {
   }
 
   /// Clear all session state and stop any running audio/timers.
+  ///
+  /// This is the single canonical reset path. Both the "+" new-recording
+  /// button and the post-stop "Start" mic-tap converge through this method
+  /// (via [startNewRecording] / [restartRecording]) so that the resulting
+  /// [SessionState] is functionally and visually identical regardless of
+  /// entry point.
+  ///
+  /// Preserves [SessionState.isModelLoaded] based on the current Whisper
+  /// service state — the on-device model is not unloaded by reset, so the
+  /// UI flag must reflect that to avoid spurious "model not loaded" banners
+  /// between sessions.
   void resetSession() {
     _reportTimer?.cancel();
     _reportTimer = null;
@@ -1240,9 +1262,12 @@ class SessionNotifier extends StateNotifier<SessionState> {
     _whisperService.reset();
     _whisperService.setCloudOnlyMode(false);
     _lastReportedTranscript = '';
+    _lastAutoSavedTranscript = '';
+    _offlineFallbackModel = null;
+    _cloudPartialIndex = 0;
     _recordingStartTime = null;
     _ref.read(loadedRecordingIdProvider.notifier).state = null;
-    state = const SessionState();
+    state = SessionState(isModelLoaded: _whisperService.isModelLoaded);
 
     if (wasRunning) {
       // Fire-and-forget: we've already cleared state; we just want hardware to
@@ -1250,6 +1275,18 @@ class SessionNotifier extends StateNotifier<SessionState> {
       _audioService.stop();
       _releaseWakeLockAndForeground();
     }
+  }
+
+  /// Save the current session if any, fully reset state, and immediately
+  /// begin a new recording.
+  ///
+  /// This is the canonical path for the post-stop "Start" mic-tap (Journey B
+  /// in TASK-0035). It guarantees the pre-recording state is identical to
+  /// pressing "+" followed by tapping the mic (Journey A) by routing both
+  /// flows through [resetSession] before [startRecording].
+  Future<void> restartRecording() async {
+    await startNewRecording();
+    startRecording();
   }
 
   /// Load a recording from history into the current session.
