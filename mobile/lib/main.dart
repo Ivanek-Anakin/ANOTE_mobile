@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'config/constants.dart';
 import 'screens/home_screen.dart';
 import 'screens/settings_screen.dart';
 
@@ -20,6 +22,7 @@ void main() async {
   // Catch all uncaught async errors.
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    await _migrateBackendUrlIfNeeded();
     final prefs = await SharedPreferences.getInstance();
     final themeName = prefs.getString('theme_mode');
     final themeMode = switch (themeName) {
@@ -48,6 +51,27 @@ void main() async {
     // ignore: avoid_print
     print('[ZONE ERROR] $stack');
   });
+}
+
+Future<void> _migrateBackendUrlIfNeeded() async {
+  const storage = FlutterSecureStorage();
+  final storedUrl = await storage.read(key: AppConstants.secureStorageKeyUrl);
+  final storedToken =
+      await storage.read(key: AppConstants.secureStorageKeyToken);
+
+  if (AppConstants.shouldMigrateBackendUrl(storedUrl)) {
+    await storage.write(
+      key: AppConstants.secureStorageKeyUrl,
+      value: AppConstants.defaultBackendUrl,
+    );
+  }
+
+  if (AppConstants.shouldMigrateBackendToken(storedToken)) {
+    await storage.write(
+      key: AppConstants.secureStorageKeyToken,
+      value: AppConstants.defaultToken,
+    );
+  }
 }
 
 class AnoteApp extends ConsumerWidget {

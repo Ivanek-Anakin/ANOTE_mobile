@@ -231,13 +231,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         }
       }
 
-      // When recording transitions stop→idle, always drop back to report view
-      // so the next session starts fresh with the correct panel visible.
+      // When recording transitions to a non-recording state, always drop
+      // back to report view so the next session starts fresh with the
+      // correct panel visible.
       if (prev?.status == RecordingStatus.recording &&
           next.status != RecordingStatus.recording) {
         if (mounted && _showTranscript) {
           setState(() => _showTranscript = false);
         }
+      }
+
+      // Belt-and-suspenders: in Journey B (post-stop "Start" mic-tap), we
+      // observed that `ref.watch(sessionProvider)` in this widget can
+      // become stale after restartRecording() — the listen still fires
+      // but the build does not run, leaving the recording indicator and
+      // transcript view visible after status returns to idle. Forcing a
+      // setState() from the listener on any status change guarantees the
+      // UI reflects the current state regardless of subscription health.
+      if (prev?.status != next.status && mounted) {
+        // ignore: avoid_print
+        print('[HomeListen] status ${prev?.status}→${next.status} '
+            '(forcing rebuild)');
+        setState(() {});
       }
     });
 
@@ -255,6 +270,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final effectiveShowTranscript = _reportHasEdits
         ? false
         : (session.status == RecordingStatus.recording || _showTranscript);
+
+    // ignore: avoid_print
+    print('[HomeBuild] status=${session.status} '
+        '_showTranscript=$_showTranscript '
+        'effectiveShowTranscript=$effectiveShowTranscript '
+        'tLen=${session.transcript.length} rLen=${session.report.length}');
 
     return Scaffold(
       appBar: AppBar(
@@ -413,84 +434,109 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     bool showTranscript,
     bool loadedFromHistory,
   ) {
-    final isRecording = session.status == RecordingStatus.recording;
-    final hasReport = session.report.isNotEmpty;
-    final hasTranscript = session.transcript.isNotEmpty;
-    final hasAnyContent = hasReport || hasTranscript || isRecording;
-
-    // "Send email" mode: user edited report OR loaded from history
-    // (treated as already reviewed, per spec).
-    final emailMode = _reportHasEdits || (loadedFromHistory && hasReport);
-
     return Column(
       children: [
         const SizedBox(height: 8),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: _ContentCard(
-              showTranscript: showTranscript,
-              onReportEditStateChanged: (hasEdits) {
-                if (!mounted) return;
-                if (hasEdits != _reportHasEdits) {
-                  setState(() => _reportHasEdits = hasEdits);
+            child: Consumer(
+              builder: (context, ref, _) {
+                final s = ref.watch(sessionProvider);
+                final eff = _reportHasEdits
+                    ? false
+                    : (s.status == RecordingStatus.recording ||
+                        _showTranscript);
+                return _ContentCard(
+                  showTranscript: eff,
+                  onReportEditStateChanged: (hasEdits) {
+                    if (!mounted) return;
+                    if (hasEdits != _reportHasEdits) {
+                      setState(() => _reportHasEdits = hasEdits);
+                    }
+                  },
+                );
+              },
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Consumer(
+          builder: (context, ref, _) {
+            final s = ref.watch(sessionProvider);
+            final isRec = s.status == RecordingStatus.recording;
+            final hasReport = s.report.isNotEmpty;
+            final hasTranscript = s.transcript.isNotEmpty;
+            final hasAnyContent = hasReport || hasTranscript || isRec;
+            final emailMode =
+                _reportHasEdits || (loadedFromHistory && hasReport);
+            final eff = _reportHasEdits ? false : (isRec || _showTranscript);
+            if (!hasAnyContent) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _ActionRow(
+                emailMode: emailMode,
+                showingTranscript: eff,
+                hasReport: hasReport,
+                hasTranscript: hasTranscript,
+                onToggleView: () {
+                  setState(() => _showTranscript = !_showTranscript);
+                },
+                onSendEmail: _sendEmail,
+                onCopy: _copyVisibleContent,
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 8),
+        Consumer(
+          builder: (context, ref, _) {
+            final isRec = ref.watch(sessionProvider
+                .select((s) => s.status == RecordingStatus.recording));
+            return AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (child, anim) => FadeTransition(
+                opacity: anim,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0, 0.2),
+                    end: Offset.zero,
+                  ).animate(anim),
+                  child: child,
+                ),
+              ),
+              child: isRec
+                  ? const Padding(
+                      key: ValueKey('rec-indicator'),
+                      padding: EdgeInsets.only(bottom: 4),
+                      child: RecordingIndicator(),
+                    )
+                  : const SizedBox(
+                      key: ValueKey('rec-indicator-empty'),
+                      height: 4,
+                    ),
+            );
+          },
+        ),
+        Consumer(
+          builder: (context, ref, _) {
+            final s = ref.watch(sessionProvider);
+            final isRec = s.status == RecordingStatus.recording;
+            final hasAnyContent =
+                s.report.isNotEmpty || s.transcript.isNotEmpty || isRec;
+            return GestureDetector(
+              onLongPress: () {
+                if (hasAnyContent && s.status == RecordingStatus.idle) {
+                  _saveAndClear(thenStartRecording: true);
                 }
               },
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        if (hasAnyContent)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: _ActionRow(
-              emailMode: emailMode,
-              showingTranscript: showTranscript,
-              hasReport: hasReport,
-              hasTranscript: hasTranscript,
-              onToggleView: () {
-                setState(() => _showTranscript = !_showTranscript);
-              },
-              onSendEmail: _sendEmail,
-              onCopy: _copyVisibleContent,
-            ),
-          ),
-        const SizedBox(height: 8),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          transitionBuilder: (child, anim) => FadeTransition(
-            opacity: anim,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0, 0.2),
-                end: Offset.zero,
-              ).animate(anim),
-              child: child,
-            ),
-          ),
-          child: isRecording
-              ? const Padding(
-                  key: ValueKey('rec-indicator'),
-                  padding: EdgeInsets.only(bottom: 4),
-                  child: RecordingIndicator(),
-                )
-              : const SizedBox(
-                  key: ValueKey('rec-indicator-empty'),
-                  height: 4,
-                ),
-        ),
-        GestureDetector(
-          onLongPress: () {
-            if (hasAnyContent && session.status == RecordingStatus.idle) {
-              _saveAndClear(thenStartRecording: true);
-            }
+              child: _FabRow(
+                showPlus: hasAnyContent && !isRec,
+                onPlus: () => _saveAndClear(thenStartRecording: false),
+                onIdleTap: _onRecordFabIdleTap,
+              ),
+            );
           },
-          child: _FabRow(
-            showPlus:
-                hasAnyContent && session.status != RecordingStatus.recording,
-            onPlus: () => _saveAndClear(thenStartRecording: false),
-            onIdleTap: _onRecordFabIdleTap,
-          ),
         ),
         const SizedBox(height: 20),
       ],

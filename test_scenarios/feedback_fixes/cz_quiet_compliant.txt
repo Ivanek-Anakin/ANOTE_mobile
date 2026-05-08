@@ -1,0 +1,25 @@
+# Synthetic transcript — pending Dr. Brož clinical review
+# Purpose: TASK-0036, Defect 4 — cooperation boilerplate absent from source dialogue
+# Created: 2026-05-02
+# Do not use in clinical evaluations until reviewed.
+
+Lékař: Dobrý den, co vás trápí?
+Pacient: Dobrý den, poslední týden mě skoro každý den bolí hlava v čele a za očima.
+Lékař: Je to stálá bolest, nebo spíš záchvaty?
+Pacient: Spíš tlak, odpoledne horší. Ráno je to snesitelné.
+Lékař: Měl jste teplotu, zvracení nebo poruchu vidění?
+Pacient: Teplotu ne, nezvracel jsem. Občas se hůř soustředím, ale vidím normálně.
+Lékař: Spíte dobře?
+Pacient: Poslední dny málo, budím se kolem třetí ráno.
+Lékař: Prodělal jste úraz hlavy?
+Pacient: Ne.
+Lékař: Změřím tlak a orientačně vás vyšetřím. Tlak 142 na 88, puls 80, neurologicky bez ložiskového nálezu.
+Pacient: Dobře.
+Lékař: Jaké léky nyní užíváte?
+Pacient: Jen občas ibuprofen 400, když to nejde vydržet.
+Lékař: Alergie na léky?
+Pacient: O žádné nevím.
+Lékař: V rodině migréna nebo vysoký tlak?
+Pacient: Táta se léčí s hypertenzí, migrénu nikdo neřešil.
+Lékař: Navrhnu krátkodobě analgetikum při bolesti, doplnit pitný režim a omezit práci u monitoru bez přestávek. Uděláme laboratorní odběry a za deset dní kontrolu. Kdyby se objevila náhlá silná bolest, porucha řeči nebo slabost končetin, přijďte ihned.
+Pacient: Rozumím, děkuji.

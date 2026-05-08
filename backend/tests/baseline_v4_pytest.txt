@@ -1,0 +1,171 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile
+configfile: pytest.ini
+plugins: anyio-4.12.1
+collecting ... collected 10 items
+
+backend/tests/test_prompt_fixes.py::test_no_song_or_offtopic_in_report[S Hurv\xednkem za l\xe9ka\u0159em   1  D\xedl   Nachlazen\xed] PASSED [ 10%]
+backend/tests/test_prompt_fixes.py::test_no_song_or_offtopic_in_report[S Hurv\xednkem za l\xe9ka\u0159em   2  D\xedl   Zlomenina] PASSED [ 20%]
+backend/tests/test_prompt_fixes.py::test_no_song_or_offtopic_in_report[S Hurv\xednkem za l\xe9ka\u0159em 08 Ang\xedna] PASSED [ 30%]
+backend/tests/test_prompt_fixes.py::test_objective_findings_in_correct_section[S Hurv\xednkem za l\xe9ka\u0159em   1  D\xedl   Nachlazen\xed] PASSED [ 40%]
+backend/tests/test_prompt_fixes.py::test_objective_findings_in_correct_section[S Hurv\xednkem za l\xe9ka\u0159em   2  D\xedl   Zlomenina] PASSED [ 50%]
+backend/tests/test_prompt_fixes.py::test_objective_findings_in_correct_section[S Hurv\xednkem za l\xe9ka\u0159em 08 Ang\xedna] PASSED [ 60%]
+backend/tests/test_prompt_fixes.py::test_objective_findings_in_correct_section[cz_objective_in_dialogue] FAILED [ 70%]
+backend/tests/test_prompt_fixes.py::test_jar_allergy_no_pollen_inference FAILED [ 80%]
+backend/tests/test_prompt_fixes.py::test_no_cooperation_boilerplate_when_absent FAILED [ 90%]
+backend/tests/test_prompt_fixes.py::test_dosage_preserved_verbatim PASSED [100%]
+
+=================================== FAILURES ===================================
+_____ test_objective_findings_in_correct_section[cz_objective_in_dialogue] _____
+
+scenario_path = PosixPath('/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/test_scenarios/feedback_fixes/cz_objective_in_dialogue.txt')
+
+    @pytest.mark.feedback_fixes
+    @pytest.mark.parametrize(
+        "scenario_path",
+        sorted(HURVINEK_DIR.glob("*.txt")) + [FIXTURES_DIR / "cz_objective_in_dialogue.txt"],
+        ids=lambda p: p.stem,
+    )
+    def test_objective_findings_in_correct_section(scenario_path: Path) -> None:
+        report = _generate_report_for_path(scenario_path)
+        no_section = _extract_section(report, "NO")
+        obj_section = _extract_section(report, "OBJ")
+    
+        vital_pattern = r"\b(?:TK|TF|P|SpO2|TT|teplota)\s*[:=]?\s*\d"
+    
+        no_hits = re.findall(vital_pattern, no_section, flags=re.IGNORECASE)
+>       assert not no_hits, (
+            f"Vital-like measurements found under NO for {scenario_path.name}: {no_hits}.\n"
+            f"=== NO section ===\n{no_section}\n\n=== Objektivní nález ===\n{obj_section}"
+        )
+E       AssertionError: Vital-like measurements found under NO for cz_objective_in_dialogue.txt: ['TK 1'].
+E         === NO section ===
+E         - Hlavní problém: kašel trvající 3 dny, tlak na hrudi při hlubokém nádechu.
+E         - Průběh: kašel spíše suchý, ráno s trochou čirého hlenu, únava, noční buzení kvůli kašli, tlak na hrudi při hlubokém nádechu, dušnost při námaze (do schodů), v klidu dušnost neguje, mírné škrábání v krku, zimnici neguje, bolest svalů jen lehce.
+E         - Zvýšenou teplotu neguje (naměřeno 36,8 °C).
+E         - Puls 78/min, TK 145/90 mmHg, saturace 96 %.
+E         
+E         === Objektivní nález ===
+E         - TK 145/90 mmHg, puls 78/min, teplota 36,8 °C, saturace 96 %.
+E         - Fyzikální nález: nad pravou bází lehce oslabené dýchání, bez výrazných pískotů.
+E       assert not ['TK 1']
+
+backend/tests/test_prompt_fixes.py:164: AssertionError
+_____________________ test_jar_allergy_no_pollen_inference _____________________
+
+    @pytest.mark.feedback_fixes
+    def test_jar_allergy_no_pollen_inference() -> None:
+        scenario_path = FIXTURES_DIR / "cz_jar_allergy.txt"
+        report = _generate_report_for_path(scenario_path)
+        aa_section = _extract_section(report, "AA")
+    
+        banned_pollen_terms = ["pyl", "pylov", "sezónní alergi", "sezonni alergi"]
+        lower_report = report.lower()
+        hit = next((term for term in banned_pollen_terms if term in lower_report), None)
+        assert hit is None, (
+            f"Potential pollen hallucination term '{hit}' found for JAR allergy fixture.\n"
+            f"=== AA section ===\n{aa_section}\n\n=== Full report ===\n{report}"
+        )
+    
+        aa_lower = aa_section.lower()
+>       assert ("jar" in aa_lower) or ("neuvedeno" in aa_lower), (
+            "AA section must contain literal JAR/jar or be 'neuvedeno'.\n"
+            f"=== AA section ===\n{aa_section}"
+        )
+E       AssertionError: AA section must contain literal JAR/jar or be 'neuvedeno'.
+E         === AA section ===
+E         - Alergie na léky a potraviny neguje.
+E       assert ('jar' in '- alergie na léky a potraviny neguje.' or 'neuvedeno' in '- alergie na léky a potraviny neguje.')
+
+backend/tests/test_prompt_fixes.py:191: AssertionError
+_________________ test_no_cooperation_boilerplate_when_absent __________________
+
+    @pytest.mark.feedback_fixes
+    def test_no_cooperation_boilerplate_when_absent() -> None:
+        scenario_path = FIXTURES_DIR / "cz_quiet_compliant.txt"
+        report = _generate_report_for_path(scenario_path)
+        adh_section = _extract_section(report, "ADH")
+        adh_lower = adh_section.lower()
+    
+        banned = ["spolupráce dobrá", "rezim dodrzuje", "režim dodržuje", "bere léky pravidelně"]
+        has_banned = any(token in adh_lower for token in banned)
+    
+>       assert ("neuvedeno" in adh_lower) or (not has_banned), (
+            "Adherence section contains cooperation boilerplate despite absent source dialogue.\n"
+            f"=== Adherence a spolupráce pacienta ===\n{adh_section}\n\n=== Full report ===\n{report}"
+        )
+E       AssertionError: Adherence section contains cooperation boilerplate despite absent source dialogue.
+E         === Adherence a spolupráce pacienta ===
+E         - Spolupráce dobrá, pacient rozumí doporučením.
+E         
+E         === Full report ===
+E         Lékařská zpráva
+E         
+E         Identifikace pacienta:
+E         - Jméno: neuvedeno
+E         - Věk / r. narození: neuvedeno
+E         - Datum návštěvy: 02. 05. 2026
+E         
+E         NO (Nynější onemocnění):
+E         - Hlavní problém: bolest hlavy v čele a za očima, trvající asi týden, častá téměř každý den.
+E         - Charakter potíží: spíše tlaková bolest, horší odpoledne, ráno snesitelná.
+E         - Doprovodné příznaky: občasné zhoršení soustředění, normální vidění.
+E         - Negace: zvýšenou teplotu neguje, zvracení neguje, poruchu vidění neguje, úraz hlavy neguje.
+E         - Poruchy spánku: poslední dny málo spí, budí se kolem třetí ráno.
+E         
+E         RA (Rodinná anamnéza):
+E         - Hypertenze u otce.
+E         - Migrénu v rodině neuvedl / neguje.
+E         
+E         OA (Osobní anamnéza):
+E         - Neuvedeno.
+E         
+E         FA (Farmakologická anamnéza / aktuální medikace):
+E         - Občasný ibuprofen 400 mg při bolesti.
+E         
+E         AA (Alergologická anamnéza):
+E         - Alergie na léky neguje.
+E         
+E         GA (Gynekologická/urologická anamnéza):
+E         - Neuvedeno.
+E         
+E         SA (Sociální anamnéza):
+E         - Neuvedeno.
+E         
+E         Adherence a spolupráce pacienta:
+E         - Spolupráce dobrá, pacient rozumí doporučením.
+E         
+E         Objektivní nález:
+E         - TK 142/88 mmHg, puls 80/min.
+E         - Neurologicky bez ložiskového nálezu.
+E         
+E         Hodnocení (pracovní diagnóza / klinický závěr):
+E         - Neuvedeno.
+E         
+E         Návrh vyšetření:
+E         - Laboratorní odběry.
+E         
+E         Návrh terapie:
+E         - Krátkodobé užívání analgetik (ibuprofen) při bolesti.
+E         - Doplnit pitný režim.
+E         - Omezit práci u monitoru bez přestávek.
+E         
+E         Pokyny a plán kontrol:
+E         - Kontrola za deset dní.
+E         - Okamžitá návštěva při náhlé silné bolesti, poruše řeči nebo slabosti končetin.
+E       assert ('neuvedeno' in '- spolupráce dobrá, pacient rozumí doporučením.' or not True)
+
+backend/tests/test_prompt_fixes.py:207: AssertionError
+=============================== warnings summary ===============================
+backend/tests/test_prompt_fixes.py::test_no_song_or_offtopic_in_report[S Hurv\xednkem za l\xe9ka\u0159em   1  D\xedl   Nachlazen\xed]
+  /Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/.venv/lib/python3.14/site-packages/openai/_compat.py:48: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+    from pydantic.v1.typing import (
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED backend/tests/test_prompt_fixes.py::test_objective_findings_in_correct_section[cz_objective_in_dialogue]
+FAILED backend/tests/test_prompt_fixes.py::test_jar_allergy_no_pollen_inference
+FAILED backend/tests/test_prompt_fixes.py::test_no_cooperation_boilerplate_when_absent
+=================== 3 failed, 7 passed, 1 warning in 44.07s ====================

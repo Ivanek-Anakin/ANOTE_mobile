@@ -1,0 +1,78 @@
+/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/.venv/lib/python3.14/site-packages/openai/_compat.py:48: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.typing import (
+
+════════════════════════════════════════════════════════════════════════════════
+  ANOTE LLM-as-Judge Evaluation
+  Model: gpt-4-1-mini  |  Date: 02. 05. 2026  |  Scenarios: 7
+  Prompt: v5b_positive (v5b — positive conditional)
+  Directory: /Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/backend/eval_dataset/task0036_v5_compare
+════════════════════════════════════════════════════════════════════════════════
+
+[1/7] S Hurvínkem za lékařem   1  Díl   Nachlazení  (1081 words)
+  → Generating report… done (10.5s, 4693+999 tok)
+  → Evaluating report… done (3.19s)
+  → TASK-0036 rubric… done (4.79s, weighted=4.60)
+  ⤷ factors: {'clinical_relevance': 3, 'section_placement': 5, 'no_fabrication': 5, 'adherence_appropriateness': 5, 'dosage_fidelity': 5, 'completeness': 5, 'no_critical_omission': 5, 'czech_medical_style': 5}
+
+[2/7] S Hurvínkem za lékařem   2  Díl   Zlomenina  (967 words)
+  → Generating report… done (6.35s, 4465+751 tok)
+  → Evaluating report… done (4.1s)
+  → TASK-0036 rubric… done (4.87s, weighted=3.93)
+  ⤷ factors: {'clinical_relevance': 1, 'section_placement': 4, 'no_fabrication': 5, 'adherence_appropriateness': 5, 'dosage_fidelity': 5, 'completeness': 4, 'no_critical_omission': 5, 'czech_medical_style': 4}
+
+[3/7] S Hurvínkem za lékařem 08 Angína  (1109 words)
+  → Generating report… done (5.68s, 4804+664 tok)
+  → Evaluating report… done (4.2s)
+  → TASK-0036 rubric… done (5.68s, weighted=4.07)
+  ⤷ factors: {'clinical_relevance': 1, 'section_placement': 4, 'no_fabrication': 5, 'adherence_appropriateness': 5, 'dosage_fidelity': 5, 'completeness': 5, 'no_critical_omission': 5, 'czech_medical_style': 5}
+
+[4/7] cz_jar_allergy  (219 words)
+  → Generating report… done (5.29s, 3035+541 tok)
+  → Evaluating report… done (3.2s)
+  → TASK-0036 rubric… done (17840.34s, weighted=4.00)
+  ⤷ factors: {'clinical_relevance': 5, 'section_placement': 5, 'no_fabrication': 0, 'adherence_appropriateness': 5, 'dosage_fidelity': 5, 'completeness': 5, 'no_critical_omission': 5, 'czech_medical_style': 5}
+
+[5/7] cz_objective_in_dialogue  (190 words)
+  → Generating report… done (4.81s, 2994+557 tok)
+  → Evaluating report… done (2.36s)
+  → TASK-0036 rubric… done (4.6s, weighted=4.53)
+  ⤷ factors: {'clinical_relevance': 5, 'section_placement': 3, 'no_fabrication': 5, 'adherence_appropriateness': 2, 'dosage_fidelity': 5, 'completeness': 5, 'no_critical_omission': 5, 'czech_medical_style': 5}
+
+[6/7] cz_quiet_compliant  (208 words)
+  → Generating report… done (4.1s, 3018+515 tok)
+  → Evaluating report… done (3.48s)
+  → TASK-0036 rubric… done (4.61s, weighted=4.67)
+  ⤷ factors: {'clinical_relevance': 5, 'section_placement': 5, 'no_fabrication': 5, 'adherence_appropriateness': 0, 'dosage_fidelity': 5, 'completeness': 5, 'no_critical_omission': 5, 'czech_medical_style': 5}
+
+[7/7] cz_terse_dosing  (200 words)
+  → Generating report… done (5.23s, 3003+668 tok)
+  → Evaluating report… done (2.56s)
+  → TASK-0036 rubric… done (4.51s, weighted=5.00)
+  ⤷ factors: {'clinical_relevance': 5, 'section_placement': 5, 'no_fabrication': 5, 'adherence_appropriateness': 5, 'dosage_fidelity': 5, 'completeness': 5, 'no_critical_omission': 5, 'czech_medical_style': 5}
+
+Results saved to: /Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/backend/evaluation_results_v5b_positive_TASK0036.json
+
+EVALUATION RESULTS — gpt-4-1-mini — v5b_positive (v5b — positive conditional) — 02. 05. 2026
+═══════════════════════════════════════════════════════════════════════════════════════════
+Scenario                                   Fact   Comp   Strc    Neg   Lang  Noise    AVG
+───────────────────────────────────────────────────────────────────────────────────────────
+S Hurvínkem za lékařem   1  Díl   Nachla      5      5      5      5      5      5    5.0
+S Hurvínkem za lékařem   2  Díl   Zlomen      5      4      5      5      5      5    4.8
+S Hurvínkem za lékařem 08 Angína              5      4      5      5      5      5    4.8
+cz_jar_allergy                                5      5      5      5      5      5    5.0
+cz_objective_in_dialogue                      5      5      5      5      5      5    5.0
+cz_quiet_compliant                            5      4      5      5      5      5    4.8
+cz_terse_dosing                               5      5      5      5      5      5    5.0
+───────────────────────────────────────────────────────────────────────────────────────────
+MEAN                                        5.0   4.57    5.0    5.0    5.0    5.0    4.9
+
+TASK-0036 weighted rubric — aggregate
+  mean_weighted_composite: 4.4
+            clinical_relevance: 3.571
+             section_placement: 4.429
+                no_fabrication: 4.286
+     adherence_appropriateness: 3.857
+               dosage_fidelity: 5.0
+                  completeness: 4.857
+          no_critical_omission: 5.0
+           czech_medical_style: 4.857

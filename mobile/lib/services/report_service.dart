@@ -104,10 +104,14 @@ class ReportService {
 
   /// Send a generated report to the configured email address.
   /// Fire-and-forget from the caller's perspective.
+  ///
+  /// [transcript] is optional and, when non-empty, is rendered above the
+  /// report in the outgoing email body (see SPEC-0037).
   Future<void> sendReportEmail({
     required String report,
     required String email,
     String visitType = 'default',
+    String transcript = '',
   }) async {
     final baseUrl = await _getBaseUrl();
     final token = await _getToken();
@@ -118,6 +122,7 @@ class ReportService {
         'report': report,
         'email': email,
         'visit_type': visitType,
+        'transcript': transcript,
       },
       options: Options(
         headers: {

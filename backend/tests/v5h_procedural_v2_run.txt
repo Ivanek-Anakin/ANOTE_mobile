@@ -1,0 +1,81 @@
+/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/.venv/lib/python3.14/site-packages/openai/_compat.py:48: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.typing import (
+
+════════════════════════════════════════════════════════════════════════════════
+  ANOTE LLM-as-Judge Evaluation
+  Model: gpt-4-1-mini  |  Date: 03. 05. 2026  |  Scenarios: 7
+  Prompt: v5h_procedural (v5h — v5g + procedurální pravidla)
+  Directory: /Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/backend/eval_dataset/task0036_v5_compare
+════════════════════════════════════════════════════════════════════════════════
+
+[1/7] S Hurvínkem za lékařem   1  Díl   Nachlazení  (1081 words)
+  → Generating report… done (6.91s, 5428+960 tok)
+  → Evaluating report… done (2.94s)
+  → TASK-0036 rubric… done (6.19s, weighted=5.00)
+  ⤷ factors: {'clinical_relevance': 5, 'section_placement': 5, 'no_fabrication': 5, 'adherence_appropriateness': 5, 'dosage_fidelity': 5, 'completeness': 5, 'no_critical_omission': 5, 'czech_medical_style': 5, 'temporal_anchor_fidelity': 5, 'negation_explicitness': 5, 'speaker_attribution': 5}
+
+[2/7] S Hurvínkem za lékařem   2  Díl   Zlomenina  (967 words)
+  → Generating report… done (5.51s, 5200+770 tok)
+  → Evaluating report… done (4.2s)
+  → TASK-0036 rubric… done (4.07s, weighted=4.78)
+  ⤷ factors: {'clinical_relevance': 4, 'section_placement': 5, 'no_fabrication': 5, 'adherence_appropriateness': 5, 'dosage_fidelity': 5, 'completeness': 4, 'no_critical_omission': 5, 'czech_medical_style': 5, 'temporal_anchor_fidelity': 5, 'negation_explicitness': 5, 'speaker_attribution': 5}
+
+[3/7] S Hurvínkem za lékařem 08 Angína  (1109 words)
+  → Generating report… done (5.04s, 5539+665 tok)
+  → Evaluating report… done (3.68s)
+  → TASK-0036 rubric… done (5.43s, weighted=4.11)
+  ⤷ factors: {'clinical_relevance': 1, 'section_placement': 4, 'no_fabrication': 5, 'adherence_appropriateness': 5, 'dosage_fidelity': 5, 'completeness': 4, 'no_critical_omission': 5, 'czech_medical_style': 5, 'temporal_anchor_fidelity': 4, 'negation_explicitness': 5, 'speaker_attribution': 5}
+
+[4/7] cz_jar_allergy  (215 words)
+  → Generating report… done (4.3s, 3720+577 tok)
+  → Evaluating report… done (4.71s)
+  → TASK-0036 rubric… done (6.04s, weighted=4.67)
+  ⤷ factors: {'clinical_relevance': 4, 'section_placement': 5, 'no_fabrication': 4, 'adherence_appropriateness': 5, 'dosage_fidelity': 5, 'completeness': 5, 'no_critical_omission': 5, 'czech_medical_style': 5, 'temporal_anchor_fidelity': 5, 'negation_explicitness': 5, 'speaker_attribution': 5}
+
+[5/7] cz_objective_in_dialogue  (184 words)
+  → Generating report… done (4.2s, 3670+606 tok)
+  → Evaluating report… done (4.2s)
+  → TASK-0036 rubric… done (4.1s, weighted=4.61)
+  ⤷ factors: {'clinical_relevance': 5, 'section_placement': 4, 'no_fabrication': 5, 'adherence_appropriateness': 0, 'dosage_fidelity': 5, 'completeness': 5, 'no_critical_omission': 5, 'czech_medical_style': 5, 'temporal_anchor_fidelity': 5, 'negation_explicitness': 5, 'speaker_attribution': 5}
+
+[6/7] cz_quiet_compliant  (200 words)
+  → Generating report… done (3.89s, 3693+501 tok)
+  → Evaluating report… done (6.35s)
+  → TASK-0036 rubric… done (4.4s, weighted=4.83)
+  ⤷ factors: {'clinical_relevance': 5, 'section_placement': 5, 'no_fabrication': 5, 'adherence_appropriateness': 2, 'dosage_fidelity': 5, 'completeness': 5, 'no_critical_omission': 5, 'czech_medical_style': 5, 'temporal_anchor_fidelity': 5, 'negation_explicitness': 5, 'speaker_attribution': 5}
+
+[7/7] cz_terse_dosing  (192 words)
+  → Generating report… done (4.86s, 3680+696 tok)
+  → Evaluating report… done (4.66s)
+  → TASK-0036 rubric… done (5.94s, weighted=5.00)
+  ⤷ factors: {'clinical_relevance': 5, 'section_placement': 5, 'no_fabrication': 5, 'adherence_appropriateness': 5, 'dosage_fidelity': 5, 'completeness': 5, 'no_critical_omission': 5, 'czech_medical_style': 5, 'temporal_anchor_fidelity': 5, 'negation_explicitness': 5, 'speaker_attribution': 5}
+
+Results saved to: /Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/backend/evaluation_results_v5h_procedural_TASK0036_v2.json
+
+EVALUATION RESULTS — gpt-4-1-mini — v5h_procedural (v5h — v5g + procedurální pravidla) — 03. 05. 2026
+═══════════════════════════════════════════════════════════════════════════════════════════
+Scenario                                   Fact   Comp   Strc    Neg   Lang  Noise    AVG
+───────────────────────────────────────────────────────────────────────────────────────────
+S Hurvínkem za lékařem   1  Díl   Nachla      5      4      5      5      5      5    4.8
+S Hurvínkem za lékařem   2  Díl   Zlomen      5      4      5      5      5      5    4.8
+S Hurvínkem za lékařem 08 Angína              5      4      5      5      5      5    4.8
+cz_jar_allergy                                5      5      5      5      5      5    5.0
+cz_objective_in_dialogue                      5      5      5      5      5      5    5.0
+cz_quiet_compliant                            5      4      5      5      5      5    4.8
+cz_terse_dosing                               5      5      5      5      5      5    5.0
+───────────────────────────────────────────────────────────────────────────────────────────
+MEAN                                        5.0   4.43    5.0    5.0    5.0    5.0    4.9
+
+TASK-0036 weighted rubric — aggregate
+  mean_weighted_composite: 4.714
+            clinical_relevance: 4.143
+             section_placement: 4.714
+                no_fabrication: 4.857
+     adherence_appropriateness: 3.857
+               dosage_fidelity: 5.0
+                  completeness: 4.714
+          no_critical_omission: 5.0
+           czech_medical_style: 5.0
+      temporal_anchor_fidelity: 4.857
+         negation_explicitness: 5.0
+           speaker_attribution: 5.0

@@ -1,0 +1,7 @@
+# Synthetic transcript — pending Dr. Brož clinical review
+# Purpose: TASK-0036, Defect 5 — terse dosing tokens must be preserved verbatim
+# Created: 2026-05-02
+# Revised: 2026-05-03 — converted to continuous ASR-style text (no speaker tags)
+# Do not use in clinical evaluations until reviewed.
+
+Dobrý den, pane Králi, jak jste na tom od minulé kontroly tlaku. Dobrý den, doma mívám ráno kolem 150 na 90, večer spíš 140 na 85, otoky kotníků jsou menší než dřív. Dušnost při námaze. Do schodů lehce ano, v klidu ne. Bolest na hrudi. Ne. Dnes tlak 148 na 92, puls 76, saturace 97 procent, poslechově bez chrůpků. Dobře. Upravíme medikaci, budu to diktovat přesně, Furosemid 1 tbl. ráno, Anopyrin 100 mg, 1-0-0, Atorvastatin 20 mg večer, Lusopres 1 tbl. ráno. Mám pokračovat i s hořčíkem. Ano, Magnesium 1 tbl. večer podle tolerance. A kontrola kdy. Za čtyři týdny, přineste domácí měření tlaku, kdyby se zhoršila dušnost, objevil se tlak na hrudi nebo výrazné otoky, přijďte dřív. Dobře. Alergie nějaké. Penicilin, vyrážka v dětství. Jinak chronicky cukrovku nebo onemocnění ledvin nemáte. Cukrovku ne, ledviny mi nikdy nikdo neříkal. Výborně, to je vše. Děkuji, na shledanou.

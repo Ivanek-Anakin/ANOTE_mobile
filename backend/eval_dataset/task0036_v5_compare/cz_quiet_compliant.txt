@@ -1,0 +1,7 @@
+# Synthetic transcript — pending Dr. Brož clinical review
+# Purpose: TASK-0036, Defect 4 — cooperation boilerplate absent from source dialogue
+# Created: 2026-05-02
+# Revised: 2026-05-03 — converted to continuous ASR-style text (no speaker tags)
+# Do not use in clinical evaluations until reviewed.
+
+Dobrý den, co vás trápí. Dobrý den, poslední týden mě skoro každý den bolí hlava v čele a za očima. Je to stálá bolest, nebo spíš záchvaty. Spíš tlak, odpoledne horší, ráno je to snesitelné. Měl jste teplotu, zvracení nebo poruchu vidění. Teplotu ne, nezvracel jsem, občas se hůř soustředím, ale vidím normálně. Spíte dobře. Poslední dny málo, budím se kolem třetí ráno. Prodělal jste úraz hlavy. Ne. Změřím tlak a orientačně vás vyšetřím, tlak 142 na 88, puls 80, neurologicky bez ložiskového nálezu. Dobře. Jaké léky nyní užíváte. Jen občas ibuprofen 400, když to nejde vydržet. Alergie na léky. O žádné nevím. V rodině migréna nebo vysoký tlak. Táta se léčí s hypertenzí, migrénu nikdo neřešil. Navrhnu krátkodobě analgetikum při bolesti, doplnit pitný režim a omezit práci u monitoru bez přestávek, uděláme laboratorní odběry a za deset dní kontrolu, kdyby se objevila náhlá silná bolest, porucha řeči nebo slabost končetin, přijďte ihned. Rozumím, děkuji.

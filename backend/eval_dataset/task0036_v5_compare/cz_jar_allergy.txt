@@ -1,0 +1,7 @@
+# Synthetic transcript — pending Dr. Brož clinical review
+# Purpose: TASK-0036, Defect 3 — fabricated clinical content (JAR vs pollen inference)
+# Created: 2026-05-02
+# Revised: 2026-05-03 — converted to continuous ASR-style text (no speaker tags)
+# Do not use in clinical evaluations until reviewed.
+
+Dobrý den, co vás dnes přivádí. Dobrý den, asi čtyři dny mám svědění a zarudnutí na hřbetech rukou, hlavně večer po úklidu doma. Objevuje se i dušnost, rýma nebo slzení očí. Ne, to vůbec, dýchá se mi normálně, nos mě netrápí, oči neslzí. Kdy jste si všimla, že se to zhoršuje. Nejvíc po mytí nádobí a po vytírání, jakmile používám JAR na nádobí, ruce zčervenají a pálí. Rozumím, tedy reakce na čisticí prostředek JAR, máte to po každém kontaktu. Téměř vždycky, proto už poslední měsíc myju nádobí jen v rukavicích a je to o něco lepší. Měla jste někdy podobnou kožní reakci na léky nebo potraviny. Ne, na léky ani na jídlo nic nemám. Užíváte pravidelně nějaké léky. Jen občas paracetamol na bolest hlavy, jinak nic. V rodině ekzém nebo jiné kožní potíže. Maminka má citlivou kůži, ale žádnou vážnou diagnózu neřešila. Dobře, doporučím šetrný emolienční krém, omezit dráždivé prostředky a pokračovat v rukavicích při mytí nádobí, pokud se to nezlepší do dvou týdnů, domluvíme kožní vyšetření. Dobře, děkuji.

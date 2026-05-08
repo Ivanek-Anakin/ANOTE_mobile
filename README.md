@@ -144,13 +144,13 @@ az login
 | Azure OpenAI | `anote-openai` | West Europe, Standard SKU |
 | Model Deployment | `gpt-5-mini` | gpt-5-mini (version 2025-08-07) |
 | Container App | `anote-api` | 0.5 CPU / 1 GB RAM, Consumption tier |
-| Container Registry | `ca859739e5daacr` | Auto-created by `az containerapp up` |
-| Container App Env | `anote-api-env` | West US 2 |
+| Container Registry | `cae82690c7c7acr` | West Europe production registry |
+| Container App Env | `anote-api-env` | West Europe |
 
 ### Production URL
 
 ```
-https://anote-api.gentleriver-a61d304a.westus2.azurecontainerapps.io
+https://anote-api.politesmoke-02c93984.westeurope.azurecontainerapps.io
 ```
 
 ### Deploy / Redeploy
@@ -158,27 +158,44 @@ https://anote-api.gentleriver-a61d304a.westus2.azurecontainerapps.io
 > **az CLI**: We use the Azure CLI installed via pip in the project venv
 > (`.venv/bin/az`). Activate the venv first: `source .venv/bin/activate`.
 > Do **not** use a system-level `az` — the pip version is pinned in the venv.
+> Standard production deploys build locally and push to ACR. If the local Docker
+> daemon is unavailable, you can try `az acr build` as a fallback.
 
 ```bash
 # 0. Make sure you're in the repo root with venv active
 source .venv/bin/activate
 
-# 1. Build & push new image (backend only — uses backend/.dockerignore)
-az containerapp up \
-  --name anote-api \
-  --resource-group anote-rg \
-  --source ./backend
+# 1. Login to the production registry
+az acr login --name cae82690c7c7acr
 
-# 2. Rebind env vars + secrets (az containerapp up overwrites them)
+# 2. Build and push the backend image
+cd backend
+docker build -t cae82690c7c7acr.azurecr.io/anote-api:latest .
+docker push cae82690c7c7acr.azurecr.io/anote-api:latest
+
+# 3. Update the West Europe Container App to the new image
 az containerapp update \
   --name anote-api \
-  --resource-group anote-rg \
+  --resource-group ANOTE \
+  --image cae82690c7c7acr.azurecr.io/anote-api:latest
+
+# 4. Update env vars only if needed
+az containerapp update \
+  --name anote-api \
+  --resource-group ANOTE \
   --set-env-vars \
     MOCK_MODE=false \
     AZURE_OPENAI_ENDPOINT=https://anote-openai.openai.azure.com \
     AZURE_OPENAI_DEPLOYMENT=gpt-5-mini \
     AZURE_OPENAI_KEY=secretref:azure-openai-key \
     APP_API_TOKEN=secretref:app-api-token
+
+# Optional fallback if Docker daemon is unavailable
+cd ..
+az acr build \
+  --registry cae82690c7c7acr \
+  --image anote-api:latest \
+  ./backend
 ```
 
 ### Secrets (persisted across redeployments)
@@ -190,7 +207,7 @@ az containerapp update \
 
 To update a secret value:
 ```bash
-az containerapp secret set --name anote-api --resource-group anote-rg \
+az containerapp secret set --name anote-api --resource-group ANOTE \
   --secrets azure-openai-key=NEW_KEY_VALUE
 ```
 
@@ -198,10 +215,10 @@ az containerapp secret set --name anote-api --resource-group anote-rg \
 
 ```bash
 # Health check
-curl https://anote-api.gentleriver-a61d304a.westus2.azurecontainerapps.io/health
+curl https://anote-api.politesmoke-02c93984.westeurope.azurecontainerapps.io/health
 
 # Test report generation
-curl -X POST https://anote-api.gentleriver-a61d304a.westus2.azurecontainerapps.io/report \
+curl -X POST https://anote-api.politesmoke-02c93984.westeurope.azurecontainerapps.io/report \
   -H "Authorization: Bearer <APP_API_TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{"transcript": "Pacient přišel s bolestí hlavy.", "visit_type": "ambulance"}'

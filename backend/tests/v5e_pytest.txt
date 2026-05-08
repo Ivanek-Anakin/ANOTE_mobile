@@ -1,0 +1,70 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile
+configfile: pytest.ini
+plugins: anyio-4.12.1
+collecting ... collected 11 items
+
+backend/tests/test_prompt_fixes.py::test_no_song_or_offtopic_in_report[S Hurv\xednkem za l\xe9ka\u0159em   1  D\xedl   Nachlazen\xed] PASSED [  9%]
+backend/tests/test_prompt_fixes.py::test_no_song_or_offtopic_in_report[S Hurv\xednkem za l\xe9ka\u0159em   2  D\xedl   Zlomenina] PASSED [ 18%]
+backend/tests/test_prompt_fixes.py::test_no_song_or_offtopic_in_report[S Hurv\xednkem za l\xe9ka\u0159em 08 Ang\xedna] PASSED [ 27%]
+backend/tests/test_prompt_fixes.py::test_objective_findings_in_correct_section[S Hurv\xednkem za l\xe9ka\u0159em   1  D\xedl   Nachlazen\xed] PASSED [ 36%]
+backend/tests/test_prompt_fixes.py::test_objective_findings_in_correct_section[S Hurv\xednkem za l\xe9ka\u0159em   2  D\xedl   Zlomenina] PASSED [ 45%]
+backend/tests/test_prompt_fixes.py::test_objective_findings_in_correct_section[S Hurv\xednkem za l\xe9ka\u0159em 08 Ang\xedna] PASSED [ 54%]
+backend/tests/test_prompt_fixes.py::test_objective_findings_in_correct_section[cz_objective_in_dialogue] FAILED [ 63%]
+backend/tests/test_prompt_fixes.py::test_jar_allergy_no_pollen_inference PASSED [ 72%]
+backend/tests/test_prompt_fixes.py::test_jar_allergy_aa_section_names_jar_strict XFAIL [ 81%]
+backend/tests/test_prompt_fixes.py::test_no_cooperation_boilerplate_when_absent PASSED [ 90%]
+backend/tests/test_prompt_fixes.py::test_dosage_preserved_verbatim PASSED [100%]
+
+=================================== FAILURES ===================================
+_____ test_objective_findings_in_correct_section[cz_objective_in_dialogue] _____
+
+scenario_path = PosixPath('/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/test_scenarios/feedback_fixes/cz_objective_in_dialogue.txt')
+
+    @pytest.mark.feedback_fixes
+    @pytest.mark.parametrize(
+        "scenario_path",
+        sorted(HURVINEK_DIR.glob("*.txt")) + [FIXTURES_DIR / "cz_objective_in_dialogue.txt"],
+        ids=lambda p: p.stem,
+    )
+    def test_objective_findings_in_correct_section(scenario_path: Path) -> None:
+        report = _generate_report_for_path(scenario_path)
+        no_section = _extract_section(report, "NO")
+        obj_section = _extract_section(report, "OBJ")
+    
+        vital_pattern = r"\b(?:TK|TF|P|SpO2|TT|teplota)\s*[:=]?\s*\d"
+    
+        no_hits = re.findall(vital_pattern, no_section, flags=re.IGNORECASE)
+>       assert not no_hits, (
+            f"Vital-like measurements found under NO for {scenario_path.name}: {no_hits}.\n"
+            f"=== NO section ===\n{no_section}\n\n=== Objektivní nález ===\n{obj_section}"
+        )
+E       AssertionError: Vital-like measurements found under NO for cz_objective_in_dialogue.txt: ['teplota 3'].
+E         === NO section ===
+E         - Kašel trvající asi 3 dny, tlak na hrudi při hlubokém nádechu.
+E         - Kašel spíše suchý, ráno jen trochu čirého hlenu.
+E         - Únava, noční buzení kvůli kašli.
+E         - Dušnost při námaze (do schodů), v klidu dušnost neguje.
+E         - Mírné škrábání v krku, zimnici neguje, bolesti svalů jen lehké.
+E         - Užívání paracetamolu 1× večer.
+E         - Zvýšenou teplotu neguje (teplota 36,8 °C).
+E         
+E         === Objektivní nález ===
+E         - TK 145/90 mmHg, puls 78/min.
+E         - Teplota 36,8 °C.
+E         - Saturace kyslíku 96 %.
+E         - Poslechově nad pravou bází lehce oslabené dýchání, bez výrazných pískotů.
+E       assert not ['teplota 3']
+
+backend/tests/test_prompt_fixes.py:170: AssertionError
+=============================== warnings summary ===============================
+backend/tests/test_prompt_fixes.py::test_no_song_or_offtopic_in_report[S Hurv\xednkem za l\xe9ka\u0159em   1  D\xedl   Nachlazen\xed]
+  /Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/.venv/lib/python3.14/site-packages/openai/_compat.py:48: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+    from pydantic.v1.typing import (
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED backend/tests/test_prompt_fixes.py::test_objective_findings_in_correct_section[cz_objective_in_dialogue]
+============== 1 failed, 9 passed, 1 xfailed, 1 warning in 36.28s ==============

@@ -1378,6 +1378,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
         report: report,
         email: email,
         visitType: vt,
+        transcript: state.transcript,
       );
       WhisperService.debugLog('[SessionNotifier] Report email sent to $email');
     } catch (e) {
@@ -1399,6 +1400,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
       report: report,
       email: email,
       visitType: vt,
+      transcript: state.transcript,
     );
   }
 

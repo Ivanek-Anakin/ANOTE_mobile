@@ -1,0 +1,23 @@
+# Synthetic transcript — pending Dr. Brož clinical review
+# Purpose: TASK-0036, Defect 2 — objective measurements interleaved in dialogue
+# Created: 2026-05-02
+# Do not use in clinical evaluations until reviewed.
+
+Lékař: Dobrý den, co se děje?
+Pacientka: Dobrý den, už tři dny kašlu a mám tlak na hrudi při hlubokém nádechu.
+Lékař: Rozumím, změřím vás průběžně. Tlak 145 na 90, puls 78.
+Pacientka: Cítím se hlavně unavená, v noci se budím kvůli kašli.
+Lékař: Teplota 36,8, saturace 96 procent. Je kašel suchý, nebo vykašláváte hlen?
+Pacientka: Spíš suchý, ráno jen trochu čirého hlenu.
+Lékař: Dušnost v klidu?
+Pacientka: V klidu ne, do schodů trochu.
+Lékař: Poslechnu plíce, nádech. Nad pravou bází lehce oslabené dýchání, bez výrazných pískotů.
+Pacientka: Dobře.
+Lékař: Bolest svalů, zimnice, bolesti v krku?
+Pacientka: V krku mírně škrábe, zimnici nemám, svaly jen lehce.
+Lékař: Užíváte něco?
+Pacientka: Jen paracetamol včera večer.
+Lékař: Alergie na léky?
+Pacientka: Ne, o ničem nevím.
+Lékař: Vzhledem k nálezu doporučím symptomatickou léčbu, tekutiny, klidový režim a kontrolu za tři dny. Pokud by se objevila horečka nad 38,5, výrazná dušnost nebo bolest na hrudi v klidu, přijďte ihned.
+Pacientka: Rozumím, děkuji.

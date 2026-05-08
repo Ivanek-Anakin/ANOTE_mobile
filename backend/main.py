@@ -90,6 +90,94 @@ else:
     logger.info("SMTP not configured — email sending disabled")
 
 
+# ── TASK-0036 v5h_procedural prompt suffix ───────────────────────────────────
+# 5 abstract principles + 3 procedural rules. No concrete clinical values that
+# could mirror evaluation fixtures. See backend/tests/v5_comparison.md §7 for
+# the methodology and acceptance criteria.
+TASK0036_PROMPT_SUFFIX = (
+    "\n\nTASK-0036 OBECNÉ PRINCIPY (BEZ KONKRÉTNÍCH KLINICKÝCH HODNOT)\n"
+    "Při generování zprávy uplatni následující obecné principy. Příklady "
+    "jsou záměrně abstraktní — neopisuj jejich text, pochop princip a "
+    "aplikuj jej na vlastní vstup.\n"
+    "\n"
+    "Princip 1 — Filtrování neklinického obsahu:\n"
+    "Do zprávy patří pouze klinicky relevantní informace získané z "
+    "rozhovoru. Vše ostatní (sociální vsuvky, vyrušení, obsah cizích "
+    "mluvčích v pozadí, opakovaná slova způsobená rozpoznáváním řeči) "
+    "ignoruj. Klinickou relevanci posuzuj podle vztahu k symptomům, "
+    "vyšetření, diagnóze, léčbě nebo plánu.\n"
+    "Protipříklad (NEdělat): zařadit do anamnézy popis činnosti, kterou "
+    "pacient zmínil mimoděk a která nemá vztah k jeho potížím, jen "
+    "proto, že v přepisu zazněla.\n"
+    "\n"
+    "Princip 2 — Přiřazení nálezů ke správným sekcím:\n"
+    "Co pacient sám vypovídá o svých prožitcích, intenzitě, trvání a "
+    "vlastních pozorováních, patří do subjektivní části (anamnéza / "
+    "nynější onemocnění). Co lékař objektivně změří, vyšetří nebo "
+    "zaznamená přístrojem, patří výhradně do sekce objektivního nálezu. "
+    "Tyto kategorie nikdy nemíchej v jedné větě a neumísťuj je do "
+    "opačné sekce.\n"
+    "Protipříklad (NEdělat): umístit naměřenou hodnotu z fyzikálního "
+    "vyšetření do anamnézy proto, že v dialogu zazněla mezi pacientovými "
+    "větami.\n"
+    "\n"
+    "Princip 3 — Žádná inference nad rámec přepisu:\n"
+    "Do zprávy zapiš pouze to, co lze přímo doložit z přepisu. "
+    "Nedoplňuj diagnózy, etiologie, alergeny, kauzální vysvětlení ani "
+    "kategorie, které sám pacient ani lékař neformulovali. Pokud je "
+    "vyjádření pacienta nejednoznačné, ponech ho v původní podobě a "
+    "označ jako k upřesnění; nepřevádí ho na klinickou kategorii.\n"
+    "Protipříklad (NEdělat): převést pacientův popis spouštěče potíží "
+    "na konkrétní diagnostickou kategorii, kterou pacient nezmínil, jen "
+    "proto, že obecně bývá s podobnými symptomy spojována.\n"
+    "\n"
+    "Princip 4 — Sekce zaznamenává pouze to, co bylo skutečně probíráno:\n"
+    "Každá sekce zprávy reflektuje pouze obsah, který byl v rozhovoru "
+    "skutečně diskutován. Pokud určité téma (např. užívání léků, "
+    "dodržování režimu, kontroly) v přepisu vůbec nezaznělo, sekce má "
+    "obsahovat výslovný marker nepřítomnosti diskuse, nikoli šablonové "
+    "pozitivní nebo negativní hodnocení. Negativní explicitní vyjádření "
+    "pacienta (něco neguje) zapiš jako negaci; absenci tématu zapiš "
+    "jako nepřítomnost informace — tyto dvě situace nikdy nezaměňuj.\n"
+    "Protipříklad (NEdělat): vyplnit sekci shrnujícím pozitivním "
+    "klišé jen proto, že o daném tématu padla nulová zmínka a sekce by "
+    "jinak zůstala prázdná.\n"
+    "\n"
+    "Princip 5 — Věrnost krátkých klinických tokenů:\n"
+    "Přesné zápisy dávkování, frekvence, schémat a dalších kompaktních "
+    "klinických údajů přenes ze zdroje doslovně, včetně použité "
+    "interpunkce, zkratek a jednotek. Nepřevádí je do prózy, "
+    "nepřevádí jednotky, neslučuj více preparátů do souhrnných formulací "
+    "a nedoplňuj o údaje, které v přepisu nezazněly.\n"
+    "Protipříklad (NEdělat): nahradit přesný originální zápis schématu "
+    "obecnou formulací o pravidelném užívání medikace, čímž se ztratí "
+    "konkrétní rozpis dávek.\n"
+    "\n"
+    "PROCEDURÁLNÍ PRAVIDLA (aplikuj při zápisu každé sekce):\n"
+    "\n"
+    "Pravidlo P1 — Sociální kontext vs. expozice:\n"
+    "Místa, volnočasové aktivity ani sociální události do zprávy nepatří, "
+    "pokud nejsou přímou expozicí (alergen, trauma, infekce, pracovní "
+    "rizikový faktor). Z popisu takové aktivity přenes pouze symptom, "
+    "ne situaci.\n"
+    "\n"
+    "Pravidlo P2 — Numerická hodnota s jednotkou:\n"
+    "Každá numerická hodnota s jednotkou patří výhradně do sekce "
+    "objektivního nálezu. V subjektivních sekcích takovou hodnotu "
+    "neuváděj ani v závorce, ani jako vysvětlivku k negaci; pokud "
+    "potřebuješ totéž zmínit v anamnéze, použij kvalitativní formulaci "
+    "bez čísla a jednotky. Numerická hodnota se v celé zprávě smí "
+    "objevit pouze jednou, a to v sekci objektivního nálezu — v žádné "
+    "jiné sekci ji neopakuj, ani jako kontext, ani v závorce.\n"
+    "\n"
+    "Pravidlo P3 — Ověření citace před zápisem do adherence/spolupráce:\n"
+    "Před zápisem do sekce adherence/spolupráce najdi v přepisu "
+    "konkrétní výrok, který ji opírá. Pokud takový výrok neexistuje, "
+    "hodnota sekce je marker nepřítomnosti tématu — nepřidávej "
+    "shrnutí, hodnocení ani předpoklad.\n"
+)
+
+
 def _build_base_rules() -> str:
     """Return the ZÁSADY (rules) block shared by all visit-type prompts."""
     return (
@@ -509,7 +597,7 @@ def _build_system_prompt(today: str, visit_type: str = "default") -> str:
         "- Celý výstup musí být v češtině. Nepřidávej žádné komentáře mimo strukturu."
     )
 
-    return intro + rules + "\n" + sections + footer
+    return intro + rules + "\n" + sections + footer + TASK0036_PROMPT_SUFFIX
 
 
 def verify_token(authorization: str = Header(...)) -> None:
@@ -532,6 +620,40 @@ class SendReportEmailRequest(BaseModel):
     report: str
     email: str
     visit_type: str = "default"
+    # Optional transcript rendered above the report section in the email body.
+    # Backwards-compatible: when omitted/empty the body is identical to the
+    # pre-TASK-0037 layout. See SPEC-0037.
+    transcript: str = ""
+
+
+def _build_email_body(
+    report: str, transcript: str, today: str, vt_label: str
+) -> str:
+    """Assemble the plain-text email body.
+
+    When ``transcript`` is empty (after strip) the body is byte-for-byte
+    identical to the pre-TASK-0037 layout. When non-empty, a Czech-labelled
+    transcript section is rendered above the report section, both inline.
+    """
+    header = (
+        "L\u00e9ka\u0159sk\u00e1 zpr\u00e1va vygenerovan\u00e1 aplikac\u00ed ANOTE\n"
+        f"Datum: {today}\n"
+        f"Typ n\u00e1v\u0161t\u011bvy: {vt_label}\n"
+    )
+    footer = (
+        "\n---\n"
+        "Tato zpr\u00e1va byla automaticky odesl\u00e1na aplikac\u00ed ANOTE.\n"
+    )
+    if transcript.strip():
+        return (
+            header
+            + "\n--- P\u0159epis ---\n\n"
+            + f"{transcript}\n"
+            + "\n--- L\u00e9ka\u0159sk\u00e1 zpr\u00e1va ---\n\n"
+            + f"{report}\n"
+            + footer
+        )
+    return header + "\n---\n\n" + f"{report}\n" + footer
 
 
 def _send_email(to: str, subject: str, body: str) -> None:
@@ -644,15 +766,7 @@ async def send_report_email(
     vt_label = VISIT_TYPE_LABELS.get(visit_type, visit_type)
 
     subject = f"ANOTE \u2013 L\u00e9ka\u0159sk\u00e1 zpr\u00e1va \u2013 {today}"
-    body = (
-        "L\u00e9ka\u0159sk\u00e1 zpr\u00e1va vygenerovan\u00e1 aplikac\u00ed ANOTE\n"
-        f"Datum: {today}\n"
-        f"Typ n\u00e1v\u0161t\u011bvy: {vt_label}\n"
-        "\n---\n\n"
-        f"{report}\n"
-        "\n---\n"
-        "Tato zpr\u00e1va byla automaticky odesl\u00e1na aplikac\u00ed ANOTE.\n"
-    )
+    body = _build_email_body(report, data.transcript, today, vt_label)
 
     try:
         _send_email(email, subject, body)

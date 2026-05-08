@@ -425,8 +425,7 @@ void main() {
     final state = container.read(sessionProvider);
     expect(state.status, RecordingStatus.idle);
     expect(state.isModelLoaded, isTrue,
-        reason:
-            'resetSession must reflect the loaded model so the UI does not '
+        reason: 'resetSession must reflect the loaded model so the UI does not '
             'flicker into "model not loaded" between sessions (TASK-0035).');
   });
 

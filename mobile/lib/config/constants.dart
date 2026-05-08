@@ -10,11 +10,9 @@ class AppColors {
 }
 
 class AppConstants {
-  // Production: Azure Container Apps (West Europe)
   static const String defaultBackendUrl =
       'https://anote-api.politesmoke-02c93984.westeurope.azurecontainerapps.io';
-  static const String defaultToken =
-      '_lZNhJDgaoneVaztSf2tJnf-rZMEQV5ZCLBPRAyC38I';
+  static const String defaultToken = Secrets.backendApiToken;
   static const Duration reportGenerationInterval = Duration(seconds: 30);
   static const Duration pollInterval = Duration(milliseconds: 500);
   static const String secureStorageKeyToken = 'api_bearer_token';
@@ -32,4 +30,20 @@ class AppConstants {
   static const String defaultAzureWhisperUrl =
       'https://anote-openai-swe.openai.azure.com/openai/deployments/gpt-4o-mini-transcribe/audio/transcriptions?api-version=2024-06-01';
   static const String defaultAzureWhisperKey = Secrets.azureWhisperKey;
+
+  static bool shouldMigrateBackendUrl(String? url) {
+    final normalized = url?.trim().toLowerCase();
+    return normalized == null ||
+        normalized.isEmpty ||
+        normalized == 'http://localhost:8000' ||
+        normalized == 'http://127.0.0.1:8000' ||
+        normalized == 'http://10.0.2.2:8000';
+  }
+
+  static bool shouldMigrateBackendToken(String? token) {
+    final normalized = token?.trim();
+    return normalized == null ||
+        normalized.isEmpty ||
+        normalized == 'dev-token';
+  }
 }

@@ -240,6 +240,389 @@ PROMPT_VARIANTS = {
         ),
         "suffix": "",  # v4 is the new base prompt — no suffix needed
     },
+    # ── TASK-0036 v5 candidates (defect-targeted) ────────────────────────
+    "v5a_negative": {
+        "name": "v5a — negative prohibitions",
+        "description": (
+            "TASK-0036: 5 defect rules expressed as hard prohibitions "
+            "(Do NOT / Never insert)."
+        ),
+        "suffix": (
+            "\n\nTASK-0036 OPRAVY (PRIORITNÍ — PŘEPISUJÍ PŘEDCHOZÍ ZÁSADY)\n"
+            "- NIKDY nepiš do žádné sekce neklinický, sociální nebo narativní "
+            "obsah (písničky, říkanky, banter, počasí, zmínky o divadle, "
+            "vyprávění, obecná konverzace). Vyřaď je úplně.\n"
+            "- NIKDY neumísťuj subjektivní výpovědi pacienta (\u201Eudává\u201C, "
+            "\u201Ecítí\u201C, \u201Eříká\u201C) do sekce \u201EObjektivní nález\u201C. "
+            "NIKDY neumísťuj naměřené hodnoty (TK, P, SpO2, TT, fyzikální nález, "
+            "poslechový/palpační nález) do NO ani jiné anamnestické sekce — "
+            "vždy je dej výhradně do \u201EObjektivní nález\u201C, i když lékař "
+            "měření vyslovil v dialogu uvnitř pacientova vyprávění.\n"
+            "- NIKDY neodvozuj klinický obsah z nejednoznačných nebo "
+            "podivně znějících tokenů v přepisu (možné chyby ASR, neznámé výrazy, "
+            "značkové názvy). NEINTERPRETUJ je jako diagnózy, alergeny ani "
+            "prostředí; raději je vynechej nebo cituj doslova s poznámkou "
+            "\u201Enejasné, k upřesnění\u201C. NIKDY nedoplňuj alergii, diagnózu "
+            "ani kontext, který v přepisu výslovně nezazněl.\n"
+            "- NIKDY nevkládej frázi \u201Espolupráce dobrá\u201C, \u201Erežim "
+            "dodržuje\u201C, \u201Ebere léky pravidelně\u201C ani jinou boilerplate "
+            "o adherenci, pokud o adherenci v přepisu pacient ani lékař "
+            "neřekli ani slovo. Pokud se téma neobjevilo, sekce \u201EAdherence "
+            "a spolupráce pacienta\u201C MUSÍ obsahovat pouze \u201Eneuvedeno\u201C.\n"
+            "- NIKDY neparafrázuj dávkování. Zachovej řetězce dávek doslova "
+            "tak, jak zazněly (\u201E1 tbl.\u201C, \u201E2× denně\u201C, \u201E1-0-0\u201C, "
+            "\u201E100 mg\u201C, \u201Eráno\u201C, \u201Evečer\u201C). NIKDY je nepřepisuj "
+            "na obecnou prózu (\u201Eužívá pravidelně\u201C, \u201Edle doporučení\u201C, "
+            "\u201Epředepsanou medikaci\u201C). NIKDY nepřevádějte jednotky."
+        ),
+    },
+    "v5b_positive": {
+        "name": "v5b — positive conditional",
+        "description": (
+            "TASK-0036: 5 defect rules expressed as positive instructions "
+            "with explicit conditions."
+        ),
+        "suffix": (
+            "\n\nTASK-0036 ZPŘESNĚNÍ (PRIORITNÍ — PŘEPISUJÍ PŘEDCHOZÍ ZÁSADY)\n"
+            "- Do zprávy zařaď pouze klinicky relevantní obsah. Sociální, "
+            "narativní a neklinický materiál (písně, říkanky, banter, vyprávění, "
+            "konverzaci o počasí či divadle) z přepisu vynech.\n"
+            "- Subjektivní výpovědi (co pacient udává, cítí, popisuje) patří "
+            "do NO/anamnestických sekcí. Naměřené nebo vyšetřením zjištěné "
+            "hodnoty (TK, P, SpO2, TT, fyzikální/poslechový/palpační nález) "
+            "patří výhradně do \u201EObjektivní nález\u201C — i když je lékař "
+            "vyslovil v dialogu uprostřed pacientova vyprávění; přesuň je "
+            "do správné sekce.\n"
+            "- Klinický obsah uveď pouze tehdy, když je v přepisu výslovně "
+            "podložen. U nejednoznačných tokenů (možné ASR chyby, neznámé výrazy, "
+            "značkové názvy) raději obsah vynech nebo přepiš doslova s poznámkou "
+            "\u201Enejasné, k upřesnění\u201C. Alergie, diagnózy a kontextové údaje "
+            "uváděj jen tehdy, pokud byly v přepisu skutečně řečeny.\n"
+            "- Sekci \u201EAdherence a spolupráce pacienta\u201C vyplň pouze tehdy, "
+            "pokud v přepisu zaznělo konkrétní téma adherence (užívání léků, "
+            "dodržování režimu, kontroly, doporučení). Pokud o adherenci nikdo "
+            "nemluvil, napiš výhradně \u201Eneuvedeno\u201C — frázi \u201Espolupráce "
+            "dobrá\u201C použij jen tehdy, když pacient výslovně potvrdil, "
+            "že režim/léky dodržuje.\n"
+            "- Dávkovací řetězce zachovávej v přesné podobě, jak je lékař či "
+            "pacient vyslovil (\u201E1 tbl.\u201C, \u201E1-0-0\u201C, \u201E100 mg\u201C, "
+            "\u201E2× denně\u201C, \u201Eráno\u201C). Neparafrázuj je do prózy a "
+            "neměň jednotky; pokud chybí, napiš \u201Eneuvedeno\u201C."
+        ),
+    },
+    "v5c_fewshot": {
+        "name": "v5c — micro-examples",
+        "description": (
+            "TASK-0036: minimal prose + 1–2 illustrative CZ transcript→report "
+            "micro-examples per defect."
+        ),
+        "suffix": (
+            "\n\nTASK-0036 PŘÍKLADY (ILUSTRATIVNÍ — NE REÁLNÝ KLINICKÝ OBSAH)\n"
+            "Následující mini-příklady ukazují požadované chování. Aplikuj "
+            "stejný princip, ne doslovný text.\n"
+            "\n"
+            "Příklad A — neklinický obsah a měření v dialogu:\n"
+            "Přepis: \u201E…la la la, paní učitelka říkala. TK 145/90, puls 78. "
+            "A pak jsme šli do divadla.\u201C\n"
+            "Zpráva — NO: (žádná zmínka o písničce, učitelce, divadle.)\n"
+            "Zpráva — Objektivní nález: TK 145/90 mmHg, P 78/min.\n"
+            "\n"
+            "Příklad B — nejednoznačný token v alergii:\n"
+            "Přepis: \u201ELékař: A nějaké alergie? Pacient: na jaro mi červenají ruce.\u201C\n"
+            "Zpráva — AA: \u201Epacient uvádí ‚na jaro červenají ruce‘ — "
+            "nejasné, k upřesnění\u201C. (NIKDY \u201Epylová alergie\u201C ani "
+            "\u201Esezónní alergie\u201C bez explicitní zmínky pylu.)\n"
+            "\n"
+            "Příklad C — adherence nediskutována:\n"
+            "Přepis: (žádná zmínka o režimu, lécích nebo kontrolách.)\n"
+            "Zpráva — Adherence a spolupráce pacienta: \u201Eneuvedeno\u201C. "
+            "(NIKDY \u201Espolupráce dobrá\u201C jako default.)\n"
+            "\n"
+            "Příklad D — terse dávkování:\n"
+            "Přepis: \u201EFurosemid 1 tbl. ráno, Anopyrin 100 mg 1-0-0.\u201C\n"
+            "Zpráva — FA: \u201EFurosemid 1 tbl. ráno; Anopyrin 100 mg 1-0-0.\u201C "
+            "(NIKDY \u201Eužívá pravidelně předepsanou medikaci\u201C.)\n"
+            "\n"
+            "Příklad E — subjektivní vs objektivní:\n"
+            "Přepis: \u201EPacient: cítím se unavený. Lékař: poslechově dýchání "
+            "sklípkové.\u201C\n"
+            "Zpráva — NO: \u201Eudává únavu\u201C. Objektivní nález: \u201Edýchání "
+            "sklípkové\u201C. (NIKDY naopak.)"
+        ),
+    },
+    # ── v5d: v5c with one example replaced for adherence-absent realism ──
+    "v5d_adherence_example": {
+        "name": "v5d — v5c + adherence-absent realistic example",
+        "description": (
+            "TASK-0036: v5c few-shot block, with Example C replaced by a "
+            "substantive transcript that contains zero adherence/cooperation "
+            "discussion and whose target report writes 'Adherence a spolupráce: "
+            "neuvedeno'. Tests whether a richer realistic anti-boilerplate "
+            "example fixes the adherence regression."
+        ),
+        "suffix": (
+            "\n\nTASK-0036 PŘÍKLADY (ILUSTRATIVNÍ — NE REÁLNÝ KLINICKÝ OBSAH)\n"
+            "Následující mini-příklady ukazují požadované chování. Aplikuj "
+            "stejný princip, ne doslovný text.\n"
+            "\n"
+            "Příklad A — neklinický obsah a měření v dialogu:\n"
+            "Přepis: \u201E…la la la, paní učitelka říkala. TK 145/90, puls 78. "
+            "A pak jsme šli do divadla.\u201C\n"
+            "Zpráva — NO: (žádná zmínka o písničce, učitelce, divadle.)\n"
+            "Zpráva — Objektivní nález: TK 145/90 mmHg, P 78/min.\n"
+            "\n"
+            "Příklad B — nejednoznačný token v alergii:\n"
+            "Přepis: \u201ELékař: A nějaké alergie? Pacient: na jaro mi červenají ruce.\u201C\n"
+            "Zpráva — AA: \u201Epacient uvádí ‚na jaro červenají ruce‘ — "
+            "nejasné, k upřesnění\u201C. (NIKDY \u201Epylová alergie\u201C ani "
+            "\u201Esezónní alergie\u201C bez explicitní zmínky pylu.)\n"
+            "\n"
+            "Příklad C — adherence nediskutována (realistický plný dialog):\n"
+            "Přepis: \u201EPacient: bolí mě v krku už čtvrtý den, polykání "
+            "nepříjemné, teplotu jsem si neměřil. Lékař: kašel? Pacient: jen "
+            "občas, suchý. Lékař: ukažte krk… mandle zarudlé, povlak nevidím. "
+            "Lékař: indikuji výtěr a symptomatickou léčbu, kontrola dle "
+            "potřeby.\u201C\n"
+            "Zpráva — NO: \u201Ebolesti v krku 4 dny, polykání bolestivé, "
+            "občasný suchý kašel; teplotu si neměřil\u201C.\n"
+            "Zpráva — Objektivní nález: \u201Emandle zarudlé bez povlaku\u201C.\n"
+            "Zpráva — Adherence a spolupráce pacienta: \u201Eneuvedeno\u201C. "
+            "(Téma adherence, užívání léků ani dodržování režimu v přepisu "
+            "vůbec nezaznělo — proto NIKDY \u201Espolupráce dobrá\u201C, "
+            "\u201Erežim dodržuje\u201C ani jiná boilerplate. Plný klinický "
+            "obsah ve zprávě bude — jen sekce Adherence zůstává \u201Eneuvedeno\u201C.)\n"
+            "\n"
+            "Příklad D — terse dávkování:\n"
+            "Přepis: \u201EFurosemid 1 tbl. ráno, Anopyrin 100 mg 1-0-0.\u201C\n"
+            "Zpráva — FA: \u201EFurosemid 1 tbl. ráno; Anopyrin 100 mg 1-0-0.\u201C "
+            "(NIKDY \u201Eužívá pravidelně předepsanou medikaci\u201C.)\n"
+            "\n"
+            "Příklad E — subjektivní vs objektivní:\n"
+            "Přepis: \u201EPacient: cítím se unavený. Lékař: poslechově dýchání "
+            "sklípkové.\u201C\n"
+            "Zpráva — NO: \u201Eudává únavu\u201C. Objektivní nález: \u201Edýchání "
+            "sklípkové\u201C. (NIKDY naopak.)"
+        ),
+    },
+    # ── v5e: v5c with one explicit anti-boilerplate adherence rule ──────
+    "v5e_explicit_rule": {
+        "name": "v5e — v5c + explicit adherence rule",
+        "description": (
+            "TASK-0036: v5c few-shot block unchanged, plus one additional "
+            "explicit rule near the adherence example forbidding the "
+            "'spolupráce dobrá' default. Tests whether a single explicit "
+            "imperative is sufficient to fix the adherence regression."
+        ),
+        "suffix": (
+            "\n\nTASK-0036 PŘÍKLADY (ILUSTRATIVNÍ — NE REÁLNÝ KLINICKÝ OBSAH)\n"
+            "Následující mini-příklady ukazují požadované chování. Aplikuj "
+            "stejný princip, ne doslovný text.\n"
+            "\n"
+            "Příklad A — neklinický obsah a měření v dialogu:\n"
+            "Přepis: \u201E…la la la, paní učitelka říkala. TK 145/90, puls 78. "
+            "A pak jsme šli do divadla.\u201C\n"
+            "Zpráva — NO: (žádná zmínka o písničce, učitelce, divadle.)\n"
+            "Zpráva — Objektivní nález: TK 145/90 mmHg, P 78/min.\n"
+            "\n"
+            "Příklad B — nejednoznačný token v alergii:\n"
+            "Přepis: \u201ELékař: A nějaké alergie? Pacient: na jaro mi červenají ruce.\u201C\n"
+            "Zpráva — AA: \u201Epacient uvádí ‚na jaro červenají ruce‘ — "
+            "nejasné, k upřesnění\u201C. (NIKDY \u201Epylová alergie\u201C ani "
+            "\u201Esezónní alergie\u201C bez explicitní zmínky pylu.)\n"
+            "\n"
+            "Příklad C — adherence nediskutována:\n"
+            "Přepis: (žádná zmínka o režimu, lécích nebo kontrolách.)\n"
+            "Zpráva — Adherence a spolupráce pacienta: \u201Eneuvedeno\u201C. "
+            "(NIKDY \u201Espolupráce dobrá\u201C jako default.)\n"
+            "\n"
+            "Příklad D — terse dávkování:\n"
+            "Přepis: \u201EFurosemid 1 tbl. ráno, Anopyrin 100 mg 1-0-0.\u201C\n"
+            "Zpráva — FA: \u201EFurosemid 1 tbl. ráno; Anopyrin 100 mg 1-0-0.\u201C "
+            "(NIKDY \u201Eužívá pravidelně předepsanou medikaci\u201C.)\n"
+            "\n"
+            "Příklad E — subjektivní vs objektivní:\n"
+            "Přepis: \u201EPacient: cítím se unavený. Lékař: poslechově dýchání "
+            "sklípkové.\u201C\n"
+            "Zpráva — NO: \u201Eudává únavu\u201C. Objektivní nález: \u201Edýchání "
+            "sklípkové\u201C. (NIKDY naopak.)\n"
+            "\n"
+            "DODATEČNÉ EXPLICITNÍ PRAVIDLO PRO ADHERENCI (PŘEPISUJE PŘEDCHOZÍ "
+            "DOPORUČENÍ V SEKCI ADHERENCE):\n"
+            "Pokud přepis NEOBSAHUJE výslovnou diskusi o užívání léků, "
+            "dodržování režimu, kontrolách nebo pacientových odmítnutích, "
+            "zapiš do sekce \u201EAdherence a spolupráce pacienta\u201C VÝHRADNĚ "
+            "\u201Eneuvedeno\u201C. NIKDY se neuchyluj k defaultní frázi "
+            "\u201Espolupráce dobrá\u201C, \u201Erežim dodržuje\u201C, "
+            "\u201Epacient rozumí doporučením\u201C ani podobné — i když je "
+            "klinický obraz jinak v pořádku, nepřítomnost diskuse = "
+            "\u201Eneuvedeno\u201C, ne \u201Espolupráce dobrá\u201C."
+        ),
+    },
+    # ── v5g: abstract principles, no concrete clinical values ──────────
+    "v5g_principles": {
+        "name": "v5g — abstraktní principy bez konkrétních hodnot",
+        "description": (
+            "TASK-0036: pět zobecněných principů (off-topic, subjektivní vs "
+            "objektivní, fabrikace/inference, default-fráze v adherenci, věrnost "
+            "krátkých klinických tokenů). Každý princip je doplněn jedním "
+            "abstraktním protipříkladem (co NEdělat) bez konkrétních klinických "
+            "hodnot, léků, nemocí ani frází, které by zrcadlily evaluační rubriku. "
+            "Cílem je naučit chování, ne nakopírovat vzor."
+        ),
+        "suffix": (
+            "\n\nTASK-0036 OBECNÉ PRINCIPY (BEZ KONKRÉTNÍCH KLINICKÝCH HODNOT)\n"
+            "Při generování zprávy uplatni následující obecné principy. Příklady "
+            "jsou záměrně abstraktní — neopisuj jejich text, pochop princip a "
+            "aplikuj jej na vlastní vstup.\n"
+            "\n"
+            "Princip 1 — Filtrování neklinického obsahu:\n"
+            "Do zprávy patří pouze klinicky relevantní informace získané z "
+            "rozhovoru. Vše ostatní (sociální vsuvky, vyrušení, obsah cizích "
+            "mluvčích v pozadí, opakovaná slova způsobená rozpoznáváním řeči) "
+            "ignoruj. Klinickou relevanci posuzuj podle vztahu k symptomům, "
+            "vyšetření, diagnóze, léčbě nebo plánu.\n"
+            "Protipříklad (NEdělat): zařadit do anamnézy popis činnosti, kterou "
+            "pacient zmínil mimoděk a která nemá vztah k jeho potížím, jen "
+            "proto, že v přepisu zazněla.\n"
+            "\n"
+            "Princip 2 — Přiřazení nálezů ke správným sekcím:\n"
+            "Co pacient sám vypovídá o svých prožitcích, intenzitě, trvání a "
+            "vlastních pozorováních, patří do subjektivní části (anamnéza / "
+            "nynější onemocnění). Co lékař objektivně změří, vyšetří nebo "
+            "zaznamená přístrojem, patří výhradně do sekce objektivního nálezu. "
+            "Tyto kategorie nikdy nemíchej v jedné větě a neumísťuj je do "
+            "opačné sekce.\n"
+            "Protipříklad (NEdělat): umístit naměřenou hodnotu z fyzikálního "
+            "vyšetření do anamnézy proto, že v dialogu zazněla mezi pacientovými "
+            "větami.\n"
+            "\n"
+            "Princip 3 — Žádná inference nad rámec přepisu:\n"
+            "Do zprávy zapiš pouze to, co lze přímo doložit z přepisu. "
+            "Nedoplňuj diagnózy, etiologie, alergeny, kauzální vysvětlení ani "
+            "kategorie, které sám pacient ani lékař neformulovali. Pokud je "
+            "vyjádření pacienta nejednoznačné, ponech ho v původní podobě a "
+            "označ jako k upřesnění; nepřevádí ho na klinickou kategorii.\n"
+            "Protipříklad (NEdělat): převést pacientův popis spouštěče potíží "
+            "na konkrétní diagnostickou kategorii, kterou pacient nezmínil, jen "
+            "proto, že obecně bývá s podobnými symptomy spojována.\n"
+            "\n"
+            "Princip 4 — Sekce zaznamenává pouze to, co bylo skutečně probíráno:\n"
+            "Každá sekce zprávy reflektuje pouze obsah, který byl v rozhovoru "
+            "skutečně diskutován. Pokud určité téma (např. užívání léků, "
+            "dodržování režimu, kontroly) v přepisu vůbec nezaznělo, sekce má "
+            "obsahovat výslovný marker nepřítomnosti diskuse, nikoli šablonové "
+            "pozitivní nebo negativní hodnocení. Negativní explicitní vyjádření "
+            "pacienta (něco neguje) zapiš jako negaci; absenci tématu zapiš "
+            "jako nepřítomnost informace — tyto dvě situace nikdy nezaměňuj.\n"
+            "Protipříklad (NEdělat): vyplnit sekci shrnujícím pozitivním "
+            "klišé jen proto, že o daném tématu padla nulová zmínka a sekce by "
+            "jinak zůstala prázdná.\n"
+            "\n"
+            "Princip 5 — Věrnost krátkých klinických tokenů:\n"
+            "Přesné zápisy dávkování, frekvence, schémat a dalších kompaktních "
+            "klinických údajů přenes ze zdroje doslovně, včetně použité "
+            "interpunkce, zkratek a jednotek. Nepřevádí je do prózy, "
+            "nepřevádí jednotky, neslučuj více preparátů do souhrnných formulací "
+            "a nedoplňuj o údaje, které v přepisu nezazněly.\n"
+            "Protipříklad (NEdělat): nahradit přesný originální zápis schématu "
+            "obecnou formulací o pravidelném užívání medikace, čímž se ztratí "
+            "konkrétní rozpis dávek."
+        ),
+    },
+    # ── v5h: v5g + 3 procedural rules (no concrete tells) ──────────────
+    "v5h_procedural": {
+        "name": "v5h — v5g + procedurální pravidla",
+        "description": (
+            "TASK-0036: stejné jako v5g_principles, navíc tři procedurální "
+            "pravidla (sociální kontext jako expozice, numerické hodnoty s "
+            "jednotkou výhradně do objektivního nálezu, povinné ověření "
+            "citace před zápisem do sekce adherence). Cílem je zlepšit "
+            "off-topic filtraci, placement numerik a default-fráze v "
+            "adherenci bez zrcadlení testů a soudce."
+        ),
+        "suffix": (
+            "\n\nTASK-0036 OBECNÉ PRINCIPY (BEZ KONKRÉTNÍCH KLINICKÝCH HODNOT)\n"
+            "Při generování zprávy uplatni následující obecné principy. Příklady "
+            "jsou záměrně abstraktní — neopisuj jejich text, pochop princip a "
+            "aplikuj jej na vlastní vstup.\n"
+            "\n"
+            "Princip 1 — Filtrování neklinického obsahu:\n"
+            "Do zprávy patří pouze klinicky relevantní informace získané z "
+            "rozhovoru. Vše ostatní (sociální vsuvky, vyrušení, obsah cizích "
+            "mluvčích v pozadí, opakovaná slova způsobená rozpoznáváním řeči) "
+            "ignoruj. Klinickou relevanci posuzuj podle vztahu k symptomům, "
+            "vyšetření, diagnóze, léčbě nebo plánu.\n"
+            "Protipříklad (NEdělat): zařadit do anamnézy popis činnosti, kterou "
+            "pacient zmínil mimoděk a která nemá vztah k jeho potížím, jen "
+            "proto, že v přepisu zazněla.\n"
+            "\n"
+            "Princip 2 — Přiřazení nálezů ke správným sekcím:\n"
+            "Co pacient sám vypovídá o svých prožitcích, intenzitě, trvání a "
+            "vlastních pozorováních, patří do subjektivní části (anamnéza / "
+            "nynější onemocnění). Co lékař objektivně změří, vyšetří nebo "
+            "zaznamená přístrojem, patří výhradně do sekce objektivního nálezu. "
+            "Tyto kategorie nikdy nemíchej v jedné větě a neumísťuj je do "
+            "opačné sekce.\n"
+            "Protipříklad (NEdělat): umístit naměřenou hodnotu z fyzikálního "
+            "vyšetření do anamnézy proto, že v dialogu zazněla mezi pacientovými "
+            "větami.\n"
+            "\n"
+            "Princip 3 — Žádná inference nad rámec přepisu:\n"
+            "Do zprávy zapiš pouze to, co lze přímo doložit z přepisu. "
+            "Nedoplňuj diagnózy, etiologie, alergeny, kauzální vysvětlení ani "
+            "kategorie, které sám pacient ani lékař neformulovali. Pokud je "
+            "vyjádření pacienta nejednoznačné, ponech ho v původní podobě a "
+            "označ jako k upřesnění; nepřevádí ho na klinickou kategorii.\n"
+            "Protipříklad (NEdělat): převést pacientův popis spouštěče potíží "
+            "na konkrétní diagnostickou kategorii, kterou pacient nezmínil, jen "
+            "proto, že obecně bývá s podobnými symptomy spojována.\n"
+            "\n"
+            "Princip 4 — Sekce zaznamenává pouze to, co bylo skutečně probíráno:\n"
+            "Každá sekce zprávy reflektuje pouze obsah, který byl v rozhovoru "
+            "skutečně diskutován. Pokud určité téma (např. užívání léků, "
+            "dodržování režimu, kontroly) v přepisu vůbec nezaznělo, sekce má "
+            "obsahovat výslovný marker nepřítomnosti diskuse, nikoli šablonové "
+            "pozitivní nebo negativní hodnocení. Negativní explicitní vyjádření "
+            "pacienta (něco neguje) zapiš jako negaci; absenci tématu zapiš "
+            "jako nepřítomnost informace — tyto dvě situace nikdy nezaměňuj.\n"
+            "Protipříklad (NEdělat): vyplnit sekci shrnujícím pozitivním "
+            "klišé jen proto, že o daném tématu padla nulová zmínka a sekce by "
+            "jinak zůstala prázdná.\n"
+            "\n"
+            "Princip 5 — Věrnost krátkých klinických tokenů:\n"
+            "Přesné zápisy dávkování, frekvence, schémat a dalších kompaktních "
+            "klinických údajů přenes ze zdroje doslovně, včetně použité "
+            "interpunkce, zkratek a jednotek. Nepřevádí je do prózy, "
+            "nepřevádí jednotky, neslučuj více preparátů do souhrnných formulací "
+            "a nedoplňuj o údaje, které v přepisu nezazněly.\n"
+            "Protipříklad (NEdělat): nahradit přesný originální zápis schématu "
+            "obecnou formulací o pravidelném užívání medikace, čímž se ztratí "
+            "konkrétní rozpis dávek.\n"
+            "\n"
+            "PROCEDURÁLNÍ PRAVIDLA (aplikuj při zápisu každé sekce):\n"
+            "\n"
+            "Pravidlo P1 — Sociální kontext vs. expozice:\n"
+            "Místa, volnočasové aktivity ani sociální události do zprávy nepatří, "
+            "pokud nejsou přímou expozicí (alergen, trauma, infekce, pracovní "
+            "rizikový faktor). Z popisu takové aktivity přenes pouze symptom, "
+            "ne situaci.\n"
+            "\n"
+            "Pravidlo P2 — Numerická hodnota s jednotkou:\n"
+            "Každá numerická hodnota s jednotkou patří výhradně do sekce "
+            "objektivního nálezu. V subjektivních sekcích takovou hodnotu "
+            "neuváděj ani v závorce, ani jako vysvětlivku k negaci; pokud "
+            "potřebuješ totéž zmínit v anamnéze, použij kvalitativní formulaci "
+            "bez čísla a jednotky. Numerická hodnota se v celé zprávě smí "
+            "objevit pouze jednou, a to v sekci objektivního nálezu — v žádné "
+            "jiné sekci ji neopakuj, ani jako kontext, ani v závorce.\n"
+            "\n"
+            "Pravidlo P3 — Ověření citace před zápisem do adherence/spolupráce:\n"
+            "Před zápisem do sekce adherence/spolupráce najdi v přepisu "
+            "konkrétní výrok, který ji opírá. Pokud takový výrok neexistuje, "
+            "hodnota sekce je marker nepřítomnosti tématu — nepřidávej "
+            "shrnutí, hodnocení ani předpoklad."
+        ),
+    },
 }
 
 
@@ -313,6 +696,167 @@ DIM_SHORT = {
     "clinical_language": "Lang",
     "noise_resilience": "Noise",
 }
+
+# ── TASK-0036 weighted rubric ────────────────────────────────────────────────
+
+TASK0036_FACTORS = [
+    # (key, weight)
+    ("clinical_relevance", 3),
+    ("section_placement", 2),
+    ("no_fabrication", 3),
+    ("adherence_appropriateness", 1),
+    ("dosage_fidelity", 2),
+    ("completeness", 1),
+    ("no_critical_omission", 2),
+    ("czech_medical_style", 1),
+    # Extended orthogonal factors (added 2026-05-03 to reduce overfit signal)
+    ("temporal_anchor_fidelity", 1),
+    ("negation_explicitness", 1),
+    ("speaker_attribution", 1),
+]
+TASK0036_TOTAL_WEIGHT = sum(w for _, w in TASK0036_FACTORS)  # 18
+
+JUDGE_TASK0036_SYSTEM_PROMPT = """\
+You are a strict medical-documentation auditor reviewing a Czech medical report
+generated from a Czech doctor-patient transcript. The transcript may contain ASR
+errors, irrelevant background content, or non-clinical chatter. Score the report
+on the factors listed below. For each factor return an integer score 0-5 and a
+short free-text justification. The justification MUST quote the offending Czech
+text from the report verbatim in double quotes when a defect is present, or say
+"n/a" if the factor does not apply. Judge each factor by the abstract criterion
+described, not by surface keyword matching.
+
+Factors and scoring criteria:
+
+1. clinical_relevance — 5 = report contains only clinically relevant content
+   derived from the conversation; 0 = report contains material that is not
+   clinically relevant (off-topic narrative, social filler, content from
+   unrelated voices) presented as if it were part of the medical history.
+2. section_placement — 5 = subjective patient-reported information appears
+   only in subjective sections, and information obtained by direct measurement
+   or examination appears only in the objective-finding section; 0 = systematic
+   mixing of these categories.
+3. no_fabrication — 5 = every clinical statement in the report has a direct
+   basis in the transcript; 0 = report introduces diagnoses, etiologies,
+   categories, or causal explanations that the speakers never formulated.
+4. adherence_appropriateness — 5 = the adherence/cooperation section reflects
+   only what was actually discussed in the transcript; 0 = the section is
+   filled with a default summary statement when the topic was never raised.
+5. dosage_fidelity — 5 = compact clinical tokens (dosing schemes, frequencies,
+   units, abbreviations) are preserved verbatim from the spoken source;
+   0 = these tokens are paraphrased into prose, merged, or unit-converted.
+6. completeness — 5 = all clinically relevant content from the transcript is
+   captured; 0 = major clinically relevant content is missing.
+7. no_critical_omission — 5 = no clinically important finding, symptom, or
+   medication is dropped; 0 = a safety-relevant element is missing.
+8. czech_medical_style — 5 = idiomatic Czech medical documentation register
+   and terminology throughout; 0 = informal, non-idiomatic, or inconsistent
+   register.
+9. temporal_anchor_fidelity — 5 = durations, onsets, frequencies, and
+   time-of-day qualifiers from the transcript are preserved with the same
+   granularity; 0 = these temporal anchors are dropped, generalized, or altered.
+10. negation_explicitness — 5 = the report cleanly distinguishes between
+    information explicitly negated by a speaker and information that was never
+    raised; both situations are represented appropriately and never conflated;
+    0 = explicit negation is treated as absence, or absence is treated as
+    explicit negation.
+11. speaker_attribution — 5 = subjective utterances are attributed to the
+    patient and observations to the clinician without confusion; 0 = the
+    report attributes content to the wrong speaker or merges roles.
+
+Respond as STRICT JSON only, with this exact shape:
+{
+  "factors": {
+    "clinical_relevance":        {"score": N, "justification": "..."},
+    "section_placement":         {"score": N, "justification": "..."},
+    "no_fabrication":            {"score": N, "justification": "..."},
+    "adherence_appropriateness": {"score": N, "justification": "..."},
+    "dosage_fidelity":           {"score": N, "justification": "..."},
+    "completeness":              {"score": N, "justification": "..."},
+    "no_critical_omission":      {"score": N, "justification": "..."},
+    "czech_medical_style":       {"score": N, "justification": "..."},
+    "temporal_anchor_fidelity":  {"score": N, "justification": "..."},
+    "negation_explicitness":     {"score": N, "justification": "..."},
+    "speaker_attribution":       {"score": N, "justification": "..."}
+  }
+}
+Do not include any text outside the JSON object."""
+
+
+def evaluate_report_task0036(
+    client: AzureOpenAI, model: str, transcript: str, report: str
+) -> dict:
+    """TASK-0036 weighted rubric judge call. Returns dict with factors + composite."""
+    t0 = time.time()
+    reasoning = _is_reasoning_model(model)
+
+    def _call():
+        kwargs: dict = dict(
+            model=model,
+            messages=[
+                {"role": "system", "content": JUDGE_TASK0036_SYSTEM_PROMPT},
+                {
+                    "role": "user",
+                    "content": (
+                        f"=== TRANSCRIPT ===\n{transcript}\n\n"
+                        f"=== GENERATED REPORT ===\n{report}"
+                    ),
+                },
+            ],
+            response_format={"type": "json_object"},
+        )
+        if reasoning:
+            kwargs["max_completion_tokens"] = 16000
+        else:
+            kwargs["temperature"] = 0.0
+            kwargs["max_tokens"] = 2000
+        return client.chat.completions.create(**kwargs)
+
+    response = _call_with_retry(_call)
+    elapsed = time.time() - t0
+    raw = response.choices[0].message.content
+    try:
+        parsed = json.loads(raw)
+    except json.JSONDecodeError:
+        print(f"  ⚠️  TASK-0036 judge returned invalid JSON. Raw: {raw[:300]}")
+        return {
+            "factors": {},
+            "weighted_composite": None,
+            "_error": "invalid_json",
+            "_raw": raw,
+            "_eval_time_s": round(elapsed, 2),
+            "_eval_tokens": {
+                "prompt_tokens": response.usage.prompt_tokens,
+                "completion_tokens": response.usage.completion_tokens,
+            },
+        }
+
+    factors_raw = parsed.get("factors", {})
+    factors_out: dict = {}
+    weighted_sum = 0
+    for key, weight in TASK0036_FACTORS:
+        entry = factors_raw.get(key, {}) or {}
+        score = entry.get("score")
+        if not isinstance(score, (int, float)):
+            score = 0
+        score = max(0, min(5, int(score)))
+        factors_out[key] = {
+            "score": score,
+            "weight": weight,
+            "justification": entry.get("justification", ""),
+        }
+        weighted_sum += score * weight
+    composite = round(weighted_sum / TASK0036_TOTAL_WEIGHT, 3)
+
+    return {
+        "factors": factors_out,
+        "weighted_composite": composite,
+        "_eval_time_s": round(elapsed, 2),
+        "_eval_tokens": {
+            "prompt_tokens": response.usage.prompt_tokens,
+            "completion_tokens": response.usage.completion_tokens,
+        },
+    }
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -450,7 +994,13 @@ def evaluate_report(client: AzureOpenAI, model: str, transcript: str, report: st
 # ── Main pipeline ────────────────────────────────────────────────────────────
 
 
-def run_evaluation(scenarios_dir: str, model: str, output_path: str, prompt_variant: str = "v0") -> list[dict]:
+def run_evaluation(
+    scenarios_dir: str,
+    model: str,
+    output_path: str,
+    prompt_variant: str = "v0",
+    task0036_rubric: bool = False,
+) -> list[dict]:
     """Run the full generate-then-evaluate pipeline on all .txt files in a directory."""
     scenarios_path = Path(scenarios_dir)
     if not scenarios_path.exists():
@@ -504,15 +1054,8 @@ def run_evaluation(scenarios_dir: str, model: str, output_path: str, prompt_vari
             score_vals.append(s)
         composite = evaluation.get("composite_score", "?")
         score_str = "  ".join(f"{DIM_SHORT[d]}={v}" for d, v in zip(DIMENSIONS, score_vals))
-        print(f"  ✓ Scores: {score_str}  |  AVG={composite}")
 
-        if evaluation.get("hallucinations"):
-            print(f"  ⚠ Hallucinations: {evaluation['hallucinations']}")
-        if evaluation.get("omissions"):
-            print(f"  ⚠ Omissions: {evaluation['omissions']}")
-        print()
-
-        results.append({
+        scenario_record = {
             "scenario": name,
             "transcript_words": word_count,
             "report_generation": gen_usage,
@@ -524,7 +1067,34 @@ def run_evaluation(scenarios_dir: str, model: str, output_path: str, prompt_vari
                 "omissions": evaluation.get("omissions", []),
                 "summary": evaluation.get("summary", ""),
             },
-        })
+        }
+
+        if task0036_rubric:
+            print(f"  → TASK-0036 rubric…", end="", flush=True)
+            try:
+                t36 = evaluate_report_task0036(client, model, transcript, report)
+            except Exception as exc:
+                print(f" first attempt failed: {exc}; retrying once…", end="", flush=True)
+                try:
+                    t36 = evaluate_report_task0036(client, model, transcript, report)
+                except Exception as exc2:
+                    print(f" failed twice: {exc2}")
+                    t36 = {"factors": {}, "weighted_composite": None, "_error": str(exc2)}
+            t36_time = t36.get("_eval_time_s", "?")
+            comp36 = t36.get("weighted_composite")
+            comp36_str = f"{comp36:.2f}" if isinstance(comp36, (int, float)) else "?"
+            print(f" done ({t36_time}s, weighted={comp36_str})")
+            factor_scores = {
+                k: v.get("score") for k, v in t36.get("factors", {}).items()
+            }
+            print(f"  ⤷ factors: {factor_scores}")
+            scenario_record["task0036_rubric"] = {
+                "factors": t36.get("factors", {}),
+                "weighted_composite": t36.get("weighted_composite"),
+            }
+
+        print()
+        results.append(scenario_record)
 
     # ── Aggregate statistics ─────────────────────────────────────────────────
     composites = [
@@ -547,6 +1117,27 @@ def run_evaluation(scenarios_dir: str, model: str, output_path: str, prompt_vari
         "max_composite": max(composites) if composites else None,
         "per_dimension_means": per_dim_means,
     }
+
+    if task0036_rubric:
+        t36_composites = [
+            r.get("task0036_rubric", {}).get("weighted_composite")
+            for r in results
+            if isinstance(r.get("task0036_rubric", {}).get("weighted_composite"), (int, float))
+        ]
+        per_factor_means = {}
+        for key, _w in TASK0036_FACTORS:
+            vals = [
+                r["task0036_rubric"]["factors"].get(key, {}).get("score")
+                for r in results
+                if r.get("task0036_rubric", {}).get("factors", {}).get(key, {}).get("score") is not None
+            ]
+            per_factor_means[key] = round(sum(vals) / len(vals), 3) if vals else None
+        aggregate["task0036_rubric"] = {
+            "mean_weighted_composite": (
+                round(sum(t36_composites) / len(t36_composites), 3) if t36_composites else None
+            ),
+            "per_factor_means": per_factor_means,
+        }
 
     # ── Write JSON output ────────────────────────────────────────────────────
     output = {
@@ -634,9 +1225,31 @@ if __name__ == "__main__":
     parser.add_argument(
         "--prompt-variant",
         default="v0",
-        choices=["v0", "v1", "v2", "v3", "v4"],
-        help="Prompt variant: v0=baseline, v1=completeness, v2=structure, v3=negation+noise, v4=enhanced-production (default: v0)",
+        choices=list(PROMPT_VARIANTS.keys()),
+        help="Prompt variant (v0-v4 + v5a_negative/v5b_positive/v5c_fewshot TASK-0036 candidates).",
+    )
+    parser.add_argument(
+        "--task0036-rubric",
+        action="store_true",
+        help="Also run the TASK-0036 weighted defect-targeted judge (8 factors).",
     )
     args = parser.parse_args()
 
-    run_evaluation(args.scenarios_dir, args.model, args.output, args.prompt_variant)
+    run_evaluation(
+        args.scenarios_dir,
+        args.model,
+        args.output,
+        args.prompt_variant,
+        task0036_rubric=args.task0036_rubric,
+    )
+
+    if args.task0036_rubric:
+        try:
+            data = json.loads(Path(args.output).read_text(encoding="utf-8"))
+            agg = data.get("aggregate", {}).get("task0036_rubric", {})
+            print("TASK-0036 weighted rubric — aggregate")
+            print(f"  mean_weighted_composite: {agg.get('mean_weighted_composite')}")
+            for k, v in (agg.get("per_factor_means") or {}).items():
+                print(f"    {k:>26}: {v}")
+        except Exception as exc:
+            print(f"  (skip TASK-0036 summary: {exc})")

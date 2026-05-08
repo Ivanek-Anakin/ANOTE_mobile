@@ -1,0 +1,7 @@
+# Synthetic transcript — pending Dr. Brož clinical review
+# Purpose: TASK-0036, Defect 2 — objective measurements interleaved in dialogue
+# Created: 2026-05-02
+# Revised: 2026-05-03 — converted to continuous ASR-style text (no speaker tags)
+# Do not use in clinical evaluations until reviewed.
+
+Dobrý den, co se děje. Dobrý den, už tři dny kašlu a mám tlak na hrudi při hlubokém nádechu. Rozumím, změřím vás průběžně, tlak 145 na 90, puls 78. Cítím se hlavně unavená, v noci se budím kvůli kašli. Teplota 36,8, saturace 96 procent, je kašel suchý, nebo vykašláváte hlen. Spíš suchý, ráno jen trochu čirého hlenu. Dušnost v klidu. V klidu ne, do schodů trochu. Poslechnu plíce, nádech, nad pravou bází lehce oslabené dýchání, bez výrazných pískotů. Dobře. Bolest svalů, zimnice, bolesti v krku. V krku mírně škrábe, zimnici nemám, svaly jen lehce. Užíváte něco. Jen paracetamol včera večer. Alergie na léky. Ne, o ničem nevím. Vzhledem k nálezu doporučím symptomatickou léčbu, tekutiny, klidový režim a kontrolu za tři dny, pokud by se objevila horečka nad 38,5, výrazná dušnost nebo bolest na hrudi v klidu, přijďte ihned. Rozumím, děkuji.
