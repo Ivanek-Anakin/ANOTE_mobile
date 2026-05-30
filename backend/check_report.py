@@ -18,8 +18,9 @@ from typing import Iterable
 
 
 MIN_WORDS = 100
-MAX_WORDS = 700
-MAX_BULLETS_PER_SECTION = 12
+MAX_WORDS = 500           # tightened from 700 — doctor feedback: reports too long
+MAX_BULLETS_PER_SECTION = 9   # tightened from 12 — fail at 10+, warn detail at 8+
+MAX_NEGATION_PHRASES = 7       # NEG-06: above this without transcript = filler risk
 
 REQUIRED_SECTIONS_INITIAL = [
     "Identifikace pacienta",
@@ -103,12 +104,56 @@ NOISE_PATTERNS = [
         re.IGNORECASE,
     ),
     re.compile(r"(válka na Ukra|globální situace|energetická závislost)", re.IGNORECASE),
-    re.compile(r"(ztrátu peněženky|ztratil peněženku|po návratu domů)", re.IGNORECASE),
     re.compile(r"(prezentaci pro Audi|automobilov.*průmysl.*prezentac)", re.IGNORECASE),
     re.compile(r"(borelióz|borelioz|lymsk)", re.IGNORECASE),
 ]
 CASUAL_QUESTION_PATTERN = re.compile(
     r"(jak se vyučuje|co si myslíte o|to jsem se zeptal|jak to vidíte)",
+    re.IGNORECASE,
+)
+
+# ── Phase 1 V2 patterns ──────────────────────────────────────────────────────
+
+# NEG-06: count bare negation/denial phrases (no transcript context available)
+NEGATION_COUNT_PATTERN = re.compile(
+    r"\b(neguje|neudává|neuvádí)\b",
+    re.IGNORECASE,
+)
+
+# INFER-03: reasoning language used inline (outside parentheses)
+REASONING_INLINE_PATTERN = re.compile(
+    r"\b(z\s+kontextu\s+(lze|vyplývá)|lze\s+předpokládat|implicitně\s+vyplývá)\b",
+    re.IGNORECASE,
+)
+
+# INFER-04: differential diagnosis language in anamnesis sections (belongs only in Hodnocení)
+DIFFERENTIAL_DX_PATTERN = re.compile(
+    r"(diferenciální\s+diagnóz[ay]|diferenciálně|možná\s+boreliózní|boreliózní\s+etiologi|"
+    r"možná\s+etiologi[ea]|v\s+diferenciální)",
+    re.IGNORECASE,
+)
+
+# NOISE-03: post-visit events that should not appear in a medical record
+POST_VISIT_PATTERN = re.compile(
+    r"(po\s+návratu\s+domů|po\s+odchodu\s+z\s+ordinac|po\s+návštěvě\s+ordinac|"
+    r"po\s+skončení\s+návštěvy|cestou\s+domů|po\s+proběhlé\s+konzultaci|"
+    r"ztrátu\s+peněženky|ztratil\s+peněženku)",
+    re.IGNORECASE,
+)
+
+# VERBOSE-01: adherence section consisting entirely of template filler phrases
+ADHERENCE_FILLER_PATTERN = re.compile(
+    r"(spolupráce\s+(je\s+)?(dobrá|dobrý|výborná|výborný|v\s+pořádku)|"
+    r"(odmítání|nesouhlas)\s+(léčby\s+)?neuvedeno|"
+    r"neuvedeno\s+odmítání|"
+    r"bez\s+problémů\s+se\s+spoluprací)",
+    re.IGNORECASE,
+)
+
+# VERBOSE-02: irrelevant workplace / social content in SA section
+SA_IRRELEVANCE_PATTERN = re.compile(
+    r"(prezentaci\s+pro\s+\w+|\bAudi\b|\bBMW\b|sklářský\s+průmysl|"
+    r"automobilov|výroba\s+skel|IT\s+(problém|výpadek)|výpadek\s+(GPT|AI|systém))",
     re.IGNORECASE,
 )
 
@@ -451,24 +496,159 @@ def _check_duplicate_bullets(report: str) -> CheckResult:
     return _result("DUP-01", "No duplicate consecutive bullets", True, "LOW", "No duplicate consecutive bullets detected")
 
 
+def _check_negation_density(report: str, transcript: str | None) -> CheckResult:
+    """NEG-06: Flag suspiciously high negation phrase count when no transcript is available."""
+    if transcript is not None:
+        return _skip("NEG-06", "Negation phrase density", "MEDIUM", "Skipped: transcript supplied — use NEG-01/02 instead")
+    count = len(NEGATION_COUNT_PATTERN.findall(report))
+    if count > MAX_NEGATION_PHRASES:
+        return _result(
+            "NEG-06",
+            "Negation phrase density",
+            False,
+            "MEDIUM",
+            f"Found {count} negation phrases without transcript (threshold: {MAX_NEGATION_PHRASES}); possible template filler",
+            str(count),
+        )
+    return _result("NEG-06", "Negation phrase density", True, "MEDIUM", f"{count} negation phrase(s) — within threshold")
+
+
+def _check_reasoning_inline(report: str) -> CheckResult:
+    """INFER-03: Detect reasoning language used inline in body text (outside parentheses)."""
+    matches = [m.group(0).strip() for m in REASONING_INLINE_PATTERN.finditer(report)]
+    if matches:
+        return _result(
+            "INFER-03",
+            "No inline reasoning prose outside parentheses",
+            False,
+            "MEDIUM",
+            f"Found {len(matches)} inline reasoning phrase(s) outside parentheses",
+            "; ".join(matches[:2]),
+        )
+    return _result("INFER-03", "No inline reasoning prose outside parentheses", True, "MEDIUM", "No inline reasoning detected outside parentheses")
+
+
+def _check_differential_dx_placement(report: str) -> CheckResult:
+    """INFER-04: Differential diagnosis language must not appear in anamnesis sections."""
+    anamnesis_sections = [
+        "NO (Nynější onemocnění)",
+        "OA (Osobní anamnéza)",
+        "FA (Farmakologická anamnéza",
+        "AA (Alergologická anamnéza)",
+    ]
+    for section_name in anamnesis_sections:
+        section_text = extract_section(report, section_name)
+        if not section_text:
+            continue
+        evidence = _first_match(DIFFERENTIAL_DX_PATTERN, section_text)
+        if evidence:
+            return _result(
+                "INFER-04",
+                "No differential diagnosis inference in anamnesis sections",
+                False,
+                "HIGH",
+                f"Differential diagnosis language found in '{section_name}'",
+                evidence,
+            )
+    return _result("INFER-04", "No differential diagnosis inference in anamnesis sections", True, "HIGH", "No misplaced differential diagnosis language detected")
+
+
+def _check_post_visit_content(report: str) -> CheckResult:
+    """NOISE-03: Post-visit events should not appear in a medical record."""
+    evidence = _first_match(POST_VISIT_PATTERN, report)
+    if evidence:
+        return _result(
+            "NOISE-03",
+            "No post-visit events in report",
+            False,
+            "MEDIUM",
+            "Report contains post-visit event description",
+            evidence,
+        )
+    return _result("NOISE-03", "No post-visit events in report", True, "MEDIUM", "No post-visit events detected")
+
+
+def _check_adherence_filler(report: str) -> CheckResult:
+    """VERBOSE-01: Adherence section should not consist entirely of template filler."""
+    section = extract_section(report, "Adherence a spolupráce pacienta")
+    if not section:
+        return _skip("VERBOSE-01", "Adherence section not template filler", "MEDIUM", "Adherence section not found")
+    filler_match = _first_match(ADHERENCE_FILLER_PATTERN, section)
+    if not filler_match:
+        return _result("VERBOSE-01", "Adherence section not template filler", True, "MEDIUM", "No filler phrases detected in Adherence section")
+    # Only fail if every line is predominantly filler — strip the filler patterns from
+    # each line and check if meaningful residual content (≥ 3 words) exists in any line.
+    lines = [ln.strip().lstrip("-•*").strip() for ln in section.splitlines() if ln.strip()]
+    non_filler = []
+    for ln in lines:
+        if not ln:
+            continue
+        ln_stripped = ADHERENCE_FILLER_PATTERN.sub("", ln)
+        ln_stripped = re.sub(r"\bneuvedeno\b", "", ln_stripped, flags=re.IGNORECASE)
+        if _word_count(ln_stripped) >= 3:
+            non_filler.append(ln)
+    if non_filler:
+        return _result("VERBOSE-01", "Adherence section not template filler", True, "MEDIUM", "Adherence section has substantive content alongside filler phrases")
+    return _result(
+        "VERBOSE-01",
+        "Adherence section not template filler",
+        False,
+        "MEDIUM",
+        "Adherence section appears to consist entirely of template filler",
+        filler_match,
+    )
+
+
+def _check_sa_irrelevance(report: str) -> CheckResult:
+    """VERBOSE-02: SA section should not contain irrelevant workplace/social details."""
+    section = extract_section(report, "SA (Sociální anamnéza)")
+    if not section:
+        return _skip("VERBOSE-02", "SA section does not contain irrelevant workplace detail", "LOW", "SA section not found")
+    evidence = _first_match(SA_IRRELEVANCE_PATTERN, section)
+    if evidence:
+        return _result(
+            "VERBOSE-02",
+            "SA section does not contain irrelevant workplace detail",
+            False,
+            "LOW",
+            "SA section contains potentially irrelevant workplace or social detail",
+            evidence,
+        )
+    return _result("VERBOSE-02", "SA section does not contain irrelevant workplace detail", True, "LOW", "No irrelevant workplace detail detected in SA section")
+
+
 def run_all_checks(report: str, transcript: str | None = None) -> dict:
     """Run all deterministic checks and return a JSON-serializable result."""
     cleaned_report = strip_feedback_tags(report)
     checks = [
+        # STRUCT group
         _check_struct_required(cleaned_report),
         _check_struct_order(cleaned_report),
         _check_struct_duplicates(cleaned_report),
+        # LEN group
         _check_length_words(cleaned_report),
         _check_bullet_counts(cleaned_report),
+        # NEG group
         _check_temp_negation(cleaned_report, transcript),
         _check_allergy_negation(cleaned_report, transcript),
         _check_negation_conflation(cleaned_report),
+        _check_negation_density(cleaned_report, transcript),
+        # INFER group
         _check_reasoning_leak(cleaned_report),
         _check_ga_meta(cleaned_report),
+        _check_reasoning_inline(cleaned_report),
+        _check_differential_dx_placement(cleaned_report),
+        # PLACE group
         _check_adherence_actions(cleaned_report),
         _check_subjective_objective(cleaned_report),
+        # NOISE group
         _check_noise_keywords(cleaned_report),
         _check_casual_questions(cleaned_report),
+        _check_post_visit_content(cleaned_report),
+        # VERBOSE group
+        _check_adherence_filler(cleaned_report),
+        _check_sa_irrelevance(cleaned_report),
+        # EMPTY + DUP
         _check_empty_shell(cleaned_report),
         _check_duplicate_bullets(cleaned_report),
     ]
@@ -533,9 +713,9 @@ def check_feedback_dir(feedback_dir: Path) -> dict:
 def format_feedback_summary(dataset_result: dict) -> str:
     lines = [
         f"Feedback checks: {dataset_result['feedback_dir']}",
-        "File                 Words  STRUCT  LEN   NEG   INFER  PLACE  NOISE  EMPTY  DUP   PASS",
+        "File                 Words  STRUCT  LEN   NEG   INFER  PLACE  NOISE  VERBOSE  EMPTY  DUP   PASS",
     ]
-    totals: dict[str, list[bool]] = {key: [] for key in ["STRUCT", "LEN", "NEG", "INFER", "PLACE", "NOISE", "EMPTY", "DUP"]}
+    totals: dict[str, list[bool]] = {key: [] for key in ["STRUCT", "LEN", "NEG", "INFER", "PLACE", "NOISE", "VERBOSE", "EMPTY", "DUP"]}
     for result in dataset_result["results"]:
         checks = result["checks"]
         row = {
@@ -545,6 +725,7 @@ def format_feedback_summary(dataset_result: dict) -> str:
             "INFER": _group_pass(checks, "INFER"),
             "PLACE": _group_pass(checks, "PLACE"),
             "NOISE": _group_pass(checks, "NOISE"),
+            "VERBOSE": _group_pass(checks, "VERBOSE"),
             "EMPTY": _group_pass(checks, "EMPTY"),
             "DUP": _group_pass(checks, "DUP"),
         }
@@ -555,7 +736,7 @@ def format_feedback_summary(dataset_result: dict) -> str:
         lines.append(
             f"{filename:<20s} {result['word_count']:>5}  "
             f"{row['STRUCT']:<6s} {row['LEN']:<5s} {row['NEG']:<5s} {row['INFER']:<6s} "
-            f"{row['PLACE']:<6s} {row['NOISE']:<6s} {row['EMPTY']:<6s} {row['DUP']:<5s} "
+            f"{row['PLACE']:<6s} {row['NOISE']:<6s} {row['VERBOSE']:<7s} {row['EMPTY']:<6s} {row['DUP']:<5s} "
             f"{result['passed']:>2}/{result['total_checks']:<2}"
         )
     total_parts = []
