@@ -636,57 +636,120 @@ def _get_system_prompt(today: str, variant: str = "v0") -> str:
     return base + suffix
 
 
-# ── Judge prompt (from LLM_JUDGE_SPEC.md §4) ────────────────────────────────
+# ── Judge prompt V2 — adversarial, grounded, hard-cap enforced ────────────────
 
 JUDGE_SYSTEM_PROMPT = """\
-You are a medical documentation quality auditor. You will receive:
-1. A transcript of a doctor-patient conversation (may contain ASR errors, background noise, irrelevant content)
-2. A structured medical report generated from that transcript
+You are an adversarial medical documentation auditor. Your job is to FIND DEFECTS.
+Assume the AI model made mistakes; prove otherwise only with transcript evidence.
+Never give a high score by default. When in doubt, score lower.
 
-Evaluate the report on these 8 dimensions (score 0-5 each):
+You will receive a Czech doctor-patient transcript and a structured Czech medical report.
 
-1. FACTUAL_ACCURACY: Are all facts in the report traceable to the transcript? Any hallucinated information?
-2. COMPLETENESS: Does the report capture all medically relevant information from the transcript? This includes:
-   - approximate quantities (durations, frequencies, weight changes)
-   - patient adherence (what patient refuses, didn't bring, doesn't follow)
-   - social/occupational factors affecting disease management
-   - who recommended medication changes (other specialists)
-3. STRUCTURE: Are all required sections present? Is information placed in the correct section? Is there an Adherence section if relevant?
-4. NEGATION_HANDLING: Does the report correctly distinguish "neuvedeno" (not discussed) from explicit negations? Are complication negations captured (e.g., "těžké hypoglykémie neměl", "noční hypoglykémie neudává")?
-5. CLINICAL_LANGUAGE: Is the Czech medical terminology appropriate and professional?
-6. NOISE_RESILIENCE: Does the report correctly filter ASR errors, songs, banter, and irrelevant content? Does it correctly attribute statements to doctor vs patient?
-7. BREVITY: Is the report appropriately concise? Are bullets single-fact? Is the word count in the 200-500 range? Is there no parenthetical model reasoning exposed in the text?
-8. HALLUCINATED_NEGATION: Are all negation phrases ("neguje", "neudává", "bez...") grounded in an explicit denial in the transcript? Are negations never used as template fillers for topics that were not discussed?
+===== MANDATORY PRE-SCORING STEPS =====
 
-For each dimension, provide:
-- score (integer 0-5)
-- reasoning (1-2 sentences explaining the score)
+STEP 1 — NEGATION INVENTORY
+Find EVERY negation phrase in the report. Include all occurrences of:
+  "neguje", "neudává", "neuvádí", "bez [noun]", "jinak se cítí dobře",
+  "komplikace neguje", "alergie neguje", "žádné alergie", "RA neg.", "OA neg.",
+  "teplotu neguje", "kašel neguje", and any similar denial/absence phrase.
 
-Also list:
-- hallucinations: any facts in the report NOT in the transcript
-- omissions: any medically relevant facts in the transcript NOT in the report
+For EACH occurrence:
+  a) Copy the exact phrase from the report.
+  b) Find the transcript sentence where the doctor EXPLICITLY asked about that topic
+     AND where the patient EXPLICITLY denied it.
+  c) grounded=true only if BOTH the question AND the denial exist verbatim.
+     — A topic mentioned briefly in passing is NOT sufficient.
+     — If the transcript never mentions the topic at all, grounded=false.
+  IMPORTANT: "alergie neguje" requires an explicit allergy question + patient denial.
+  If allergies were never discussed, it is an UNGROUNDED negation regardless of
+  how harmless it looks.
 
-Composite score: weighted average of all 8 scores where factual_accuracy and
-hallucinated_negation have weight 2, all other dimensions have weight 1.
-Formula: (factual_accuracy*2 + completeness + structure + negation_handling +
-clinical_language + noise_resilience + brevity + hallucinated_negation*2) / 10.
+STEP 2 — HALLUCINATION INVENTORY
+For each specific clinical claim in the report (diagnoses, named medications,
+named allergies, specific test values, named conditions, causal explanations),
+find the exact transcript quote that supports it.
+If you cannot find the supporting quote, hallucinated=true.
 
-Respond in this exact JSON format:
+===== HARD CAP RULES =====
+
+Let U = count of grounded=false items from Step 1.
+Let H = count of hallucinated=true items from Step 2.
+
+  • U ≥ 1  → hallucinated_negation MUST be ≤ 3
+  • U ≥ 2  → hallucinated_negation MUST be ≤ 1
+  • H ≥ 1  → factual_accuracy MUST be ≤ 3
+  • H ≥ 2  → factual_accuracy MUST be ≤ 2
+  • Any off-topic/non-clinical content in report → noise_resilience MUST be ≤ 3
+
+===== SCORING DIMENSIONS =====
+
+1. FACTUAL_ACCURACY (weight 2):
+   Every fact in the report must be traceable to the transcript.
+   5 = H=0, everything verifiable. 3 = 1 minor hallucination. 1 = major or multiple.
+   Apply H-based hard cap above.
+
+2. COMPLETENESS (weight 1):
+   All medically relevant transcript content is captured, including: approximate
+   quantities (durations, frequencies), adherence details, who recommended changes,
+   social/occupational factors that affect disease management.
+   5 = nothing important missing. 3 = one minor omission. 1 = major omission.
+
+3. STRUCTURE (weight 1):
+   All required sections present, correctly ordered; information in the right section
+   (subjective in anamnesis, objective measures only in Objektivní nález).
+   5 = perfect. 3 = minor placement error. 1 = sections missing or systematically mixed.
+
+4. NEGATION_HANDLING (weight 1):
+   "neuvedeno" (topic not discussed) vs explicit negation ("neguje") are never conflated.
+   5 = perfect distinction throughout. 3 = one conflation. 1 = systematic conflation.
+
+5. CLINICAL_LANGUAGE (weight 1):
+   Idiomatic Czech medical documentation register throughout.
+   5 = professional. 3 = minor lapses. 1 = unprofessional or informal.
+
+6. NOISE_RESILIENCE (weight 1):
+   Report excludes all non-clinical content: songs, banter, off-topic stories, social
+   filler, background noise. Statements correctly attributed to doctor vs patient.
+   5 = perfectly clean. 3 = minor noise. 1 = significant noise present.
+   Hard cap: if any off-topic content is present, score MUST be ≤ 3.
+
+7. BREVITY (weight 1):
+   Report is concise (target 200–500 words). No parenthetical model reasoning leaked
+   into the text. Single-fact bullets. No boilerplate filler in sections.
+   5 = ideal. 3 = slightly verbose or a few filler phrases. 1 = very long or much filler.
+
+8. HALLUCINATED_NEGATION (weight 2):
+   Every negation phrase has explicit transcript support (explicit Q&A exchange).
+   5 = U=0. 3 = U=1. 1 = U≥2.
+   Apply U-based hard cap above. Cite U in the reasoning field.
+
+===== COMPOSITE FORMULA =====
+(factual_accuracy×2 + completeness + structure + negation_handling +
+ clinical_language + noise_resilience + brevity + hallucinated_negation×2) / 10
+
+===== OUTPUT FORMAT =====
+Respond in STRICT JSON only — no text outside the JSON object:
 {
+  "negation_inventory": [
+    {"phrase": "exact phrase from report", "transcript_support": "exact quote or null", "grounded": true}
+  ],
+  "hallucination_inventory": [
+    {"claim": "specific claim from report", "transcript_support": "exact quote or null", "hallucinated": false}
+  ],
   "scores": {
-    "factual_accuracy": {"score": N, "reasoning": "..."},
-    "completeness": {"score": N, "reasoning": "..."},
-    "structure": {"score": N, "reasoning": "..."},
-    "negation_handling": {"score": N, "reasoning": "..."},
-    "clinical_language": {"score": N, "reasoning": "..."},
-        "noise_resilience": {"score": N, "reasoning": "..."},
-        "brevity": {"score": N, "reasoning": "..."},
-        "hallucinated_negation": {"score": N, "reasoning": "..."}
+    "factual_accuracy":      {"score": N, "reasoning": "..."},
+    "completeness":          {"score": N, "reasoning": "..."},
+    "structure":             {"score": N, "reasoning": "..."},
+    "negation_handling":     {"score": N, "reasoning": "..."},
+    "clinical_language":     {"score": N, "reasoning": "..."},
+    "noise_resilience":      {"score": N, "reasoning": "..."},
+    "brevity":               {"score": N, "reasoning": "..."},
+    "hallucinated_negation": {"score": N, "reasoning": "cite U value"}
   },
-    "composite_score": N.N,
-  "hallucinations": ["...", "..."],
-  "omissions": ["...", "..."],
-  "summary": "1-2 sentence overall assessment"
+  "composite_score": N.N,
+  "hallucinations": ["brief description of each hallucinated item"],
+  "omissions":      ["brief description of each omission"],
+  "summary":        "1-2 sentence overall assessment"
 }"""
 
 # ── Dimensions (for iteration and display) ───────────────────────────────────
@@ -965,7 +1028,7 @@ def generate_report(client: AzureOpenAI, model: str, transcript: str, system_pro
 
 
 def evaluate_report(client: AzureOpenAI, model: str, transcript: str, report: str) -> dict:
-    """Evaluate a report with the LLM judge. Returns parsed JSON evaluation."""
+    """Evaluate a report with the LLM judge V2. Returns parsed JSON evaluation."""
     t0 = time.time()
     reasoning = _is_reasoning_model(model)
 
@@ -988,7 +1051,7 @@ def evaluate_report(client: AzureOpenAI, model: str, transcript: str, report: st
             kwargs["max_completion_tokens"] = 16000
         else:
             kwargs["temperature"] = 0.0
-            kwargs["max_tokens"] = 2000
+            kwargs["max_tokens"] = 3000  # V2: more tokens for negation/hallucination inventories
         return client.chat.completions.create(**kwargs)
 
     response = _call_with_retry(_call)
@@ -1006,10 +1069,42 @@ def evaluate_report(client: AzureOpenAI, model: str, transcript: str, report: st
         "prompt_tokens": response.usage.prompt_tokens,
         "completion_tokens": response.usage.completion_tokens,
     }
-    if isinstance(evaluation.get("scores"), dict):
+
+    # ── Python-side hard cap enforcement ────────────────────────────────────
+    # Even if the LLM violates its own hard cap instructions, we enforce them
+    # here using the inventory it provided as evidence.
+    scores = evaluation.get("scores")
+    if isinstance(scores, dict):
+        neg_inv = evaluation.get("negation_inventory", [])
+        hall_inv = evaluation.get("hallucination_inventory", [])
+        U = sum(1 for n in neg_inv if not n.get("grounded", True))
+        H = sum(1 for h in hall_inv if h.get("hallucinated", False))
+
+        def _cap(dim: str, max_val: int) -> None:
+            entry = scores.get(dim)
+            if isinstance(entry, dict) and isinstance(entry.get("score"), (int, float)):
+                if entry["score"] > max_val:
+                    entry["_original_score"] = entry["score"]
+                    entry["score"] = max_val
+                    entry["reasoning"] += f" [hard-cap applied: {dim} capped at {max_val} due to inventory evidence]"
+
+        if U >= 2:
+            _cap("hallucinated_negation", 1)
+        elif U >= 1:
+            _cap("hallucinated_negation", 3)
+        if H >= 2:
+            _cap("factual_accuracy", 2)
+        elif H >= 1:
+            _cap("factual_accuracy", 3)
+
+        evaluation["composite_score"] = _weighted_composite_from_scores(
+            scores, fallback=evaluation.get("composite_score")
+        )
+    elif isinstance(evaluation.get("scores"), dict):
         evaluation["composite_score"] = _weighted_composite_from_scores(
             evaluation.get("scores", {}), fallback=evaluation.get("composite_score")
         )
+
     return evaluation
 
 
@@ -1107,6 +1202,8 @@ def run_evaluation(
                 "hallucinations": evaluation.get("hallucinations", []),
                 "omissions": evaluation.get("omissions", []),
                 "summary": evaluation.get("summary", ""),
+                "negation_inventory": evaluation.get("negation_inventory", []),
+                "hallucination_inventory": evaluation.get("hallucination_inventory", []),
                 "deterministic_checks": det_result,
                 "deterministic_pass_rate": det_pass_rate,
             },
