@@ -1,0 +1,83 @@
+Typ návštěvy: Automatická detekce
+
+---
+
+Lékařská zpráva
+
+Identifikace pacienta:
+- Jméno: neuvedeno
+- Věk / r. narození: neuvedeno
+- Datum návštěvy: 27. 05. 2026
+
+NO (Nynější onemocnění):
+- Důvod návštěvy: kontrola léčby diabetu 1. typu, řešení kompenzace inzulínové pumpy a problematiky hypoglykémií.
+- Průběh: pacient užívá inzulínovou pumpu Tandem, kterou užívá přibližně několik měsíců (předtím tři měsíce bez pumpy).
+- Komplikace: hypoglykémie asi 1× týdně, občasné předtlačení <FEEDBACK>(řekl: tlačí mi hodnoty glykemie dolů)</FEEDBACK> nízkých hodnot glykemie.
+- Subjektivně pacient udává problém s dlouhými hadičkami pumpy, které jsou nepraktické a jinak různě zatočené, navrhuje výměnu za kratší hadičky.
+- Aktuálně pumpa drží glykémie kolem cílových hodnot cca 70% v období monitorování (poslední výsledky kolem 67–73 %).
+- Potíže s kontrolou glykémií souvisí částečně s pohybem a sedavým zaměstnáním (velká část dne řízení auta, sedění, po náhlé aktivitě glykémie výrazně klesá). Doporučeno je po jídle zařadit pohyb (např. pár kroků), což pacient považuje za vhodné.
+- Pacient navštívil fitness, při čemž došlo k poklesu glykémie asi o 5 jednotek.
+- Je doporučeno zvážit úpravu bazální dávky inzulínu v hodinách po snídani a poledni.
+- Pacient neužívá standardně korekční bolusy po fyzické aktivitě, bylo mu vysvětleno, jak jimi správně může pumpa regulovat inzulin během zvýšené aktivity. <FEEDBACK>Této větě neporozumněl, byla složitá.</FEEDBACK>
+- Pacient neužívá režimový režim spánku v pumpě, protože pumpa dle jeho slov udržuje glykémii v pořádku ráno i v noci bez tohoto nastavení.
+- Pacient zaznamenává nejlepší glykémie, pokud ráno je dobře kompenzován, celý den je v pořádku.
+- Dodržování kalorických tabulek a doporučené výživy je součástí režimu, pacient občas konzumuje potraviny s vyšším obsahem tuků (klobásičky).
+
+- Není uvedeno zhoršení stavu, horečka či jiné akutní příznaky (neuvedeno, zvýšenou teplotu neguje - není však explicitně řečeno).
+
+RA (Rodinná anamnéza):
+- neuvedeno
+
+OA (Osobní anamnéza):
+- Diabetes mellitus 1. typu (implicitně)
+- Neuvedena jiná chronická onemocnění, operace či hospitalizace.
+
+FA (Farmakologická anamnéza / aktuální medikace):
+- Inzulínová pumpa Tandem, dávkování individuální dle aktuálních hodnot glykemie a nastavení pumpy.
+- Krátkodobě pauza v užívání inzulínu cca 1 týden.
+- NIV no není explicitně uvedeno.
+
+AA (Alergologická anamnéza):
+- alergie neguje (neuvedeno, ale nezmíněny žádné alergické reakce)
+
+GA (Gynekologická anamnéza):
+- neuvedeno (předpoklad muž)
+
+SA (Sociální anamnéza):
+- Pacient často řídí, provozuje sedavé zaměstnání nebo má režim zahrnující delší dobu sezení.
+- Navštěvuje fitness, pravidelně cvičí přibližně 1× týdně.
+- Neuvedeno kouření, alkohol ani jiné sociální informace.
+
+Adherence a spolupráce pacienta:
+- Spolupráce dobrá, pacient sleduje glykémie a snaží se zapisovat do kalorických tabulek.
+- Dodržuje režim s využitím pumpy, nespecifikovány závažné výhrady či odmítnutí léčby.
+- Je třeba zajistit výměnu hadiček k pumpě za kratší dle pacientova požadavku.
+
+Objektivní nález:
+- Neuvedeny objektivní parametrické údaje (TK, puls, SpO2, fyzikální nález).
+
+Hodnocení (pracovní diagnóza / klinický závěr):
+- Diabetes mellitus 1. typu v léčbě inzulínovou pumpou Tandem.
+- Metabolická kompenzace kolem 70 % cílových hodnot.
+- Hypoglykémie frekvence cca 1× týdně.
+
+Návrh vyšetření:
+- Kontrola glykemických profilů dle dat z pumpy a registru.
+- Neuvedeno jiných specifických vyšetření.
+
+Návrh terapie:
+- Pokračování v léčbě inzulínovou pumpou Tandem.
+- Úprava bazální dávky inzulínu po snídani a poledni dle potřeby.
+- Doporučení používat korekční bolusy s ohledem na fyzickou aktivitu (vysvětleno pacientovi).
+- Výměna hadiček pumpy za kratší dle požadavku pacienta.
+
+Pokyny a plán kontrol:
+- Další kontrola naplánována na 10. září 2026 v 14:30.
+- Doporučení kontaktovat lékaře v případě potřeby rychlejší konzultace dat z pumpy.
+- Pacient pozván na pravidelné kontroly každý čtvrtek, doporučeno včas odesílat data.
+- Upozornění na význam pohybu po jídle ke zlepšení metabolické kontroly.
+
+Konec zprávy.
+
+---
+Tato zpráva byla automaticky odeslána aplikací ANOTE.

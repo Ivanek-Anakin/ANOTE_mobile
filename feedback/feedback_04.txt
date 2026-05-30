@@ -1,0 +1,73 @@
+Lékařská zpráva vygenerovaná aplikací ANOTE
+Datum: 21. 05. 2026
+Typ návštěvy: Automatická detekce
+
+---
+
+Lékařská zpráva
+
+Identifikace pacienta:
+- Jméno: Jiří Dádon
+- Věk / r. narození: neuvedeno
+- Datum návštěvy: 21. 05. 2026
+
+NO (Nynější onemocnění):
+- Hlavní problém: bolest v pravém uchu, trvající asi 3 dny, zhoršující se od noci před návštěvou, bolest popisuje jako píchání, velmi intenzivní, brání spánku.
+- Doprovodné příznaky: občasná závrať při chůzi, pocit kývání světa, ranní pocit šoupnutí, které ustoupilo. Zvýšenou teplotu pacient neměřil, ale má pocit teploty v hlavě.
+- Negace: nezranil se, žádný úder přes ucho, bolest nelokalizovaná jinde, chuť k jídlu stejná, bez bolestí jiných lokalizací, bez poruch příjmu potravy.
+
+RA (Rodinná anamnéza):
+- Rodinná anamnéza uvedena: rodiče žijí, jsou zdraví.
+- Děti: nemá.
+- Jiná závažná onemocnění v rodině neuvedena.
+
+OA (Osobní anamnéza):
+- Chronická anémie (anémie neznámé etiologie už asi 5 let), pro kterou užívá železo.
+- Byla provedena vyšetření (kolonoskopie neuvedena, ale byla opakovaně plánována), také videoendoskopie tenkého střeva – bez nálezu.
+- Jiná chronická onemocnění neuvedena.
+- Celkově jinou nemoc nemá.
+- Dávka železa: neuvedena přesně, ale užívá jednou denně.
+
+FA (Farmakologická anamnéza / aktuální medikace):
+- Užívá železo (forma neuvedena), jednu tabletu ráno.
+- Jinou medikaci neužívá.
+
+AA (Alergologická anamnéza):
+- Alergie na vosí žihadla, jiné alergie neguje.
+
+GA (Gynekologická anamnéza):
+- neuvedeno (pacient muž)
+
+SA (Sociální anamnéza):
+- Kouření neguje.
+- Alkohol: pije přibližně půl litru vína denně, dlouhodobě.
+- Drogy: občasné užívání, ale bez bližších podrobností.
+- Povolání: počítačový specialista, tedy převážně sedavá práce u počítače.
+- Sociální situace: neuvedena.
+
+Adherence a spolupráce pacienta:
+- Dodržuje medikaci železem.
+- Spolupráce dobrá.
+
+Objektivní nález:
+- Tepová frekvence: 82/min
+- Tep 22/min (rozpor v přepisu: 82 a 22 za minutu)
+- Teplota: 38,1 °C
+- Vyšetření uší: pravé ucho vykazuje mírné vykalení (zánětlivé změny).
+- Poslech srdce a plic: normální nález.
+- Dolní končetiny: normální nález.
+- Jiný patologický nález nebyl zjištěn.
+
+Hodnocení (pracovní diagnóza / klinický závěr):
+- Suspektní zánět středního ucha vpravo.
+
+Návrh vyšetření:
+- Laboratorní vyšetření pro ověření parametrů zánětu.
+
+Návrh terapie:
+- V případě potvrzení zánětu propíchnutí ušního bubínku pro odtok hnisu a úlevu od bolesti.
+
+Pokyny a plán kontrol:
+- Čekání na výsledky laboratoře.
+- Možnost propíchnutí bubínku v případě potvrzení diagnózy.
+- Další kontroly neuvedeny.

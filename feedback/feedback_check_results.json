@@ -1,0 +1,2795 @@
+{
+  "feedback_dir": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/feedback",
+  "results": [
+    {
+      "total_checks": 14,
+      "passed": 11,
+      "failed": 3,
+      "skipped": 2,
+      "pass_rate": 0.7857,
+      "word_count": 533,
+      "checks": [
+        {
+          "id": "STRUCT-01",
+          "name": "All required sections present",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "All required sections present",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-02",
+          "name": "Section order correct",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Section order matches expected template",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-03",
+          "name": "No duplicate section headers",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No duplicate section headers found",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "LEN-01",
+          "name": "Word count in range",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Word count in range [100, 700]: 533 words",
+          "evidence": "533",
+          "skipped": false
+        },
+        {
+          "id": "LEN-02",
+          "name": "Bullet count per section",
+          "passed": false,
+          "severity": "LOW",
+          "detail": "Sections with more than 12 bullets: NO (Nynější onemocnění): 13",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NEG-01",
+          "name": "Temperature negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-02",
+          "name": "Allergy negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-03",
+          "name": "No neuvedeno+negation conflation",
+          "passed": false,
+          "severity": "HIGH",
+          "detail": "Found negation and neuvedeno conflated in the same local phrase",
+          "evidence": "neuvedeno, zvýšenou teplotu neguje",
+          "skipped": false
+        },
+        {
+          "id": "INFER-01",
+          "name": "No parenthetical inference prose",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No parenthetical reasoning detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-02",
+          "name": "GA section does not contain meta-commentary",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "GA section not found or empty",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-01",
+          "name": "No action items in Adherence section",
+          "passed": false,
+          "severity": "LOW",
+          "detail": "Adherence section contains action item wording",
+          "evidence": "zajistit",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-02",
+          "name": "No subjective values in Objektivní nález",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No subjective wording detected in Objektivní nález",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-01",
+          "name": "Off-topic keyword detection",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No known off-topic keywords detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-02",
+          "name": "Doctor's non-clinical questions not in report",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No casual question text detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "EMPTY-01",
+          "name": "Report is not a fully-empty shell",
+          "passed": true,
+          "severity": "CRITICAL",
+          "detail": "12 sections contain substantive content",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "DUP-01",
+          "name": "No duplicate consecutive bullets",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No duplicate consecutive bullets detected",
+          "evidence": "",
+          "skipped": false
+        }
+      ],
+      "report_file": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/feedback/feedback_01.txt"
+    },
+    {
+      "total_checks": 14,
+      "passed": 13,
+      "failed": 1,
+      "skipped": 2,
+      "pass_rate": 0.9286,
+      "word_count": 448,
+      "checks": [
+        {
+          "id": "STRUCT-01",
+          "name": "All required sections present",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "All required sections present",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-02",
+          "name": "Section order correct",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Section order matches expected template",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-03",
+          "name": "No duplicate section headers",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No duplicate section headers found",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "LEN-01",
+          "name": "Word count in range",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Word count in range [100, 700]: 448 words",
+          "evidence": "448",
+          "skipped": false
+        },
+        {
+          "id": "LEN-02",
+          "name": "Bullet count per section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No section has excessive bullet count",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NEG-01",
+          "name": "Temperature negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-02",
+          "name": "Allergy negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-03",
+          "name": "No neuvedeno+negation conflation",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No neuvedeno+negation conflation detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-01",
+          "name": "No parenthetical inference prose",
+          "passed": false,
+          "severity": "MEDIUM",
+          "detail": "Found 1 parenthetical reasoning phrase(s)",
+          "evidence": "(pravděpodobně mylný přepis, patrně poliklinika nebo onemocnění spojené s krevní terapií)",
+          "skipped": false
+        },
+        {
+          "id": "INFER-02",
+          "name": "GA section does not contain meta-commentary",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "GA section not found or empty",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-01",
+          "name": "No action items in Adherence section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No action items detected in Adherence section",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-02",
+          "name": "No subjective values in Objektivní nález",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No subjective wording detected in Objektivní nález",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-01",
+          "name": "Off-topic keyword detection",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No known off-topic keywords detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-02",
+          "name": "Doctor's non-clinical questions not in report",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No casual question text detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "EMPTY-01",
+          "name": "Report is not a fully-empty shell",
+          "passed": true,
+          "severity": "CRITICAL",
+          "detail": "13 sections contain substantive content",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "DUP-01",
+          "name": "No duplicate consecutive bullets",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No duplicate consecutive bullets detected",
+          "evidence": "",
+          "skipped": false
+        }
+      ],
+      "report_file": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/feedback/feedback_02.txt"
+    },
+    {
+      "total_checks": 14,
+      "passed": 13,
+      "failed": 1,
+      "skipped": 2,
+      "pass_rate": 0.9286,
+      "word_count": 397,
+      "checks": [
+        {
+          "id": "STRUCT-01",
+          "name": "All required sections present",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "All required sections present",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-02",
+          "name": "Section order correct",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Section order matches expected template",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-03",
+          "name": "No duplicate section headers",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No duplicate section headers found",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "LEN-01",
+          "name": "Word count in range",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Word count in range [100, 700]: 397 words",
+          "evidence": "397",
+          "skipped": false
+        },
+        {
+          "id": "LEN-02",
+          "name": "Bullet count per section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No section has excessive bullet count",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NEG-01",
+          "name": "Temperature negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-02",
+          "name": "Allergy negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-03",
+          "name": "No neuvedeno+negation conflation",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No neuvedeno+negation conflation detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-01",
+          "name": "No parenthetical inference prose",
+          "passed": false,
+          "severity": "MEDIUM",
+          "detail": "Found 1 parenthetical reasoning phrase(s)",
+          "evidence": "(neuvedeno zda mmHg, pravděpodobně systolický tlak, pravděpodobně překlep)",
+          "skipped": false
+        },
+        {
+          "id": "INFER-02",
+          "name": "GA section does not contain meta-commentary",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "GA section not found or empty",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-01",
+          "name": "No action items in Adherence section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No action items detected in Adherence section",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-02",
+          "name": "No subjective values in Objektivní nález",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No subjective wording detected in Objektivní nález",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-01",
+          "name": "Off-topic keyword detection",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No known off-topic keywords detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-02",
+          "name": "Doctor's non-clinical questions not in report",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No casual question text detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "EMPTY-01",
+          "name": "Report is not a fully-empty shell",
+          "passed": true,
+          "severity": "CRITICAL",
+          "detail": "13 sections contain substantive content",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "DUP-01",
+          "name": "No duplicate consecutive bullets",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No duplicate consecutive bullets detected",
+          "evidence": "",
+          "skipped": false
+        }
+      ],
+      "report_file": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/feedback/feedback_03.txt"
+    },
+    {
+      "total_checks": 14,
+      "passed": 14,
+      "failed": 0,
+      "skipped": 2,
+      "pass_rate": 1.0,
+      "word_count": 336,
+      "checks": [
+        {
+          "id": "STRUCT-01",
+          "name": "All required sections present",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "All required sections present",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-02",
+          "name": "Section order correct",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Section order matches expected template",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-03",
+          "name": "No duplicate section headers",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No duplicate section headers found",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "LEN-01",
+          "name": "Word count in range",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Word count in range [100, 700]: 336 words",
+          "evidence": "336",
+          "skipped": false
+        },
+        {
+          "id": "LEN-02",
+          "name": "Bullet count per section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No section has excessive bullet count",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NEG-01",
+          "name": "Temperature negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-02",
+          "name": "Allergy negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-03",
+          "name": "No neuvedeno+negation conflation",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No neuvedeno+negation conflation detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-01",
+          "name": "No parenthetical inference prose",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No parenthetical reasoning detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-02",
+          "name": "GA section does not contain meta-commentary",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "GA section not found or empty",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-01",
+          "name": "No action items in Adherence section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No action items detected in Adherence section",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-02",
+          "name": "No subjective values in Objektivní nález",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No subjective wording detected in Objektivní nález",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-01",
+          "name": "Off-topic keyword detection",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No known off-topic keywords detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-02",
+          "name": "Doctor's non-clinical questions not in report",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No casual question text detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "EMPTY-01",
+          "name": "Report is not a fully-empty shell",
+          "passed": true,
+          "severity": "CRITICAL",
+          "detail": "13 sections contain substantive content",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "DUP-01",
+          "name": "No duplicate consecutive bullets",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No duplicate consecutive bullets detected",
+          "evidence": "",
+          "skipped": false
+        }
+      ],
+      "report_file": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/feedback/feedback_04.txt"
+    },
+    {
+      "total_checks": 14,
+      "passed": 13,
+      "failed": 1,
+      "skipped": 2,
+      "pass_rate": 0.9286,
+      "word_count": 477,
+      "checks": [
+        {
+          "id": "STRUCT-01",
+          "name": "All required sections present",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "All required sections present",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-02",
+          "name": "Section order correct",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Section order matches expected template",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-03",
+          "name": "No duplicate section headers",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No duplicate section headers found",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "LEN-01",
+          "name": "Word count in range",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Word count in range [100, 700]: 477 words",
+          "evidence": "477",
+          "skipped": false
+        },
+        {
+          "id": "LEN-02",
+          "name": "Bullet count per section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No section has excessive bullet count",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NEG-01",
+          "name": "Temperature negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-02",
+          "name": "Allergy negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-03",
+          "name": "No neuvedeno+negation conflation",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No neuvedeno+negation conflation detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-01",
+          "name": "No parenthetical inference prose",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No parenthetical reasoning detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-02",
+          "name": "GA section does not contain meta-commentary",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "GA section not found or empty",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-01",
+          "name": "No action items in Adherence section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No action items detected in Adherence section",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-02",
+          "name": "No subjective values in Objektivní nález",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No subjective wording detected in Objektivní nález",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-01",
+          "name": "Off-topic keyword detection",
+          "passed": false,
+          "severity": "HIGH",
+          "detail": "Potentially off-topic or known hallucination keyword found in report",
+          "evidence": "automobilového průmyslu, plánoval prezentac",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-02",
+          "name": "Doctor's non-clinical questions not in report",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No casual question text detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "EMPTY-01",
+          "name": "Report is not a fully-empty shell",
+          "passed": true,
+          "severity": "CRITICAL",
+          "detail": "11 sections contain substantive content",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "DUP-01",
+          "name": "No duplicate consecutive bullets",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No duplicate consecutive bullets detected",
+          "evidence": "",
+          "skipped": false
+        }
+      ],
+      "report_file": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/feedback/feedback_05.txt"
+    },
+    {
+      "total_checks": 14,
+      "passed": 14,
+      "failed": 0,
+      "skipped": 2,
+      "pass_rate": 1.0,
+      "word_count": 355,
+      "checks": [
+        {
+          "id": "STRUCT-01",
+          "name": "All required sections present",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "All required sections present",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-02",
+          "name": "Section order correct",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Section order matches expected template",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-03",
+          "name": "No duplicate section headers",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No duplicate section headers found",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "LEN-01",
+          "name": "Word count in range",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Word count in range [100, 700]: 355 words",
+          "evidence": "355",
+          "skipped": false
+        },
+        {
+          "id": "LEN-02",
+          "name": "Bullet count per section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No section has excessive bullet count",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NEG-01",
+          "name": "Temperature negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-02",
+          "name": "Allergy negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-03",
+          "name": "No neuvedeno+negation conflation",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No neuvedeno+negation conflation detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-01",
+          "name": "No parenthetical inference prose",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No parenthetical reasoning detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-02",
+          "name": "GA section does not contain meta-commentary",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "GA section not found or empty",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-01",
+          "name": "No action items in Adherence section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No action items detected in Adherence section",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-02",
+          "name": "No subjective values in Objektivní nález",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No subjective wording detected in Objektivní nález",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-01",
+          "name": "Off-topic keyword detection",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No known off-topic keywords detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-02",
+          "name": "Doctor's non-clinical questions not in report",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No casual question text detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "EMPTY-01",
+          "name": "Report is not a fully-empty shell",
+          "passed": true,
+          "severity": "CRITICAL",
+          "detail": "11 sections contain substantive content",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "DUP-01",
+          "name": "No duplicate consecutive bullets",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No duplicate consecutive bullets detected",
+          "evidence": "",
+          "skipped": false
+        }
+      ],
+      "report_file": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/feedback/feedback_06.txt"
+    },
+    {
+      "total_checks": 14,
+      "passed": 13,
+      "failed": 1,
+      "skipped": 2,
+      "pass_rate": 0.9286,
+      "word_count": 143,
+      "checks": [
+        {
+          "id": "STRUCT-01",
+          "name": "All required sections present",
+          "passed": false,
+          "severity": "HIGH",
+          "detail": "Missing sections: RA (Rodinná anamnéza), OA (Osobní anamnéza), FA (Farmakologická anamnéza, AA (Alergologická anamnéza), SA (Sociální anamnéza), Adherence a spolupráce pacienta, Objektivní nález, Hodnocení, Návrh vyšetření, Návrh terapie, Pokyny a plán kontrol",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-02",
+          "name": "Section order correct",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Section order matches expected template",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-03",
+          "name": "No duplicate section headers",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No duplicate section headers found",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "LEN-01",
+          "name": "Word count in range",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Word count in range [100, 700]: 143 words",
+          "evidence": "143",
+          "skipped": false
+        },
+        {
+          "id": "LEN-02",
+          "name": "Bullet count per section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No section has excessive bullet count",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NEG-01",
+          "name": "Temperature negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-02",
+          "name": "Allergy negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-03",
+          "name": "No neuvedeno+negation conflation",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No neuvedeno+negation conflation detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-01",
+          "name": "No parenthetical inference prose",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No parenthetical reasoning detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-02",
+          "name": "GA section does not contain meta-commentary",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "GA section not found or empty",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-01",
+          "name": "No action items in Adherence section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No action items detected in Adherence section",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-02",
+          "name": "No subjective values in Objektivní nález",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No subjective wording detected in Objektivní nález",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-01",
+          "name": "Off-topic keyword detection",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No known off-topic keywords detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-02",
+          "name": "Doctor's non-clinical questions not in report",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No casual question text detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "EMPTY-01",
+          "name": "Report is not a fully-empty shell",
+          "passed": true,
+          "severity": "CRITICAL",
+          "detail": "2 sections contain substantive content",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "DUP-01",
+          "name": "No duplicate consecutive bullets",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No duplicate consecutive bullets detected",
+          "evidence": "",
+          "skipped": false
+        }
+      ],
+      "report_file": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/feedback/feedback_07.txt"
+    },
+    {
+      "total_checks": 14,
+      "passed": 13,
+      "failed": 1,
+      "skipped": 2,
+      "pass_rate": 0.9286,
+      "word_count": 463,
+      "checks": [
+        {
+          "id": "STRUCT-01",
+          "name": "All required sections present",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "All required sections present",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-02",
+          "name": "Section order correct",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Section order matches expected template",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-03",
+          "name": "No duplicate section headers",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No duplicate section headers found",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "LEN-01",
+          "name": "Word count in range",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Word count in range [100, 700]: 463 words",
+          "evidence": "463",
+          "skipped": false
+        },
+        {
+          "id": "LEN-02",
+          "name": "Bullet count per section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No section has excessive bullet count",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NEG-01",
+          "name": "Temperature negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-02",
+          "name": "Allergy negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-03",
+          "name": "No neuvedeno+negation conflation",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No neuvedeno+negation conflation detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-01",
+          "name": "No parenthetical inference prose",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No parenthetical reasoning detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-02",
+          "name": "GA section does not contain meta-commentary",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "GA section not found or empty",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-01",
+          "name": "No action items in Adherence section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No action items detected in Adherence section",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-02",
+          "name": "No subjective values in Objektivní nález",
+          "passed": false,
+          "severity": "MEDIUM",
+          "detail": "Objektivní nález contains subjective patient-report wording",
+          "evidence": "udávaná hodnota",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-01",
+          "name": "Off-topic keyword detection",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No known off-topic keywords detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-02",
+          "name": "Doctor's non-clinical questions not in report",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No casual question text detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "EMPTY-01",
+          "name": "Report is not a fully-empty shell",
+          "passed": true,
+          "severity": "CRITICAL",
+          "detail": "12 sections contain substantive content",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "DUP-01",
+          "name": "No duplicate consecutive bullets",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No duplicate consecutive bullets detected",
+          "evidence": "",
+          "skipped": false
+        }
+      ],
+      "report_file": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/feedback/feedback_08.txt"
+    },
+    {
+      "total_checks": 14,
+      "passed": 13,
+      "failed": 1,
+      "skipped": 2,
+      "pass_rate": 0.9286,
+      "word_count": 604,
+      "checks": [
+        {
+          "id": "STRUCT-01",
+          "name": "All required sections present",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "All required sections present",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-02",
+          "name": "Section order correct",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Section order matches expected template",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-03",
+          "name": "No duplicate section headers",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No duplicate section headers found",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "LEN-01",
+          "name": "Word count in range",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Word count in range [100, 700]: 604 words",
+          "evidence": "604",
+          "skipped": false
+        },
+        {
+          "id": "LEN-02",
+          "name": "Bullet count per section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No section has excessive bullet count",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NEG-01",
+          "name": "Temperature negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-02",
+          "name": "Allergy negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-03",
+          "name": "No neuvedeno+negation conflation",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No neuvedeno+negation conflation detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-01",
+          "name": "No parenthetical inference prose",
+          "passed": false,
+          "severity": "MEDIUM",
+          "detail": "Found 1 parenthetical reasoning phrase(s)",
+          "evidence": "(typ neuveden, pravděpodobně typu 1, vzhledem k inzulínové terapii)",
+          "skipped": false
+        },
+        {
+          "id": "INFER-02",
+          "name": "GA section does not contain meta-commentary",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "GA section not found or empty",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-01",
+          "name": "No action items in Adherence section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No action items detected in Adherence section",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-02",
+          "name": "No subjective values in Objektivní nález",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No subjective wording detected in Objektivní nález",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-01",
+          "name": "Off-topic keyword detection",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No known off-topic keywords detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-02",
+          "name": "Doctor's non-clinical questions not in report",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No casual question text detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "EMPTY-01",
+          "name": "Report is not a fully-empty shell",
+          "passed": true,
+          "severity": "CRITICAL",
+          "detail": "12 sections contain substantive content",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "DUP-01",
+          "name": "No duplicate consecutive bullets",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No duplicate consecutive bullets detected",
+          "evidence": "",
+          "skipped": false
+        }
+      ],
+      "report_file": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/feedback/feedback_09.txt"
+    },
+    {
+      "total_checks": 14,
+      "passed": 13,
+      "failed": 1,
+      "skipped": 2,
+      "pass_rate": 0.9286,
+      "word_count": 551,
+      "checks": [
+        {
+          "id": "STRUCT-01",
+          "name": "All required sections present",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "All required sections present",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-02",
+          "name": "Section order correct",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Section order matches expected template",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-03",
+          "name": "No duplicate section headers",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No duplicate section headers found",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "LEN-01",
+          "name": "Word count in range",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Word count in range [100, 700]: 551 words",
+          "evidence": "551",
+          "skipped": false
+        },
+        {
+          "id": "LEN-02",
+          "name": "Bullet count per section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No section has excessive bullet count",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NEG-01",
+          "name": "Temperature negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-02",
+          "name": "Allergy negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-03",
+          "name": "No neuvedeno+negation conflation",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No neuvedeno+negation conflation detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-01",
+          "name": "No parenthetical inference prose",
+          "passed": false,
+          "severity": "MEDIUM",
+          "detail": "Found 1 parenthetical reasoning phrase(s)",
+          "evidence": "(nějaké kratší verze než sedmnáctky, pravděpodobně čtrnáctky)",
+          "skipped": false
+        },
+        {
+          "id": "INFER-02",
+          "name": "GA section does not contain meta-commentary",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "GA section not found or empty",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-01",
+          "name": "No action items in Adherence section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No action items detected in Adherence section",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-02",
+          "name": "No subjective values in Objektivní nález",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No subjective wording detected in Objektivní nález",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-01",
+          "name": "Off-topic keyword detection",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No known off-topic keywords detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-02",
+          "name": "Doctor's non-clinical questions not in report",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No casual question text detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "EMPTY-01",
+          "name": "Report is not a fully-empty shell",
+          "passed": true,
+          "severity": "CRITICAL",
+          "detail": "11 sections contain substantive content",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "DUP-01",
+          "name": "No duplicate consecutive bullets",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No duplicate consecutive bullets detected",
+          "evidence": "",
+          "skipped": false
+        }
+      ],
+      "report_file": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/feedback/feedback_10.txt"
+    },
+    {
+      "total_checks": 14,
+      "passed": 13,
+      "failed": 1,
+      "skipped": 2,
+      "pass_rate": 0.9286,
+      "word_count": 439,
+      "checks": [
+        {
+          "id": "STRUCT-01",
+          "name": "All required sections present",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "All required sections present",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-02",
+          "name": "Section order correct",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Section order matches expected template",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-03",
+          "name": "No duplicate section headers",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No duplicate section headers found",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "LEN-01",
+          "name": "Word count in range",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Word count in range [100, 700]: 439 words",
+          "evidence": "439",
+          "skipped": false
+        },
+        {
+          "id": "LEN-02",
+          "name": "Bullet count per section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No section has excessive bullet count",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NEG-01",
+          "name": "Temperature negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-02",
+          "name": "Allergy negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-03",
+          "name": "No neuvedeno+negation conflation",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No neuvedeno+negation conflation detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-01",
+          "name": "No parenthetical inference prose",
+          "passed": false,
+          "severity": "MEDIUM",
+          "detail": "Found 1 parenthetical reasoning phrase(s)",
+          "evidence": "(pohlaví pacientky vyplývá z kontextu)",
+          "skipped": false
+        },
+        {
+          "id": "INFER-02",
+          "name": "GA section does not contain meta-commentary",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "GA section not found or empty",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-01",
+          "name": "No action items in Adherence section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No action items detected in Adherence section",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-02",
+          "name": "No subjective values in Objektivní nález",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No subjective wording detected in Objektivní nález",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-01",
+          "name": "Off-topic keyword detection",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No known off-topic keywords detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-02",
+          "name": "Doctor's non-clinical questions not in report",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No casual question text detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "EMPTY-01",
+          "name": "Report is not a fully-empty shell",
+          "passed": true,
+          "severity": "CRITICAL",
+          "detail": "12 sections contain substantive content",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "DUP-01",
+          "name": "No duplicate consecutive bullets",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No duplicate consecutive bullets detected",
+          "evidence": "",
+          "skipped": false
+        }
+      ],
+      "report_file": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/feedback/feedback_11.txt"
+    },
+    {
+      "total_checks": 14,
+      "passed": 13,
+      "failed": 1,
+      "skipped": 2,
+      "pass_rate": 0.9286,
+      "word_count": 469,
+      "checks": [
+        {
+          "id": "STRUCT-01",
+          "name": "All required sections present",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "All required sections present",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-02",
+          "name": "Section order correct",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Section order matches expected template",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-03",
+          "name": "No duplicate section headers",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No duplicate section headers found",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "LEN-01",
+          "name": "Word count in range",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Word count in range [100, 700]: 469 words",
+          "evidence": "469",
+          "skipped": false
+        },
+        {
+          "id": "LEN-02",
+          "name": "Bullet count per section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No section has excessive bullet count",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NEG-01",
+          "name": "Temperature negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-02",
+          "name": "Allergy negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-03",
+          "name": "No neuvedeno+negation conflation",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No neuvedeno+negation conflation detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-01",
+          "name": "No parenthetical inference prose",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No parenthetical reasoning detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-02",
+          "name": "GA section does not contain meta-commentary",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "GA section not found or empty",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-01",
+          "name": "No action items in Adherence section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No action items detected in Adherence section",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-02",
+          "name": "No subjective values in Objektivní nález",
+          "passed": false,
+          "severity": "MEDIUM",
+          "detail": "Objektivní nález contains subjective patient-report wording",
+          "evidence": "udávaná hodnota",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-01",
+          "name": "Off-topic keyword detection",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No known off-topic keywords detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-02",
+          "name": "Doctor's non-clinical questions not in report",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No casual question text detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "EMPTY-01",
+          "name": "Report is not a fully-empty shell",
+          "passed": true,
+          "severity": "CRITICAL",
+          "detail": "12 sections contain substantive content",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "DUP-01",
+          "name": "No duplicate consecutive bullets",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No duplicate consecutive bullets detected",
+          "evidence": "",
+          "skipped": false
+        }
+      ],
+      "report_file": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/feedback/feedback_12.txt"
+    },
+    {
+      "total_checks": 14,
+      "passed": 12,
+      "failed": 2,
+      "skipped": 2,
+      "pass_rate": 0.8571,
+      "word_count": 83,
+      "checks": [
+        {
+          "id": "STRUCT-01",
+          "name": "All required sections present",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "All required sections present",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-02",
+          "name": "Section order correct",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Section order matches expected template",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-03",
+          "name": "No duplicate section headers",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No duplicate section headers found",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "LEN-01",
+          "name": "Word count in range",
+          "passed": false,
+          "severity": "MEDIUM",
+          "detail": "Word count outside range [100, 700]: 83 words",
+          "evidence": "83",
+          "skipped": false
+        },
+        {
+          "id": "LEN-02",
+          "name": "Bullet count per section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No section has excessive bullet count",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NEG-01",
+          "name": "Temperature negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-02",
+          "name": "Allergy negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-03",
+          "name": "No neuvedeno+negation conflation",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No neuvedeno+negation conflation detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-01",
+          "name": "No parenthetical inference prose",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No parenthetical reasoning detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-02",
+          "name": "GA section does not contain meta-commentary",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "GA section not found or empty",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-01",
+          "name": "No action items in Adherence section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No action items detected in Adherence section",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-02",
+          "name": "No subjective values in Objektivní nález",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No subjective wording detected in Objektivní nález",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-01",
+          "name": "Off-topic keyword detection",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No known off-topic keywords detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-02",
+          "name": "Doctor's non-clinical questions not in report",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No casual question text detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "EMPTY-01",
+          "name": "Report is not a fully-empty shell",
+          "passed": true,
+          "severity": "CRITICAL",
+          "detail": "2 sections contain substantive content",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "DUP-01",
+          "name": "No duplicate consecutive bullets",
+          "passed": false,
+          "severity": "LOW",
+          "detail": "Duplicate consecutive bullet in section AA (Alergologická anamnéza)",
+          "evidence": "neuvedeno",
+          "skipped": false
+        }
+      ],
+      "report_file": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/feedback/feedback_13.txt"
+    },
+    {
+      "total_checks": 14,
+      "passed": 12,
+      "failed": 2,
+      "skipped": 2,
+      "pass_rate": 0.8571,
+      "word_count": 90,
+      "checks": [
+        {
+          "id": "STRUCT-01",
+          "name": "All required sections present",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "All required sections present",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-02",
+          "name": "Section order correct",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Section order matches expected template",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-03",
+          "name": "No duplicate section headers",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No duplicate section headers found",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "LEN-01",
+          "name": "Word count in range",
+          "passed": false,
+          "severity": "MEDIUM",
+          "detail": "Word count outside range [100, 700]: 90 words",
+          "evidence": "90",
+          "skipped": false
+        },
+        {
+          "id": "LEN-02",
+          "name": "Bullet count per section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No section has excessive bullet count",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NEG-01",
+          "name": "Temperature negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-02",
+          "name": "Allergy negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-03",
+          "name": "No neuvedeno+negation conflation",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No neuvedeno+negation conflation detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-01",
+          "name": "No parenthetical inference prose",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No parenthetical reasoning detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-02",
+          "name": "GA section does not contain meta-commentary",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "GA section not found or empty",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-01",
+          "name": "No action items in Adherence section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No action items detected in Adherence section",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-02",
+          "name": "No subjective values in Objektivní nález",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No subjective wording detected in Objektivní nález",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-01",
+          "name": "Off-topic keyword detection",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No known off-topic keywords detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-02",
+          "name": "Doctor's non-clinical questions not in report",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No casual question text detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "EMPTY-01",
+          "name": "Report is not a fully-empty shell",
+          "passed": true,
+          "severity": "CRITICAL",
+          "detail": "3 sections contain substantive content",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "DUP-01",
+          "name": "No duplicate consecutive bullets",
+          "passed": false,
+          "severity": "LOW",
+          "detail": "Duplicate consecutive bullet in section AA (Alergologická anamnéza)",
+          "evidence": "neuvedeno",
+          "skipped": false
+        }
+      ],
+      "report_file": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/feedback/feedback_14.txt"
+    },
+    {
+      "total_checks": 14,
+      "passed": 13,
+      "failed": 1,
+      "skipped": 2,
+      "pass_rate": 0.9286,
+      "word_count": 538,
+      "checks": [
+        {
+          "id": "STRUCT-01",
+          "name": "All required sections present",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "All required sections present",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-02",
+          "name": "Section order correct",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Section order matches expected template",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-03",
+          "name": "No duplicate section headers",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No duplicate section headers found",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "LEN-01",
+          "name": "Word count in range",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Word count in range [100, 700]: 538 words",
+          "evidence": "538",
+          "skipped": false
+        },
+        {
+          "id": "LEN-02",
+          "name": "Bullet count per section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No section has excessive bullet count",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NEG-01",
+          "name": "Temperature negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-02",
+          "name": "Allergy negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-03",
+          "name": "No neuvedeno+negation conflation",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No neuvedeno+negation conflation detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-01",
+          "name": "No parenthetical inference prose",
+          "passed": false,
+          "severity": "MEDIUM",
+          "detail": "Found 1 parenthetical reasoning phrase(s)",
+          "evidence": "(nějaké kratší verze než sedmnáctky, pravděpodobně čtrnáctky)",
+          "skipped": false
+        },
+        {
+          "id": "INFER-02",
+          "name": "GA section does not contain meta-commentary",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "GA section not found or empty",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-01",
+          "name": "No action items in Adherence section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No action items detected in Adherence section",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-02",
+          "name": "No subjective values in Objektivní nález",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No subjective wording detected in Objektivní nález",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-01",
+          "name": "Off-topic keyword detection",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No known off-topic keywords detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-02",
+          "name": "Doctor's non-clinical questions not in report",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No casual question text detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "EMPTY-01",
+          "name": "Report is not a fully-empty shell",
+          "passed": true,
+          "severity": "CRITICAL",
+          "detail": "11 sections contain substantive content",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "DUP-01",
+          "name": "No duplicate consecutive bullets",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No duplicate consecutive bullets detected",
+          "evidence": "",
+          "skipped": false
+        }
+      ],
+      "report_file": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/feedback/feedback_15.txt"
+    },
+    {
+      "total_checks": 14,
+      "passed": 13,
+      "failed": 1,
+      "skipped": 2,
+      "pass_rate": 0.9286,
+      "word_count": 393,
+      "checks": [
+        {
+          "id": "STRUCT-01",
+          "name": "All required sections present",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "All required sections present",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-02",
+          "name": "Section order correct",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Section order matches expected template",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-03",
+          "name": "No duplicate section headers",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No duplicate section headers found",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "LEN-01",
+          "name": "Word count in range",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Word count in range [100, 700]: 393 words",
+          "evidence": "393",
+          "skipped": false
+        },
+        {
+          "id": "LEN-02",
+          "name": "Bullet count per section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No section has excessive bullet count",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NEG-01",
+          "name": "Temperature negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-02",
+          "name": "Allergy negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-03",
+          "name": "No neuvedeno+negation conflation",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No neuvedeno+negation conflation detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-01",
+          "name": "No parenthetical inference prose",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No parenthetical reasoning detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-02",
+          "name": "GA section does not contain meta-commentary",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "GA section not found or empty",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-01",
+          "name": "No action items in Adherence section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No action items detected in Adherence section",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-02",
+          "name": "No subjective values in Objektivní nález",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No subjective wording detected in Objektivní nález",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-01",
+          "name": "Off-topic keyword detection",
+          "passed": false,
+          "severity": "CRITICAL",
+          "detail": "Potentially off-topic or known hallucination keyword found in report",
+          "evidence": "borelióz",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-02",
+          "name": "Doctor's non-clinical questions not in report",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No casual question text detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "EMPTY-01",
+          "name": "Report is not a fully-empty shell",
+          "passed": true,
+          "severity": "CRITICAL",
+          "detail": "11 sections contain substantive content",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "DUP-01",
+          "name": "No duplicate consecutive bullets",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No duplicate consecutive bullets detected",
+          "evidence": "",
+          "skipped": false
+        }
+      ],
+      "report_file": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/feedback/feedback_16.txt"
+    },
+    {
+      "total_checks": 14,
+      "passed": 14,
+      "failed": 0,
+      "skipped": 2,
+      "pass_rate": 1.0,
+      "word_count": 487,
+      "checks": [
+        {
+          "id": "STRUCT-01",
+          "name": "All required sections present",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "All required sections present",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-02",
+          "name": "Section order correct",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Section order matches expected template",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-03",
+          "name": "No duplicate section headers",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No duplicate section headers found",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "LEN-01",
+          "name": "Word count in range",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Word count in range [100, 700]: 487 words",
+          "evidence": "487",
+          "skipped": false
+        },
+        {
+          "id": "LEN-02",
+          "name": "Bullet count per section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No section has excessive bullet count",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NEG-01",
+          "name": "Temperature negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-02",
+          "name": "Allergy negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-03",
+          "name": "No neuvedeno+negation conflation",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No neuvedeno+negation conflation detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-01",
+          "name": "No parenthetical inference prose",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No parenthetical reasoning detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-02",
+          "name": "GA section does not contain meta-commentary",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "GA section not found or empty",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-01",
+          "name": "No action items in Adherence section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No action items detected in Adherence section",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-02",
+          "name": "No subjective values in Objektivní nález",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No subjective wording detected in Objektivní nález",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-01",
+          "name": "Off-topic keyword detection",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No known off-topic keywords detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-02",
+          "name": "Doctor's non-clinical questions not in report",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No casual question text detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "EMPTY-01",
+          "name": "Report is not a fully-empty shell",
+          "passed": true,
+          "severity": "CRITICAL",
+          "detail": "9 sections contain substantive content",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "DUP-01",
+          "name": "No duplicate consecutive bullets",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No duplicate consecutive bullets detected",
+          "evidence": "",
+          "skipped": false
+        }
+      ],
+      "report_file": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/feedback/feedback_17.txt"
+    },
+    {
+      "total_checks": 14,
+      "passed": 11,
+      "failed": 3,
+      "skipped": 2,
+      "pass_rate": 0.7857,
+      "word_count": 554,
+      "checks": [
+        {
+          "id": "STRUCT-01",
+          "name": "All required sections present",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "All required sections present",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-02",
+          "name": "Section order correct",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Section order matches expected template",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "STRUCT-03",
+          "name": "No duplicate section headers",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No duplicate section headers found",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "LEN-01",
+          "name": "Word count in range",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "Word count in range [100, 700]: 554 words",
+          "evidence": "554",
+          "skipped": false
+        },
+        {
+          "id": "LEN-02",
+          "name": "Bullet count per section",
+          "passed": false,
+          "severity": "LOW",
+          "detail": "Sections with more than 12 bullets: Objektivní nález: 15",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NEG-01",
+          "name": "Temperature negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-02",
+          "name": "Allergy negation not hallucinated",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "Skipped: transcript not supplied",
+          "evidence": "",
+          "skipped": true
+        },
+        {
+          "id": "NEG-03",
+          "name": "No neuvedeno+negation conflation",
+          "passed": true,
+          "severity": "HIGH",
+          "detail": "No neuvedeno+negation conflation detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "INFER-01",
+          "name": "No parenthetical inference prose",
+          "passed": false,
+          "severity": "MEDIUM",
+          "detail": "Found 2 parenthetical reasoning phrase(s)",
+          "evidence": "(z přepisu: „dýchání 72 za minutu“ je evidentní chyba, správná hodnota nebyla upřesněna, pravděpodobně mylný údaj); (pálpit pravděpodobně znamená diuretika, ale nebylo výslovně uvedeno)",
+          "skipped": false
+        },
+        {
+          "id": "INFER-02",
+          "name": "GA section does not contain meta-commentary",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "GA section not found or empty",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-01",
+          "name": "No action items in Adherence section",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No action items detected in Adherence section",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "PLACE-02",
+          "name": "No subjective values in Objektivní nález",
+          "passed": true,
+          "severity": "MEDIUM",
+          "detail": "No subjective wording detected in Objektivní nález",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-01",
+          "name": "Off-topic keyword detection",
+          "passed": false,
+          "severity": "HIGH",
+          "detail": "Potentially off-topic or known hallucination keyword found in report",
+          "evidence": "Po návratu domů",
+          "skipped": false
+        },
+        {
+          "id": "NOISE-02",
+          "name": "Doctor's non-clinical questions not in report",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No casual question text detected",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "EMPTY-01",
+          "name": "Report is not a fully-empty shell",
+          "passed": true,
+          "severity": "CRITICAL",
+          "detail": "13 sections contain substantive content",
+          "evidence": "",
+          "skipped": false
+        },
+        {
+          "id": "DUP-01",
+          "name": "No duplicate consecutive bullets",
+          "passed": true,
+          "severity": "LOW",
+          "detail": "No duplicate consecutive bullets detected",
+          "evidence": "",
+          "skipped": false
+        }
+      ],
+      "report_file": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/feedback/feedback_18.tdt"
+    }
+  ]
+}

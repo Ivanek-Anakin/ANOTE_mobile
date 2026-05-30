@@ -1,0 +1,77 @@
+Lékařská zpráva vygenerovaná aplikací ANOTE
+Datum: 21. 05. 2026
+Typ návštěvy: Automatická detekce
+
+---
+
+Lékařská zpráva
+
+Identifikace pacienta:
+- Jméno: neuvedeno
+- Věk / r. narození: 52 let
+- Datum návštěvy: 21. 05. 2026
+
+NO (Nynější onemocnění):
+- Pacient je léčen pro diabetes mellitus typu 1 již asi 40 let.
+- Používá inzulinovou pumpu s kontinuálním měřením glukózy (sensor).
+- Popisuje variabilní hodnoty glykémie (např. 47, 49, 52 mmol/l při měření), uvádí, že působí v normálním rozsahu.
+- Používá rychle působící inzuliny, nejrychlejší k dispozici mu zatím vyhovuje, s doporučením aplikace 5–7 minut před jídlem, případně i déle před sacharidově náročným jídlem.
+- Udává obtíže s korekcí po chlebu; diskutuje o vlivu zmražených potravin na rychlost vstřebávání sacharidů.
+- Sensor glukózy mu občas selhává, zmiňuje nutnost výměny senzoru, někdy dochází ke krátkým časům bez signálu (až několik hodin), což způsobuje automatické snižování dávky inzulinu pumpou, aby se zabránilo hypoglykémii.
+- Někdy musí dávku inzulinu upravovat manuálně kvůli nespojitosti dat z pumpy a senzoru.
+- Bez bolestí, bez dalších akutních příznaků, jde o chronickou kompenzační kontrolu diabetu.
+- Zvýšenou teplotu neguje, jiné akutní obtíže neguje.
+
+RA (Rodinná anamnéza):
+- neuvedeno
+
+OA (Osobní anamnéza):
+- Cukrovka asi 40 let.
+- Používání inzulinové pumpy s kontinuálním sledováním glykémie.
+- Pacient zmiňuje možnost nové léčby zpomalující autoimunitní proces diabetu (sprobíhá screening pozitivních protilátek; léčba zpomaluje vývoj diabetu o 1–2 roky).
+- Bez dalších uvedených chronických onemocnění.
+- Neuvedeno informace o hospitalizacích či operacích kromě implantace pumpy.
+
+FA (Farmakologická anamnéza / aktuální medikace):
+- Inzulínová pumpa, nejrychlejší dostupný rychle působící inzulín.
+- Dávkování rapidního inzulínu doporučeno 5–7 minut před jídlem, při sacharidové zátěži i dříve.
+- Neuvedeny další léky.
+
+AA (Alergologická anamnéza):
+- Alergie neguje.
+
+GA:
+- Vynecháno (muž).
+
+SA (Sociální anamnéza):
+- Pracuje v oblasti automobilového průmyslu, plánoval prezentaci pro Audi, kde navrhoval výrobní linku.
+- Neuvedeno kouření, alkohol ani jiné sociální aspekty.
+
+Adherence a spolupráce pacienta:
+- Spolupráce dobrá, pravidelně používá inzulinovou pumpu a senzor, pečlivě sleduje hodnoty.
+- Dodržuje režim aplikace inzulínu s důrazem na načasování před jídlem.
+- Vyznačuje zkušenost s testováním různých druhů jídla (např. chleba) pro lepší kompenzaci.
+- Informuje o nutnosti výměny vadných senzorů včas.
+- Režim dodržuje.
+
+Objektivní nález:
+- neuvedeno
+
+Hodnocení (pracovní diagnóza / klinický závěr):
+- Diabetes mellitus typu 1 s dlouhodobou inzulinovou pumpovou terapií.
+- Kompenzace diabetu na úrovni 80 % v cílových hodnotách glykémie.
+- Nutnost monitorování funkčnosti senzoru glukózy a jeho případná výměna.
+
+Návrh vyšetření:
+- Plánován odběr (odběr blíže nespecifikován) na 3. září 2026 v 14:30.
+
+Návrh terapie:
+- Pokračovat v inzulinové pumpové terapii s optimalizací doby aplikace rapidního inzulínu 5–7 minut před jídlem.
+- V případě sacharidově náročných jídel zvážit prodlouženou dobu předstíhání aplikace inzulínu.
+- Pečlivá kontrola a včasná výměna vadného senzoru glukózy.
+
+Pokyny a plán kontrol:
+- Kontrola na kontrolní návštěvě naplánována na 3. září 2026 v 14:30.
+- Doporučeno minimalizovat dobu bez funkčního senzoru, aby nedocházelo k neadekvátnímu dávkování inzulínu.
+- Pacientovi bylo vysvětleno nutnost sledovat varovné příznaky a v případě problémů s pumpou či senzorem kontaktovat ambulanci.
+- Neuvedeno jiné specifické varovné příznaky nebo čas doporučený pro návrat k lékaři mimo plánovanou kontrolu.

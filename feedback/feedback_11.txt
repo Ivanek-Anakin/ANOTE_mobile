@@ -1,0 +1,77 @@
+
+ianikin2002@gmail.com
+Thu 14 May, 13:27
+to zorb
+
+Lékařská zpráva vygenerovaná aplikací ANOTE
+Datum: 14. 05. 2026
+Typ návštěvy: Automatická detekce
+
+---
+
+Lékařská zpráva
+
+Identifikace pacienta: 
+- Jméno: neuvedeno 
+- Věk / r. narození: neuvedeno 
+- Datum návštěvy: 14. 05. 2026 
+
+NO (Nynější onemocnění): 
+- Hlavní problém: poruchy citlivosti na nohou, zejména necitlivost pat a časté natlučení na schodech, trvající delší dobu (neurčeno přesně). Pacientka užívá lék Lyrica k tlumení bolestí neuropatického původu. 
+- Aktuální potíže: necítí paty, občas nepostřehne, že spadne bačkora, což vede k úrazům. Obstrukční potíže negativně ovlivňují kontrolu inzulínem (inzulínové pumpy a cartridge, dávkování diskutováno). Kompenzace diabetu vyžaduje přesné dávkování inzulínu podle sacharidů, hypoglykémie se nevyskytují (negace hypoglykémií). 
+- Pacientka budí kolem 7:00, dříve měla snídani v 9:00. 
+- Neuvedena přítomnost zvýšené tělesné teploty, negativní hypoglykémie (těžké i noční negovány). 
+- Upozornění na problém s hustotou krve při odběrech, možný vliv léků, doporučeno konzultovat v lékárně. 
+- Popis komplikací spojených s cukrovkou nebyl zmíněn explicitně. 
+
+RA (Rodinná anamnéza): 
+- neuvedeno 
+
+OA (Osobní anamnéza): 
+- Chronická neuropatie dolních končetin s bolestmi, léčena pregabalinem (Lyrica). 
+- Diabetická léčba inzulínem pomocí pumpy s cartridgemi (rozměry cartridgí diskutovány, preference kratších cartridgí). 
+- Neuvedena další závažná onemocnění ani operace. 
+
+FA (Farmakologická anamnéza / aktuální medikace): 
+- Pregabalin (Lyrica) – užívání potvrzeno. 
+- Inzulín – pumpa, cartridge velikosti asi 14 ml preferováno před 17 ml. 
+- Neuvedeno přesné dávkování léků. 
+- Neuvedeny další léky. 
+
+AA (Alergologická anamnéza): 
+- alergie neguje 
+
+GA (Gynekologická anamnéza): 
+- neuvedeno (pohlaví pacientky vyplývá z kontextu) 
+
+SA (Sociální anamnéza): 
+- Neuvedeno informace o kouření, alkoholu, zaměstnání, rodinných poměrech a pohybové aktivitě. 
+
+Adherence a spolupráce pacienta: 
+- Spolupráce dobrá, pacientka je ochotná nastavit dávky inzulínu podle doporučení. 
+- Dodržuje režim vstávání, snídaně a podávání inzulínu téměř pravidelně, jsou diskutovány odchylky a snaha korekce dávkování. 
+- Nemá hypoglykémie a chápe potřebu správného dávkování. 
+- Pacientka byla instruována o nutnosti dávkovat inzulín i k malému množství sacharidů (např. čtvrtka jablka). 
+
+Objektivní nález: 
+- Neuvedeno žádné objektivní měření (TK, P, SpO2, TT, fyzikální nález). 
+
+Hodnocení (pracovní diagnóza / klinický závěr): 
+- Neuropatie dolních končetin s poruchou citlivosti, stabilizovaná medikace pregabalinem. 
+- Kompenzace diabetu s potřebou úpravy inzulínové pumpy a dávkování inzulínu. 
+
+Návrh vyšetření: 
+- Kontrola laboratorních odběrů krve a konzultace ohledně případného ovlivnění viskozity krve léky v lékárně. 
+- Plánovaná kontrola diabetu na podzim. 
+
+Návrh terapie: 
+- Pokračovat s Lyrica (pregabalin) k úlevě od neuropatických bolestí dle doporučení neurologa. 
+- Upravit velikost cartridge inzulínu (preferovat kratší 14 ml místo 17 ml). 
+- Důsledné dávkování inzulínu podle sacharidů za jídla, i u malého množství. 
+- Zvýšit příjem tekutin z důvodu možného zahuštění krve. 
+
+Pokyny a plán kontrol: 
+- Další kontrola diabetu dohodnuta na 3. 9. 2026. 
+- Doporučeno konzultovat otázky k lékům v lékárně a hlídat příjem tekutin k prevenci dehydratace a ředění krve. 
+- Edukace o správném dávkování inzulínu a monitorování glykemie. 
+- V případě zhoršení potíží návrat k lékaři.

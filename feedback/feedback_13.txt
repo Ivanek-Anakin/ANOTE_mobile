@@ -1,0 +1,51 @@
+Lékařská zpráva vygenerovaná aplikací ANOTE
+Datum: 14. 05. 2026
+Typ návštěvy: Automatická detekce
+
+---
+
+Lékařská zpráva
+
+Identifikace pacienta:
+- Jméno: neuvedeno
+- Věk / r. narození: neuvedeno
+- Datum návštěvy: 14. 05. 2026
+
+NO (Nynější onemocnění):
+- neuvedeno
+
+RA (Rodinná anamnéza):
+- neuvedeno
+
+OA (Osobní anamnéza):
+- neuvedeno
+
+FA (Farmakologická anamnéza / aktuální medikace):
+- neuvedeno
+
+AA (Alergologická anamnéza):
+- neuvedeno
+
+GA (Gynekologická anamnéza):
+- neuvedeno
+
+SA (Sociální anamnéza):
+- neuvedeno
+
+Adherence a spolupráce pacienta:
+- neuvedeno
+
+Objektivní nález:
+- neuvedeno
+
+Hodnocení (pracovní diagnóza / klinický závěr):
+- neuvedeno
+
+Návrh vyšetření:
+- neuvedeno
+
+Návrh terapie:
+- neuvedeno
+
+Pokyny a plán kontrol:
+- neuvedeno

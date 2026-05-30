@@ -1,0 +1,86 @@
+Lékařská zpráva vygenerovaná aplikací ANOTE
+Datum: 14. 05. 2026
+Typ návštěvy: Automatická detekce
+
+---
+
+Lékařská zpráva
+
+Identifikace pacienta:
+- Jméno: neuvedeno
+- Věk / r. narození: neuvedeno
+- Datum návštěvy: 14. 05. 2026
+
+NO (Nynější onemocnění):
+- Pacientka uvádí, že si již nevstává pozdě, pravidelně vstává kolem půl sedmé ráno. Má zvyklost snídat kolem deváté hodiny, mezitím vyplňuje čas sledováním televize nebo úklidem.
+- Občas se vyskytují hypoglykémie, které pacientka zachytí včas, hypoglykémie nejsou dramatické ani vážné.
+- Pocit necitlivosti v nohou, zejména v oblasti pat, občas necítí pád bačkory a dochází k poranění na schodech.
+- Pocit necitlivosti v rukou trvá, bolest ani potíže s prsty neustávají. Byla vyšetřena na neurologii u Dr. Blažeje, který uvedl, že stávající stav je neléčitelný, doporučil užívání léku Lyrika (pregabalin) pro zmírnění bolesti, pacientka nyní lék užívá v poloviční dávce.
+- Pacientka má inzulinovou léčbu, požaduje zkrácení inzulinových jehel (nějaké kratší verze než sedmnáctky, pravděpodobně čtrnáctky).
+- Pacientka popisuje situace s neadekvátním podáním inzulinu k jídlu, kdy někdy inzulin nedá včas, což vede k hyperglykémii, které si je vědoma.
+- Pacientka se ptala na možné ovlivnění hustoty krve léky, na posledním odběru krve byla krev velmi tmavá a sestra na to upozorňovala, pacientka myslí, že důvodem může být dehydratace, pije relativně málo vody, kávu pije pouze dopoledne.
+- Neuvedla žádné zvýšené teploty ani jiné celkové příznaky.
+- Potíže s močením neuvedeny.
+
+RA (Rodinná anamnéza):
+- neuvedeno
+
+OA (Osobní anamnéza):
+- Neuvedena přesná diagnóza, ale pacientka je léčena inzulínem a má neurologické komplikace pravděpodobně v souvislosti s diabetem (polyneuropatie).
+- Neuvedena jiná chronická onemocnění.
+- Byla provedena neurologická diagnostika u Dr. Blažeje.
+- Neuvedeny jiné operace nebo hospitalizace.
+
+FA (Farmakologická anamnéza / aktuální medikace):
+- Inzulín, příslušenství (cartridge), pacientka používá inzulinové jehly; preferuje kratší jehly než 17 mm, pravděpodobně 14 mm.
+- Lyrika (pregabalin) v poloviční dávce pro neuropatickou bolest.
+- Neuvedena další medikace.
+- Neuvedeny OTC nebo doplňky.
+
+AA (Alergologická anamnéza):
+- alergie neguje
+
+GA (Gynekologická anamnéza):
+- neuvedeno (pravděpodobně jde o ženu, ale informace o gynekologické anamnéze nejsou uvedeny)
+
+SA (Sociální anamnéza):
+- Neuvedeno, pacientka zmiňuje běžné denní aktivity (uklízení, sledování televize).
+- Neuvedeno o kouření, alkoholu, zaměstnání, psychické či sociální zátěži.
+
+Adherence a spolupráce pacienta:
+- Pacientka občas hypoglykémie umí dobře zachytit a zvládnout.
+- Uznává potřebu úpravy inzulinových dávek, je schopna upravovat dávky inzulinu k jídlu, ale někdy nezvládne načasování správně.
+- Dodržování léčby s léčivem Lyrika v poloviční dávce.
+- Spolupráce dobrá.
+- Pacientka má objednanou další kontrolu na podzim, plánovaný termín 3. 9.
+
+Objektivní nález:
+- neuvedeno
+
+Hodnocení (pracovní diagnóza / klinický závěr):
+- stav po neuropatii s bolestivými a necitlivými poruchami na končetinách (patrná diabetická polyneuropatie)
+- diabetes mellitus s inzulinovou léčbou a občasnými hypoglykémiemi zvládanými pacientkou
+- potřeba úpravy inzulinových dávek a kontinuální edukace v režimu léčby
+
+Návrh vyšetření:
+- kontrola biochemie krve na podzim (viz domluvené termíny)
+- laboratorní odběry k monitorování stavu (pozor na případnou dehydrataci a hematologické změny)
+- neurologická kontrola velikost a dávkování pregabalinu dle klinického stavu
+- neuvedeno další konkrétní vyšetření
+
+Návrh terapie:
+- pokračování inzulinové terapie, úprava délky jehel na kratší (čtrnáctky místo sedmnáctek)
+- pokračování pregabalinu v poloviční dávce dle tolerance a účinku
+- edukace ohledně správného dávkování inzulinu k jídlu včetně malých dávek i k malým sacharidovým porcím
+- doporučení adekvátní hydratace
+
+Pokyny a plán kontrol:
+- další kontrola naplánována na 3. 9. 2026 u primářky, objednána manželem pacientky
+- doporučena kontrola krevních odběrů a sledování hypoglykémií
+- pacientka má pokračovat v režimu, sledovat příznaky a přizpůsobovat dávky inzulinu podle pokynů
+- varovné příznaky a potřeba kontaktu lékaře neuvedeny explicitně
+
+Konec zprávy.
+
+---
+Tato zpráva byla automaticky odeslána aplikací ANOTE.

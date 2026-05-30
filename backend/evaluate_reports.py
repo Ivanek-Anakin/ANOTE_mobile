@@ -1,7 +1,7 @@
 """LLM-as-Judge report quality evaluation for ANOTE.
 
 Generates medical reports from transcript files, then evaluates each report
-on 6 quality dimensions using a separate LLM judge call.
+on 8 quality dimensions using a separate LLM judge call.
 
 Usage:
     python evaluate_reports.py --scenarios-dir ../testing_hurvinek/
@@ -32,13 +32,16 @@ load_dotenv()
 import httpx
 from openai import AzureOpenAI
 
+from check_report import run_all_checks
+
 # ── Azure OpenAI configuration ──────────────────────────────────────────────
 
 ENDPOINT = "https://anote-openai.openai.azure.com/"
 API_VERSION = "2025-04-01-preview"
 DEFAULT_MODEL = "gpt-4-1-mini"
+DEFAULT_JUDGE_MODEL = os.environ.get("AZURE_OPENAI_JUDGE_DEPLOYMENT", DEFAULT_MODEL)
 
-API_KEY = os.environ["AZURE_OPENAI_KEY"]
+API_KEY = os.environ.get("AZURE_OPENAI_KEY")
 
 # ── System prompt (synced from backend/main.py _build_system_prompt) ──────────
 
@@ -640,7 +643,7 @@ You are a medical documentation quality auditor. You will receive:
 1. A transcript of a doctor-patient conversation (may contain ASR errors, background noise, irrelevant content)
 2. A structured medical report generated from that transcript
 
-Evaluate the report on these 6 dimensions (score 0-5 each):
+Evaluate the report on these 8 dimensions (score 0-5 each):
 
 1. FACTUAL_ACCURACY: Are all facts in the report traceable to the transcript? Any hallucinated information?
 2. COMPLETENESS: Does the report capture all medically relevant information from the transcript? This includes:
@@ -652,6 +655,8 @@ Evaluate the report on these 6 dimensions (score 0-5 each):
 4. NEGATION_HANDLING: Does the report correctly distinguish "neuvedeno" (not discussed) from explicit negations? Are complication negations captured (e.g., "těžké hypoglykémie neměl", "noční hypoglykémie neudává")?
 5. CLINICAL_LANGUAGE: Is the Czech medical terminology appropriate and professional?
 6. NOISE_RESILIENCE: Does the report correctly filter ASR errors, songs, banter, and irrelevant content? Does it correctly attribute statements to doctor vs patient?
+7. BREVITY: Is the report appropriately concise? Are bullets single-fact? Is the word count in the 200-500 range? Is there no parenthetical model reasoning exposed in the text?
+8. HALLUCINATED_NEGATION: Are all negation phrases ("neguje", "neudává", "bez...") grounded in an explicit denial in the transcript? Are negations never used as template fillers for topics that were not discussed?
 
 For each dimension, provide:
 - score (integer 0-5)
@@ -661,6 +666,11 @@ Also list:
 - hallucinations: any facts in the report NOT in the transcript
 - omissions: any medically relevant facts in the transcript NOT in the report
 
+Composite score: weighted average of all 8 scores where factual_accuracy and
+hallucinated_negation have weight 2, all other dimensions have weight 1.
+Formula: (factual_accuracy*2 + completeness + structure + negation_handling +
+clinical_language + noise_resilience + brevity + hallucinated_negation*2) / 10.
+
 Respond in this exact JSON format:
 {
   "scores": {
@@ -669,9 +679,11 @@ Respond in this exact JSON format:
     "structure": {"score": N, "reasoning": "..."},
     "negation_handling": {"score": N, "reasoning": "..."},
     "clinical_language": {"score": N, "reasoning": "..."},
-    "noise_resilience": {"score": N, "reasoning": "..."}
+        "noise_resilience": {"score": N, "reasoning": "..."},
+        "brevity": {"score": N, "reasoning": "..."},
+        "hallucinated_negation": {"score": N, "reasoning": "..."}
   },
-  "composite_score": N.N,
+    "composite_score": N.N,
   "hallucinations": ["...", "..."],
   "omissions": ["...", "..."],
   "summary": "1-2 sentence overall assessment"
@@ -686,6 +698,8 @@ DIMENSIONS = [
     "negation_handling",
     "clinical_language",
     "noise_resilience",
+    "brevity",
+    "hallucinated_negation",
 ]
 
 DIM_SHORT = {
@@ -695,6 +709,8 @@ DIM_SHORT = {
     "negation_handling": "Neg",
     "clinical_language": "Lang",
     "noise_resilience": "Noise",
+    "brevity": "Brev",
+    "hallucinated_negation": "HalNeg",
 }
 
 # ── TASK-0036 weighted rubric ────────────────────────────────────────────────
@@ -868,6 +884,8 @@ def _is_reasoning_model(model: str) -> bool:
 
 def _make_client(model: str) -> AzureOpenAI:
     """Create an AzureOpenAI client with a generous HTTP timeout."""
+    if not API_KEY:
+        raise RuntimeError("AZURE_OPENAI_KEY is required to run evaluation API calls")
     return AzureOpenAI(
         api_key=API_KEY,
         api_version=API_VERSION,
@@ -988,7 +1006,27 @@ def evaluate_report(client: AzureOpenAI, model: str, transcript: str, report: st
         "prompt_tokens": response.usage.prompt_tokens,
         "completion_tokens": response.usage.completion_tokens,
     }
+    if isinstance(evaluation.get("scores"), dict):
+        evaluation["composite_score"] = _weighted_composite_from_scores(
+            evaluation.get("scores", {}), fallback=evaluation.get("composite_score")
+        )
     return evaluation
+
+
+def _weighted_composite_from_scores(scores: dict, fallback=None):
+    """Calculate the 8-dimension weighted composite locally when possible."""
+    weights = {"factual_accuracy": 2, "hallucinated_negation": 2}
+    weighted_sum = 0.0
+    total_weight = 0
+    for dim in DIMENSIONS:
+        entry = scores.get(dim, {})
+        score = entry.get("score") if isinstance(entry, dict) else entry
+        if not isinstance(score, (int, float)):
+            return fallback
+        weight = weights.get(dim, 1)
+        weighted_sum += score * weight
+        total_weight += weight
+    return round(weighted_sum / total_weight, 2) if total_weight else fallback
 
 
 # ── Main pipeline ────────────────────────────────────────────────────────────
@@ -999,6 +1037,7 @@ def run_evaluation(
     model: str,
     output_path: str,
     prompt_variant: str = "v0",
+    judge_model: str = DEFAULT_JUDGE_MODEL,
     task0036_rubric: bool = False,
 ) -> list[dict]:
     """Run the full generate-then-evaluate pipeline on all .txt files in a directory."""
@@ -1016,10 +1055,11 @@ def run_evaluation(
     today = date.today().strftime("%d. %m. %Y")
     system_prompt = _get_system_prompt(today, prompt_variant)
     client = _make_client(model)
+    judge_client = client if judge_model == model else _make_client(judge_model)
 
     print(f"\n{'═' * 80}")
     print(f"  ANOTE LLM-as-Judge Evaluation")
-    print(f"  Model: {model}  |  Date: {today}  |  Scenarios: {len(txt_files)}")
+    print(f"  Model: {model}  |  Judge: {judge_model}  |  Date: {today}  |  Scenarios: {len(txt_files)}")
     print(f"  Prompt: {prompt_variant} ({variant_info['name']})")
     print(f"  Directory: {scenarios_path.resolve()}")
     print(f"{'═' * 80}\n")
@@ -1042,9 +1082,12 @@ def run_evaluation(
 
         # Step 2: Evaluate report
         print(f"  → Evaluating report…", end="", flush=True)
-        evaluation = evaluate_report(client, model, transcript, report)
+        evaluation = evaluate_report(judge_client, judge_model, transcript, report)
         eval_time = evaluation.get("_eval_time_s", "?")
         print(f" done ({eval_time}s)")
+
+        det_result = run_all_checks(report=report, transcript=transcript)
+        det_pass_rate = det_result["passed"] / det_result["total_checks"] if det_result["total_checks"] else None
 
         # Extract scores for quick display
         scores = evaluation.get("scores", {})
@@ -1053,8 +1096,6 @@ def run_evaluation(
             s = scores.get(dim, {}).get("score", "?")
             score_vals.append(s)
         composite = evaluation.get("composite_score", "?")
-        score_str = "  ".join(f"{DIM_SHORT[d]}={v}" for d, v in zip(DIMENSIONS, score_vals))
-
         scenario_record = {
             "scenario": name,
             "transcript_words": word_count,
@@ -1066,17 +1107,21 @@ def run_evaluation(
                 "hallucinations": evaluation.get("hallucinations", []),
                 "omissions": evaluation.get("omissions", []),
                 "summary": evaluation.get("summary", ""),
+                "deterministic_checks": det_result,
+                "deterministic_pass_rate": det_pass_rate,
             },
+            "deterministic_checks": det_result,
+            "deterministic_pass_rate": det_pass_rate,
         }
 
         if task0036_rubric:
             print(f"  → TASK-0036 rubric…", end="", flush=True)
             try:
-                t36 = evaluate_report_task0036(client, model, transcript, report)
+                t36 = evaluate_report_task0036(judge_client, judge_model, transcript, report)
             except Exception as exc:
                 print(f" first attempt failed: {exc}; retrying once…", end="", flush=True)
                 try:
-                    t36 = evaluate_report_task0036(client, model, transcript, report)
+                    t36 = evaluate_report_task0036(judge_client, judge_model, transcript, report)
                 except Exception as exc2:
                     print(f" failed twice: {exc2}")
                     t36 = {"factors": {}, "weighted_composite": None, "_error": str(exc2)}
@@ -1117,6 +1162,13 @@ def run_evaluation(
         "max_composite": max(composites) if composites else None,
         "per_dimension_means": per_dim_means,
     }
+    det_rates = [
+        r.get("deterministic_pass_rate")
+        for r in results
+        if isinstance(r.get("deterministic_pass_rate"), (int, float))
+    ]
+    if det_rates:
+        aggregate["deterministic_pass_rate"] = round(sum(det_rates) / len(det_rates), 4)
 
     if task0036_rubric:
         t36_composites = [
@@ -1144,6 +1196,7 @@ def run_evaluation(
         "metadata": {
             "date": datetime.now().isoformat(),
             "model": model,
+            "judge_model": judge_model,
             "api_version": API_VERSION,
             "prompt_variant": prompt_variant,
             "prompt_variant_name": variant_info["name"],
@@ -1174,7 +1227,7 @@ def _print_summary_table(results: list[dict], aggregate: dict, model: str, today
 
     print(f"EVALUATION RESULTS \u2014 {model} \u2014 {prompt_variant} ({variant_info['name']}) \u2014 {today}")
     print("═" * (name_w + 1 + len(DIMENSIONS) * (col_w + 1) + col_w + 2))
-    print(f"{'Scenario':<{name_w}} {header_dims} {'AVG':>{col_w}}")
+    print(f"{'Scenario':<{name_w}} {header_dims} {'AVG':>{col_w}} {'DET':>{col_w}}")
     print("─" * (name_w + 1 + len(DIMENSIONS) * (col_w + 1) + col_w + 2))
 
     for r in results:
@@ -1185,7 +1238,9 @@ def _print_summary_table(results: list[dict], aggregate: dict, model: str, today
             scores_str += f" {val:>{col_w}}"
         comp = r["evaluation"]["composite_score"]
         comp_str = f"{comp:.1f}" if isinstance(comp, (int, float)) else str(comp)
-        print(f"{name:<{name_w}}{scores_str} {comp_str:>{col_w}}")
+        det_rate = r.get("deterministic_pass_rate")
+        det_str = f"{det_rate:.0%}" if isinstance(det_rate, (int, float)) else "?"
+        print(f"{name:<{name_w}}{scores_str} {comp_str:>{col_w}} {det_str:>{col_w}}")
 
     print("─" * (name_w + 1 + len(DIMENSIONS) * (col_w + 1) + col_w + 2))
 
@@ -1197,7 +1252,9 @@ def _print_summary_table(results: list[dict], aggregate: dict, model: str, today
         means_str += f" {val:>{col_w}}" if val is not None else f" {'?':>{col_w}}"
     mean_comp = aggregate.get("mean_composite")
     mean_comp_str = f"{mean_comp:.1f}" if mean_comp is not None else "?"
-    print(f"{'MEAN':<{name_w}}{means_str} {mean_comp_str:>{col_w}}")
+    mean_det = aggregate.get("deterministic_pass_rate")
+    mean_det_str = f"{mean_det:.0%}" if isinstance(mean_det, (int, float)) else "?"
+    print(f"{'MEAN':<{name_w}}{means_str} {mean_comp_str:>{col_w}} {mean_det_str:>{col_w}}")
     print()
 
 
@@ -1223,6 +1280,11 @@ if __name__ == "__main__":
         help=f"Azure OpenAI deployment name (default: {DEFAULT_MODEL})",
     )
     parser.add_argument(
+        "--judge-model",
+        default=DEFAULT_JUDGE_MODEL,
+        help="Model to use for LLM judge (defaults to AZURE_OPENAI_JUDGE_DEPLOYMENT env var)",
+    )
+    parser.add_argument(
         "--prompt-variant",
         default="v0",
         choices=list(PROMPT_VARIANTS.keys()),
@@ -1240,6 +1302,7 @@ if __name__ == "__main__":
         args.model,
         args.output,
         args.prompt_variant,
+        judge_model=args.judge_model,
         task0036_rubric=args.task0036_rubric,
     )
 

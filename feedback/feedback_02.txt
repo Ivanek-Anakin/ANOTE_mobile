@@ -1,0 +1,84 @@
+ zpráva vygenerovaná aplikací ANOTE
+Datum: 28. 05. 2026
+Typ návštěvy: Automatická detekce
+
+---
+
+Lékařská zpráva
+
+Identifikace pacienta:
+- Jméno: Jiří Kuba
+- Věk / r. narození: narozen 1986
+- Datum návštěvy: 28. 05. 2026
+
+NO (Nynější onemocnění):
+- Hlavní problém: únava, horečka, pocení při probuzení, bolesti těla, celkové zhoršení stavu působící pět dní, poslání manželkou kvůli zhoršujícímu se stavu a přetrvávající horečce.
+- Trvání potíží: asi 5 dní.
+- Charakteristika: únava s výraznou slabostí po chůzi po bytě, pocení po probuzení, bez bolesti hlavy ani jiných lokalizovaných bolestí, nevolnost či zvracení neguje, kašel neguje, chuť k jídlu zde v posledních dnech snížená. Řekl, že vykašlává žluté sputu a v něm možná krev ( asi nerozumněl slovu sputum)
+- Provokační/úlevové faktory: únava se stupňuje po aktivitě, nutnost opakovaného ulehnutí po chůzi (po bytě).
+- Negace: kašel bez přítomnosti doma, zvracení neguje, zvracení neguje, nechutenství pouze v posledních dnech, bolest neguje.
+
+RA (Rodinná anamnéza):
+- Rodiče žijí, jinak bez závažných onemocnění.
+- Má bratra.
+- Děti: nemá.
+- Jiná závažná onemocnění v rodině neuvedena.
+
+OA (Osobní anamnéza):
+- Chronická nemoc: léčen u policie (pravděpodobně mylný přepis, patrně poliklinika nebo onemocnění spojené s krevní terapií). <FEEDBACK> uvedl nemoc: Polycytemia vera.</FEEDBACK>
+- Docházka na léčbu: asi 2× měsíčně (v některých odpovědích jedna pololetně, rozpor v přepisu).
+- Léčba: krevní transfuze občas <FEEDBACK>(provádí se opak - puštění žilou)</FEEDBACK>, asi jednou ročně.
+- Jiná současná medikace: neuvedena, neužívá jiné léky.
+- Alergie: na pyl jarní  <FEEDBACK>uvedl alergii na Jar</FEEDBACK>, projevuje se červenými rukama a svěděním (pravděpodobně alergická reakce).
+- Prodělané nemoci, operace, hospitalizace: neuvedeno.
+
+FA (Farmakologická anamnéza / aktuální medikace):
+- Užívá léky spojené s léčbou u policie (nejmenován léčivý přípravek).
+- Jinou pravidelnou medikaci neužívá.
+- OTC, doplňky neuvedeny.
+
+AA (Alergologická anamnéza):
+- Alergie na jarní pyl s projevy zarudnutí a svědění rukou.
+- Jiná alergie negována.
+
+GA (Gynekologická anamnéza):
+- Neuvedeno, pacient muž.
+
+SA (Sociální anamnéza):
+- Kouření: zhruba krabička cigaret týdně, obvykle dvakrát týdně při setkání s přáteli.
+- Alkohol: pivo denně dvojité množství <FEEDBACK>2 piva</FEEDBACK>, tvrdý alkohol pije výjimečně (půl flašky vodky jednou týdně v pátek).
+- Drogy: neužívá.
+- Zaměstnání: neuvedeno.
+- Rodinná situace: žije s manželkou, která jej upozornila na zhoršení zdravotního stavu.
+- Pohybová aktivita: neuvedeno.
+- Sociální a psychická zátěž neuvedeny.
+
+Adherence a spolupráce pacienta:
+- Spolupráce během návštěvy bez námitek.
+- Dodržování režimu a léčby neuvedeno.
+- Nepanikařil, navštívil lékaře na doporučení manželky.
+- Další podrobnosti neuvedeny.
+
+Objektivní nález:
+- Poslech plic: plné, jasné dýchání, v pravé bázi slyšitelné chrůpky.
+- Ostatní fyzikální nález neuveden.
+- Vitaly signy neuvedeny.
+
+Hodnocení (pracovní diagnóza / klinický závěr):
+- Suspektní zápal plic s přítomností bazálních chrůpků.
+- Podezření na infekční proces.
+
+Návrh vyšetření:
+- Radiologické vyšetření plic (rentgen).
+- Laboratorní odběry krve (neuvedeno konkrétní rozsahy, ale zmíněno „pošlu krev“).
+
+Návrh terapie:
+- Antibiotická léčba s ohledem na podezření na zápal plic.
+- Možnost hospitalizace dle klinického stavu.
+
+Pokyny a plán kontrol:
+- Udržení kontaktu s lékařem dle výsledků vyšetření.
+- Doporučeno se dostavit na rentgenové vyšetření.
+- Návrat k vyšetření po výsledcích.
+- Kontrola podle dalšího vývoje stavu.
+- Varovné příznaky, při nichž má pacient contactovat lékaře: neuvedeno.

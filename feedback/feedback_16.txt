@@ -1,0 +1,81 @@
+Datum: 13. 05. 2026
+Typ návštěvy: Automatická detekce
+
+---
+
+Lékařská zpráva
+
+Identifikace pacienta:
+- Jméno: neuvedeno
+- Věk / r. narození: 48 let
+- Datum návštěvy: 13. 05. 2026
+
+NO (Nynější onemocnění):
+- Hlavní problém: bolest pravého kolene s otokem, trvá asi 2 měsíce; otok se zhoršil zhruba před týdnem, bolest je nyní výraznější, pacientka nemůže na koleno pořádně stoupnout.
+- Průběh potíží: bolest začala asi 3 dny po volejbalovém zápase, bez úrazu (bez pádu, kopnutí, přetažení). Otok a bolest kolene jsou trvalé, bolest je palpačně výrazná, koleno a oblast až do jedné třetiny stehna a jedné třetiny lýtka zjevně oteklé, částečně zarudlé, bez zvýšené teploty kůže.
+- Negace: jiných kloubů (prsty, ruce, lokty, páteř) bolest neudává, dýchání je bez obtíží, horečku neguje.
+- Popis potíží s dalšími příznaky: zmíněna endometrióza s bolestivou menstruací.
+- Neuvedeno: žádné další specifické symptomy.
+
+RA (Rodinná anamnéza):
+- Sestry zdravé.
+- Neuvedeno jiná závažná onemocnění v rodině.
+
+OA (Osobní anamnéza):
+- Chronická onemocnění: endometrióza, nadváha.
+- Prodělané nemoci: <FEEDBACK>tady jsem jen řekl, že měla klíště a po něm červený flek , aplikace z toho udělala Boreliozu sama-to je velká chyba</FEEDBACK> borelióza asi před 3 lety (kožní léze trvala asi půl roku, pak bez změn), bez pooperačních zákroků.
+- Spontánní potraty: asi 3x.
+- Porody: 2.
+- Neuvedeno jiné závažné onemocnění či hospitalizace.
+
+FA (Farmakologická anamnéza / aktuální medikace):
+- Neuvedeno.
+
+AA (Alergologická anamnéza):
+- Alergie neguje. <FEEDBACK>Tady jsem nic nezmínil, ani se na to neptal.</FEEDBACK>
+
+GA (Gynekologická anamnéza):
+- Menarché ve 13 letech.
+- Menstruace pravidelná, bolestivá (endometrióza).
+- Gravidit a porodů celkem 2, spontánní potraty 3.
+- Neuvedeno gynekologické operace či antikoncepce.
+
+SA (Sociální anamnéza):
+- Kouření: nikdy nekouřila.
+- Alkohol: občas (1-2× týdně s manželem). <FEEDBACK>řekl jsem navíc půl lahve vína</FEEDBACK>
+- Drogy: marihuanu kouřila ve škole, nyní ne.
+- Zaměstnání: učitelka, vyučuje dějepis a zeměpis, bez časové možnosti věnovat se více výuce současné historie <FEEDBACK>-  to jsem se zeptal, jak se vyučuje soudobá historie-tyhle obecné minivstupy v tom dělají hokej, ale to je běžné, že se člověk zeptá na něco takového nebo to sám pacient začne popisovat.</FEEDBACK>
+- Neuvedeno další sociální/zdravotní zátěže, pohybové aktivity kromě volejbalu.
+
+Adherence a spolupráce pacienta:
+- Spolupráce dobrá. <FEEDBACK>Toto bych tam nedával, nic takového jsem neřekl.</FEEDBACK>
+- Neuvedeno odmítání léčby, vyšetření či režimových opatření. <FEEDBACK>Totéž.</FEEDBACK>
+
+Objektivní nález:
+- TK 138/neuvedeno mmHg
+- Tělesná výška 175 cm, váha 80 kg.
+- Teplota 36,5 °C
+- Dechová frekvence 12/min
+- Poslechový nález na hrudníku normální, bez patologických fenoménů, bez bolesti.
+- Pravé koleno a okolí výrazně oteklé, zarudlé, bolestivé na palpace, bez zvýšené teploty.
+- Pulsace tepen normální.
+
+Hodnocení (pracovní diagnóza / klinický závěr):
+- Pravostranný otok a bolesti kolene, pravděpodobně s diferenciální diagnózou zánětu, možná boreliózní etiologie.
+
+Návrh vyšetření:
+- Rentgen kolene.
+- Laboratorní krevní vyšetření.
+- Dále diferenciální diagnostika s ohledem na anamnézu boreliózy.
+
+Návrh terapie:
+- Neuvedeno.
+
+Pokyny a plán kontrol:
+- Návštěva po vyšetřeních, sledování vývoje obtíží.
+- Neuvedeno doporučení ohledně varovných příznaků či dalšího režimu.
+
+Poznámka: Pacientka hrává volejbal, nadváha je přítomná. Neuvedeno další informace o režimu či dietě.
+
+---
+Tato zpráva byla automaticky odeslána aplikací ANOTE.

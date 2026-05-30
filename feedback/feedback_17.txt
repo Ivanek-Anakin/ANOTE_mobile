@@ -1,0 +1,83 @@
+<FEEDBACK>tady jeden rozhovor ze sekce Kontrolní. Systém nepozná, kdo , co v konverzaci řekl. s těmi pacienty, co znáte dlouho, se bavíte o spoustě věcí, které nijak nesouvisí s jejich nemocemi, třeba je to 90%hovoru.</FEEDBACK>
+Lékařská zpráva vygenerovaná aplikací ANOTE
+Datum: 30. 04. 2026
+Typ návštěvy: Automatická detekce
+
+---
+
+Lékařská zpráva
+
+Identifikace pacienta:
+- Jméno: neuvedeno
+- Věk / r. narození: neuvedeno
+
+NO (Nynější onemocnění):
+- Žádné aktuální zdravotní potíže.
+
+- Popisuje zkušenosti s aktualizací softwaru inzulinové pumpy Medtronic 780, upozorňuje na nutnost dodržet třihodinový proces aktualizace a nepřerušovat spojení telefonu s pumpou.
+- Pacient uvádí, že aplikace dělá predikce dávek inzulinu, např. ráno někdy vyžaduje vyšší dávku než večer při podobném jídle, ale pacient se většinou řídí spíše vlastní zkušeností.
+- Zmiňuje různé postřehy na používání pumpy a glukózových senzorů u různých pacientů (manažer, matematik, studenti) a vliv stresu na glykemie (zvýšení glykémie během období se zvýšeným stresem a zkouškami).
+- Domnívá se, že organismy jsou na malé změny glykemie tolerantní, avšak dlouhodobý stres nemusí být ideální.
+- Diskutuje o problémem s technologií, programováním a přetížením AI nástrojů, potýká se s neustálými výpadky služby GPT, která slouží i pro programování.
+- Zmiňuje zkušenost s investicemi, které bývají riskantní, a vlastní zkušenost s finanční ztrátou.
+- Uvádí plán dovolené na poslední týden července (tři týdny), možnost kontroly před tímto termínem nebo v rámci letní kontroly.
+- Vyjádřil zájem o další předpis infuzních katetrů a spolupráci ohledně elektronických objednávek.
+- Popisuje pracovní zatížení, globální situaci v IT a ekonomické problémy podniků v kontextu energetické krize a války.
+- Diskutuje o výzvách s implementací nových technologií v ČR a globální závislost na velkých hráčích na trhu.
+- Došlo k rozhovoru o administrativě a evidenci dat (registr), souhlas s podpisem a sdílením dat pro dobročinné účely.
+
+RA (Rodinná anamnéza):
+- neuvedeno
+
+OA (Osobní anamnéza):
+- neuvedeno
+
+FA (Farmakologická anamnéza / aktuální medikace):
+- Užívá inzulinovou pumpu Medtronic 780.
+- Připravují se aktualizace softwaru pumpy.
+- Pravidelná medikace inzulinem není blíže specifikována.
+- Neuvedena žádná další medikace.
+
+AA (Alergologická anamnéza):
+- alergie neguje
+
+GA (Gynekologická anamnéza):
+- pacient muž – sekce vynechána
+
+SA (Sociální anamnéza):
+- Pacient je „pracující důchodce“.
+- Popisuje profesní a ekonomickou situaci, zahrnující spolupráci s italskými a německými firmami, problémy s energií a výrobou ve sklářském průmyslu.
+- Nepopsáno užívání alkoholu, kouření či jiné toxikomanie – neuvedeno.
+- Sociální a psychická zátěž zmíněna v souvislosti se stresem spojeným s prací a současnou globální situací.
+- Pozoruje rozdíly v pracovním zatížení a pěknou snahu mladší generace bránit se stresu.
+
+Adherence a spolupráce pacienta:
+- Spolupráce obecně dobrá, pacient aktivně komunikuje a sleduje novinky v léčbě.
+- Dodržuje léčbu pumpou.
+- Nedodržování některých doporučení pacient neguje.
+- Plánované kontroly jsou dohodnuty.
+
+Objektivní nález:
+- neuvedeno
+
+Hodnocení (pracovní diagnóza / klinický závěr):
+- neuvedeno
+
+Návrh vyšetření:
+- odběr laboratorních parametrů k datu „13. pondělí“ (konkrétní měsíc neuveden).
+- další vyšetření neuvedeno.
+
+Návrh terapie:
+- prozatím není specifikována změna léčby; plánovány nové zásobníky a infuzní sety pro inzulinovou pumpu.
+- medikace není detailně upřesněna.
+
+Pokyny a plán kontrol:
+- plánovaná kontrola před dovolenou (poslední týden v červenci 2026) nebo v termínu dovolené.
+- poučení o průběhu aktualizace softwaru pumpy a nutnosti nepřerušovat spojení telefonu s pumpou během tříhodinového procesu.
+- doporučení k pravidelnému sledování glykemie a respektování individuálních zkušeností s dávkováním inzulinu.
+- doporučení k podepsání registrace dat a možnému využití pro dobročinné účely.
+
+Konec zprávy.
+
+---
+Tato zpráva byla automaticky odeslána aplikací ANOTE.

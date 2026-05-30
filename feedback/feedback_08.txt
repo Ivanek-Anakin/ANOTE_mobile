@@ -1,0 +1,69 @@
+Lékařská zpráva
+
+Identifikace pacienta:
+- Jméno: neuvedeno
+- Věk / r. narození: neuvedeno
+- Datum návštěvy: 14. 05. 2026
+
+NO (Nynější onemocnění):
+- Hlavní problém: Neuvedeno přesně, ale pacient zmínil problémy s močovými symptomy před 3 dny, které trvaly asi 5 dní a již jsou lepší (moč není zakalená, nepálí ho to).
+- Průběh: Pacient vyslovil obtíže spojené s čekáním v ordinaci (nutnost čekat cca 1 hodinu místo objednané půl hodiny, což špatně snáší)- <FEEDBACK>odehrálo se v jiném městě</FEEDBACK>. Zmiňuje také problémy s nepravidelným režimem (vstávání ve 3 ráno a v 9 dopoledne - <FEEDBACK>spal dříve do 3 nyní do 9</FEEDBACK>), což komplikuje zavedení systému měření. Poslední 3 dny ale spí dobře. Dříve často močoval (každou půl hodinu), nyní tento symptom neuvedl jako přetrvávající. Uvedl, že po jídle měl glykemii 10 mmol/l, běžně mezi 5–7 mmol/l.
+- Negace: Moč už není zakalená, nepálí, jinak obtíže neguje, zvýšenou teplotu neguje.
+
+RA (Rodinná anamnéza):
+- Neuvedeno.
+
+OA (Osobní anamnéza):
+- Neuvedeno konkrétně, ale z kontextu lze předpokládat, že má diabetes s kontrolou glykémie a problémy s kreatininem (vysoký kreatinin dle laboratorních výsledků).
+- Neuvedeno další onemocnění a operace.
+
+FA (Farmakologická anamnéza / aktuální medikace):
+- Neuvedeno konkrétní léky. Pacient zmínil, že nemá potřebu nových léků ("Nepotřebujete? Ne, ne, ne.") a že dochází k problému s vystavením receptů na léky (stovkové dávky se nepíší, ale vyřešené zasíláním SMS přímo lékárně).
+- Neuvedeno další doplňky ani režimy medikace.
+
+AA (Alergologická anamnéza):
+- Alergie neguje.
+
+GA (Gynekologická anamnéza):
+- Pacient muž, sekce neuvedena.
+
+SA (Sociální anamnéza):
+- Neuvedeno explicitně.
+- Pacient popisuje nepravidelný režim s nepravidelným vstáváním (3 hodiny ráno, 9 hodin dopoledne), což komplikuje režimové opatření.
+- Pacient zmiňuje úpravu stravy (začal občas jíst ryby, zeleninu, saláty), zvykl si na to a plánuje pokračovat.
+- Alkohol a jiné neurobí zmínku.
+- Neuvedeno kouření, zaměstnání ani další sociální údaje.
+
+Adherence a spolupráce pacienta:
+- Pacient měl problémy s pravidelným měřením glykemie, neví přesně, jak často a kdy měřit. Nyní po instruktáži sestry chápe, že má měřit dvakrát denně.
+- S měřením souhlasí, léčbu a stravu postupně upravuje.
+- Spolupráce zlepšená, režim měření glykemie dodržuje.
+- Neuvedeno odmítání vyšetření či léčby.
+
+Objektivní nález:
+- Neuvedeno konkrétní fyzikální vyšetření, TK, pulz.
+- Glykemie po jídle 10 mmol/l (udávaná hodnota), běžná hladina 5–7 mmol/l.
+- Kreatinin laboratorně vysoký, přesná hodnota neuvedena.
+
+Hodnocení (pracovní diagnóza / klinický závěr):
+- Diabetes mellitus (kontext glykemické kontroly).
+- Zvýšený kreatinin, potřeba CT břicha z urologické indikace – plánováno.
+- Stav je stabilizovaný, glykemie v lepším pásmu.
+
+Návrh vyšetření:
+- CT břicha indikované z urologických důvodů (dle sdělení pacientovi od kolegů z urologie v Plzni).
+- Kontrola laboratorních hodnot včetně kreatininu.
+
+Návrh terapie:
+- Pacient pokračuje ve stávající léčbě diabetes mellitus, bez upřesnění léků.
+- Důraz na režimová opatření ve stravování (zvýšení podílu ryb, zeleniny, salátů).
+
+Pokyny a plán kontrol:
+- Kontrola za 6 měsíců.
+- Pokyn k pravidelnému měření glykémie 2× denně.
+- Doporučení ke sledování a dodržování režimu.
+- Pacient má zajistit vyšetření CT břicha dle indikace urologie.
+- Návrat při zhoršení stavu či potížích.
+
+---
+Tato zpráva byla automaticky odeslána aplikací ANOTE.

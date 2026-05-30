@@ -1,0 +1,84 @@
+Lékařská zpráva vygenerovaná aplikací ANOTE
+Datum: 21. 05. 2026
+Typ návštěvy: Automatická detekce
+
+---
+
+Lékařská zpráva
+
+Identifikace pacienta:
+- Jméno: Jan Zábor
+- Věk / r. narození: neuvedeno
+- Datum návštěvy: 21. 05. 2026
+
+NO (Nynější onemocnění):
+- Důvod návštěvy: píchání v pravém uchu trvající asi 3 dny, od noci na dnešek trvalé, velmi intenzivní, pacient nemůže kvůli bolesti spát.
+- Průběh: bolest začala před 3 dny, je trvalá, lokalizovaná v pravém uchu, charakter píchavá bolest, provokační a úlevové faktory neuvedeny.
+- Doprovodné příznaky: lehká závrať při chůzi, pocit kolísání, občasná nevolnost, pocit „šoufl“ při vstávání z postele, pak ústup potíží.
+- Subjektivně chuť k jídlu nezměněna, bez bolestí jinde, poruchy močení neguje.
+- Zvýšenou teplotu pacient jen subjektivně cítí („v hlavě teplotu“), objektivně při vyšetření naměřena teplota 38,1 °C.
+- Neuvedeno byl spouštěč bolesti, úraz nebo náraz do hlavy.
+- Pacient měl dříve anémii, nejasné etiologie, sledovanou cca 5 let, byl opakovaně vyšetřován (kolonoskopie atd.).
+- Alergie na vosí bodnutí, jinak neguje alergie.
+- Kouření neguje.
+- Alkohol konzumuje pravidelně asi půl litru vína denně, dlouhodobě.
+- Užití drog občasné, při podnětu.
+
+RA (Rodinná anamnéza):
+- Rodiče žijí, jsou zdraví.
+- Dětí pacient nemá.
+- Jiná závažná onemocnění v rodině neuvedena.
+
+OA (Osobní anamnéza):
+- Přetrvávající anémie, příčina neznámá, medikace železem (1 tableta denně ráno).
+- Jiné chronické nemoci pacient neuvedl.
+- Neuvedeno prodělaných operací či hospitalizací.
+
+FA (Farmakologická anamnéza / aktuální medikace):
+- Užívá železo: 1 tableta denně ráno.
+- Jiná medikace neuvedena.
+
+AA (Alergologická anamnéza):
+- Alergie na vosí bodnutí.
+- Jiné alergie neguje.
+
+GA (Gynekologická anamnéza):
+- neuvedeno (pacient je muž).
+
+SA (Sociální anamnéza):
+- Kouření neguje.
+- Alkohol: půl litru vína denně, dlouhodobě.
+- Drogy: občasné užívání při podnětu.
+- Povolání: počítačový specialista, práce u počítače.
+- Neuvedeno další sociální nebo psychické faktory.
+
+Adherence a spolupráce pacienta:
+- Spolupráce dobrá, medikaci (železo) užívá pravidelně.
+- Neuvedeno odmítání vyšetření nebo léčby.
+
+Objektivní nález:
+- TK: 80 (neuvedeno zda mmHg, pravděpodobně systolický tlak, pravděpodobně překlep).
+- Dýchání: 12/min.
+- Tep (puls): 82/min.
+- Teplota: 38,1 °C.
+- Vyšetření pravého ucha: bubínek „trochu vykalutý“.
+- Auskultace plic, srdce: normální nález.
+- Vyšetření dolních končetin: normální nález.
+- Neuvedeno otoskopický nález detailněji, ucho levé neuvedeno.
+
+Hodnocení (pracovní diagnóza / klinický závěr):
+- Suspektní zánět středního ucha (otitis media).
+
+Návrh vyšetření:
+- Laboratorní vyšetření k průkazu zvýšených zánětlivých parametrů.
+
+Návrh terapie:
+- Možné propíchnutí bubínku v případě potvrzení zánětu a přítomnosti hnisu k úlevě od bolesti.
+- Žádná jiná léčba neuvedena.
+
+Pokyny a plán kontrol:
+- Pacient má počkat na výsledky laboratorního vyšetření.
+- V případě potvrzení zánětu bude řešena léčba propíchnutím bubínku.
+- Kontrola při zhoršení či neúspěchu léčby neuvedena explicitně.
+
+Konec zprávy.

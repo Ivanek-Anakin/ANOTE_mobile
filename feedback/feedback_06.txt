@@ -1,0 +1,69 @@
+Lékařská zpráva vygenerovaná aplikací ANOTE
+Datum: 21. 05. 2026
+Typ návštěvy: Automatická detekce
+
+---
+
+Lékařská zpráva
+
+Identifikace pacienta:
+- Jméno: neuvedeno
+- Věk / r. narození: 52 let
+- Datum návštěvy: 21. 05. 2026
+
+NO (Nynější onemocnění):
+- Dlouhodobě (asi 40 let) trvající diabetes mellitus, pravděpodobně typu 1.
+- Pacient zmínil diskuzi o novém léku brzdícím autoimunitní proces diabetu, který je v Čechách od roku 2006.
+- Sdílí obtíže s individuálním nastavením inzulinové pumpy a senzoru.
+- Popisuje oscilaci glykémií (např. hodnoty 47, 49, 52) jako v pořádku, udržuje cca 80 % hodnot v cílovém rozmezí.
+- Problematika snímače inzulinové pumpy: někdy dojde k výpadku kontaktu senzoru, což ovlivňuje dávkování inzulinu a nutnost výměny senzoru, která trvá většinou 2 hodiny a více; pacient již senzor reklamoval a vyměnil.
+- Pacient dodržuje inzulinovou terapii s individuálním předstižením aplikace asi 5–15 minut před jídlem, zejména u sacharidově bohatých jídel.
+- Zvýšenou teplotu neguje.
+- Jiné aktuální potíže neuvedeny.
+
+RA (Rodinná anamnéza):
+- neuvedeno
+
+OA (Osobní anamnéza):
+- Diabetes mellitus přibližně 40 let.
+- Neuvedeno o dalších chorobách či operacích.
+
+FA (Farmakologická anamnéza / aktuální medikace):
+- Inzulín podávaný pomocí inzulinové pumpy, užívání rychlého inzulínu s aplikací cca 5–15 minut před jídlem.
+- Neuvedena přesná dávka léků.
+- Neuvedeny další léky.
+
+AA (Alergologická anamnéza):
+- alergie neguje
+
+GA:
+- neuvedeno (pravděpodobně muž)
+
+SA (Sociální anamnéza):
+- neuvedeno
+
+Adherence a spolupráce pacienta:
+- Spolupráce dobrá, pacient si sám nastavuje předstih aplikace inzulinu vůči jídlům.
+- Pečlivě sleduje fungování inzulinové pumpy a senzoru, řeší reklamace senzoru.
+- Dodržuje režim inzulinové aplikace a kontrolu glykémií.
+- Neuvedeny problémy s adherencí.
+
+Objektivní nález:
+- Neuvedeno žádné naměřené hodnoty TK, P, SpO2 či fyzikální nález.
+- Glykémie oscilují v rozmezí cca 47–52 (pravděpodobně mmol/l, rozpor v přepisu není upřesněn).
+
+Hodnocení (pracovní diagnóza / klinický závěr):
+- Diabetes mellitus s komplikovanou inzulinovou terapií, stav stabilizovaný s oscilacemi v glykémiích.
+- nutnost monitorace a optimalizace inzulinové pumpy a senzoru.
+
+Návrh vyšetření:
+- Odběry krvi plánovány k datu 3. 9. 2026 (14:30).
+
+Návrh terapie:
+- Pokračování léčby inzulinovou pumpou s důrazem na minimalizaci doby bez senzoru.
+- Předepisování diagnostických proužků (150 ks) a senzorů.
+
+Pokyny a plán kontrol:
+- Kontrola naplánována na 3. 9. 2026 odpoledne.
+- Doporučeno omezit dobu bez dat ze senzoru, sledovat funkčnost zařízení.
+- Pacient upozorněn na nutnost výměny senzoru při výpadku delším než 2 hodiny.

@@ -1,0 +1,95 @@
+<FEEDBACK>tohle je dlouhý rozhovor z 90% o jiných věcech než osobní zdraví. To systém nedokáže rozlišit, je to zmatečné.</FEEDBACK>
+Lékařská zpráva
+
+Identifikace pacienta:
+- Jméno: neuvedeno
+- Věk / r. narození: neuvedeno
+- Datum návštěvy: 14. 05. 2026
+
+NO (Nynější onemocnění):
+- Pacientka udává potíže s kompenzací diabetu, přestala držet intenzivní dietu, má obtíže s odhadem dávkování inzulínu ráno, často zapomíná přidat inzulín, což vede ke kolísání glykémií (nejprve hypoglykémie, následovná hyperglykémie, která musí být řešena).
+- Stav je popisován jako „fáze, kdy spíš blbne, než že by to zvládala“.
+- Potíže trvají pravděpodobně poslední dobu (neuvedeno přesné trvání).
+- Pacientka zmiňuje nespavost kvůli přemýšlení o stavu, únava nebyla explicitně zmíněna.
+- Neuvedena další objektivní symptomatika (mezi výslovně zmíněné negativní příznaky patří neudávání nočních hypoglykémií či jiných komplikací).
+- Celková subjektivní kondice „tak nějak normální“.
+- Pacientka má kontakt s farmaceutickou zástupkyní zaměřenou na silový trojboj, fyzické aktivity limituje současný stav, fyzickou aktivitu se snaží udržet jinak (jízdou na kole), ale nelze ji plně skloubit se stavem.
+- Udává emocionální obtíže s adaptací po skončení intenzivní diety a stres z tohoto stavu.
+- Neuvedena zvýšená teplota, dušnost ani jiné akutní příznaky.
+- Negováno pocit zvládání stavu (stavy deprese či jiné psychiatrické komplikace neuvedeny).
+- Neuvedeny dysurie, nykturie nebo jiné močové obtíže.
+- Neuvedena bolest hlavy, bolest břicha ani jiné symptomy.
+
+RA (Rodinná anamnéza):
+- Neuvedeno.
+
+OA (Osobní anamnéza):
+- Diabetes mellitus (typ neuveden, pravděpodobně typu 1, vzhledem k inzulínové terapii).
+- Neuropatie byla vyšetřována, pacientka uvádí, že ji „nemá“.
+- Byla na hemato-onkologickém vyšetření (neuvedeno přesně, za jakým účelem).
+- Pacientka zmiňuje osobní zkušenost s jinými nemocnými se závažnými chronickými onemocněními (transplantace plic u známé).
+- Neuvedeny jiné závažné onemocnění.
+- Neuvedeny operace.
+
+FA (Farmakologická anamnéza / aktuální medikace):
+- Užívá inzulín, aplikace přes inzulínovou pumpu, avšak s problémy s dávkováním.
+- Používá senzory glukometru a zásobníky pro inzulínovou pumpu, občas mění senzory.
+- Neuvedena další medikace.
+- Neuvedeny volně prodejné léky nebo doplňky.
+
+AA (Alergologická anamnéza):
+- alergie neguje.
+
+GA:
+- Neuvedeno (pohlaví určeno jako žena, ale sekce GA neuvedena, protože nebyly zmíněny gynekologické údaje).
+
+SA (Sociální anamnéza):
+- Pracuje (neuvedena přesná profesní činnost ani zátěž).
+- Zdá se být v kontaktu s rodinou a známými.
+- Uvádí vyšší psychickou zátěž, nespavost.
+- Snaží se fyzicky aktivovat (jízda na kole).
+- Neuvedeno kouření ani užívání alkoholu či drog.
+- Sociální situace komplikována péčí o rodinné příslušníky v domovech důchodců.
+- Pacientka má kontakt na jinou pacientku, vypravuje o sociálních aspektech domovů důchodců.
+- Vyjadřuje postoj k životnímu stylu, psychice a fyzické aktivitě.
+
+Adherence a spolupráce pacienta:
+- Pacientka přiznává problémy s dodržováním doporučené intenzivní diety a s přidáváním inzulínu, což vede ke kolísání glykémií.
+- Spolupráce je obtížná, ale neuvedeno odmítání léčby či kontrol.
+- Komunikace probíhá aktivně, pacientka uvádí kontakt na specialisty a plánované vyšetření.
+- Pacientka plánuje dovolenou v září, možná další kontrolu v tomto období.
+- Převážně spolupráce dobrá, ale režim je složité dodržovat.
+
+Objektivní nález:
+- Neuvedeno žádné fyzikální vyšetření či naměřené hodnoty (TK, puls, SpO2 apod.).
+- Neuvedena teplota, fyzikální nález.
+
+Hodnocení (pracovní diagnóza / klinický závěr):
+- Diabetes mellitus s nestabilní kompenzací inzulínové terapie, výkyvy glykémií kvůli problémům s dávkováním inzulínu a režimovými opatřeními.
+- Negována neuropatie (neuropatie nemá).
+- Jiná diagnóza neuvedena.
+
+Návrh vyšetření:
+- Plánované odběry krve.
+- Neuvedeno žádné další vyšetření.
+- Zmíněna endoskopie, pacientka má komunikovat se specialistou (paní doktorka Malina) emailem pro objednání.
+- Kontrola v září.
+- Neuvedeno konzilia.
+
+Návrh terapie:
+- Pokračování v inzulínové terapii s pumpou.
+- Upozornění na nutnost lepšího dávkování inzulínu, zejména přidávání během dne dle potřeby.
+- Doporučen pokus o zvýšení fyzické aktivity.
+- Dieta aktuálně méně intenzivní, s postupným návratem k lepší kompenzaci.
+- Neuvedena medikace mimo inzulín.
+
+Pokyny a plán kontrol:
+- Kontrola 3. září 2026 v 13:30.
+- Odběry krve naplánovány na 24. a/nebo 31. srpna 2026.
+- Pacientka poučena o nutnosti péče o kompenzaci diabetu, variabilitě inzulínové dávky.
+- Varování před možnými komplikacemi diabetes mellitus vzhledem ke kolísání glykémií.
+- Doporučeno kontaktovat specialistu pro další vyšetření dle potřeby.
+- Neuvedena specifická doporučení k urgentnímu kontaktu.
+- Význam navození postupného režimového zlepšení zdůrazněn.
+
+Konec zprávy.

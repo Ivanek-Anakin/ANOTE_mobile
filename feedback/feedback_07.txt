@@ -1,0 +1,21 @@
+Lékařská zpráva vygenerovaná aplikací ANOTE
+Datum: 21. 05. 2026
+Typ návštěvy: Automatická detekce
+
+---
+
+Lékařská zpráva
+
+Identifikace pacienta:
+- Jméno: neuvedeno
+- Věk / r. narození: 52 let
+- Datum návštěvy: 21. 05. 2026
+
+NO (Nynější onemocnění):
+- Dlouhodobě (asi 40 let) trvající diabetes mellitus, pravděpodobně typu 1.
+- Pacient zmínil diskuzi o novém léku brzdícím autoimunitní proces diabetu, který je v Čechách od roku 2006.<FEEDBACK>to jsem říkal já</FEEDBACK>
+- Sdílí obtíže s individuálním nastavením inzulinové pumpy a senzoru.
+- Popisuje oscilaci glykémií (např. hodnoty 47, 49, 52) jako v pořádku - to jsem říkal já, udržuje cca 80 % hodnot v cílovém rozmezí.
+- Problematika snímače inzulinové pumpy: někdy dojde k výpadku kontaktu senzoru, což ovlivňuje dávkování inzulinu a nutnost výměny senzoru, která trvá většinou 2 hodiny a více; pacient již senzor reklamoval a vyměnil. <FEEDBACK>toto je hodně zjednodušený zápis této části rozhovoru</FEEDBACK>
+- Pacient dodržuje inzulinovou terapii s individuálním předstižením aplikace asi 5–15 minut před jídlem, zejména u sacharidově bohatých jídel.
+- Zvýšenou teplotu neguje. <FEEDBACK>- o teplotě se nemluvilo</FEEDBACK>
