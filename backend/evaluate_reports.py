@@ -670,16 +670,35 @@ named allergies, specific test values, named conditions, causal explanations),
 find the exact transcript quote that supports it.
 If you cannot find the supporting quote, hallucinated=true.
 
+STEP 3 — NOISE INVENTORY
+Read the report sentence by sentence. For EACH sentence apply this test:
+  "Would a GP need this sentence to act on the patient's care?"
+If the answer is NO, the sentence is non-clinical and must be listed in the inventory.
+Examples that FAIL (must be listed):
+  — holiday and travel details ("was on holiday in Croatia for two weeks")
+  — family events and social stories (grandchildren, neighbours, funerals)
+  — car/vehicle problems (car stalled, called service, flat tyre)
+  — weather descriptions with no clinical relevance
+  — emotional filler with no diagnostic or treatment consequence
+  — neighbour's or relative's medical condition (not the patient's)
+IMPORTANT: being present in the transcript does NOT make a sentence clinical.
+Apply the test independently. A sentence can be verbatim from the transcript
+and still be non-clinical noise if a GP would not act on it.
+Let N = count of sentences listed in the noise_inventory.
+
 ===== HARD CAP RULES =====
 
 Let U = count of grounded=false items from Step 1.
 Let H = count of hallucinated=true items from Step 2.
+Let N = count of items in noise_inventory from Step 3.
 
   • U ≥ 1  → hallucinated_negation MUST be ≤ 3
   • U ≥ 2  → hallucinated_negation MUST be ≤ 1
   • H ≥ 1  → factual_accuracy MUST be ≤ 3
   • H ≥ 2  → factual_accuracy MUST be ≤ 2
-  • Any off-topic/non-clinical content in report → noise_resilience MUST be ≤ 3
+  • N ≥ 1  → noise_resilience MUST be ≤ 3
+  • N ≥ 3  → noise_resilience MUST be ≤ 1
+  • Transcript < 100 words AND report > 60 words → composite MUST be ≤ 1.5
 
 ===== SCORING DIMENSIONS =====
 
@@ -707,11 +726,18 @@ Let H = count of hallucinated=true items from Step 2.
    Idiomatic Czech medical documentation register throughout.
    5 = professional. 3 = minor lapses. 1 = unprofessional or informal.
 
-6. NOISE_RESILIENCE (weight 1):
-   Report excludes all non-clinical content: songs, banter, off-topic stories, social
-   filler, background noise. Statements correctly attributed to doctor vs patient.
-   5 = perfectly clean. 3 = minor noise. 1 = significant noise present.
-   Hard cap: if any off-topic content is present, score MUST be ≤ 3.
+6. NOISE_RESILIENCE (weight 2):
+   A medical report must contain ONLY clinically actionable information.
+   The following are noise regardless of whether they appear in the transcript:
+     — personal stories (holidays, travel, family events, grandchildren, neighbours)
+     — non-medical social topics (cars, investments, weather, news, politics, TV)
+     — occupational or daily-life detail with no bearing on the medical condition
+     — emotional filler with no clinical consequence
+   The test is: "Would a GP need this sentence to act on the patient's care?"
+   If the answer is no → it is noise, even if it is verbatim from the transcript.
+   Transcript support does NOT excuse inclusion of non-clinical content.
+   5 = zero non-clinical sentences. 3 = one non-clinical sentence. 1 = multiple.
+   Hard cap: ANY non-clinical sentence present → score MUST be ≤ 3.
 
 7. BREVITY (weight 1):
    Report is concise (target 200–500 words). No parenthetical model reasoning leaked
@@ -725,7 +751,7 @@ Let H = count of hallucinated=true items from Step 2.
 
 ===== COMPOSITE FORMULA =====
 (factual_accuracy×2 + completeness + structure + negation_handling +
- clinical_language + noise_resilience + brevity + hallucinated_negation×2) / 10
+ clinical_language + noise_resilience×2 + brevity + hallucinated_negation×2) / 11
 
 ===== OUTPUT FORMAT =====
 Respond in STRICT JSON only — no text outside the JSON object:
@@ -735,6 +761,9 @@ Respond in STRICT JSON only — no text outside the JSON object:
   ],
   "hallucination_inventory": [
     {"claim": "specific claim from report", "transcript_support": "exact quote or null", "hallucinated": false}
+  ],
+  "noise_inventory": [
+    {"sentence": "verbatim non-clinical sentence from report", "reason": "e.g. holiday travel detail"}
   ],
   "scores": {
     "factual_accuracy":      {"score": N, "reasoning": "..."},
@@ -1097,9 +1126,43 @@ def evaluate_report(client: AzureOpenAI, model: str, transcript: str, report: st
         elif H >= 1:
             _cap("factual_accuracy", 3)
 
+        # Cap: noise_resilience — enforce from noise_inventory evidence.
+        noise_inv = evaluation.get("noise_inventory", [])
+        N_noise = len(noise_inv)
+        evaluation["_N_noise"] = N_noise
+        if N_noise >= 3:
+            _cap("noise_resilience", 1)
+        elif N_noise >= 1:
+            _cap("noise_resilience", 3)
+
+        # Cap: empty-input — transcript too short to produce a valid report.
+        # If transcript < 100 words but report > 60 words (catches full-template
+        # all-neuvedeno reports of ~80–90 words as well as longer ones), the
+        # model fabricated structure from near-nothing. Force composite ≤ 1.5.
+        _transcript_words = len(transcript.split())
+        _report_words = len(report.split())
+        if _transcript_words < 100 and _report_words > 60:
+            _cap("factual_accuracy", 1)
+            _cap("completeness", 1)
+            evaluation["_empty_input_cap_applied"] = True
+            fa = scores.get("factual_accuracy")
+            if isinstance(fa, dict):
+                fa["reasoning"] = (
+                    fa.get("reasoning", "")
+                    + f" [hard-cap applied: empty-input — transcript {_transcript_words} words,"
+                    f" report {_report_words} words → composite ≤ 1.5]"
+                )
+
         evaluation["composite_score"] = _weighted_composite_from_scores(
             scores, fallback=evaluation.get("composite_score")
         )
+
+        # Apply empty-input composite ceiling after recalculation.
+        if evaluation.get("_empty_input_cap_applied"):
+            raw = evaluation["composite_score"]
+            if isinstance(raw, (int, float)) and raw > 1.5:
+                evaluation["composite_score"] = 1.5
+
     elif isinstance(evaluation.get("scores"), dict):
         evaluation["composite_score"] = _weighted_composite_from_scores(
             evaluation.get("scores", {}), fallback=evaluation.get("composite_score")
@@ -1110,7 +1173,7 @@ def evaluate_report(client: AzureOpenAI, model: str, transcript: str, report: st
 
 def _weighted_composite_from_scores(scores: dict, fallback=None):
     """Calculate the 8-dimension weighted composite locally when possible."""
-    weights = {"factual_accuracy": 2, "hallucinated_negation": 2}
+    weights = {"factual_accuracy": 2, "noise_resilience": 2, "hallucinated_negation": 2}
     weighted_sum = 0.0
     total_weight = 0
     for dim in DIMENSIONS:
