@@ -52,9 +52,10 @@ def _build_base_rules() -> str:
         "ZÁSADY\n"
         "- Nevymýšlej ani nedoplňuj informace, které v přepisu nejsou.\n"
         '- Pokud informace chybí, napiš přesně: \u201Eneuvedeno\u201C.\n'
-        "- Pokud je něco výslovně popřeno (typicky po dotazu lékaře), zaznamenej to "
-        "jako NEGACI. Negace má přednost před \u201Eneuvedeno\u201C. Používej formulace jako:\n"
-        '  \u2022 \u201Ealergie neguje\u201C\n'
+        "- Negaci zapiš POUZE tehdy, pokud v přepisu existuje obojí: "
+        "explicitní dotaz lékaře na dané téma a explicitní popření pacientem. "
+        "Negace má přednost před \u201Eneuvedeno\u201C jen při takto doloženém Q&A. "
+        "Používej formulace jako:\n"
         '  \u2022 \u201Ezvýšenou teplotu neguje\u201C\n'
         '  \u2022 \u201Edušnost neguje\u201C\n'
         '  \u2022 \u201Etěžké hypoglykémie neměl/a\u201C\n'
@@ -62,9 +63,9 @@ def _build_base_rules() -> str:
         '  \u2022 \u201Ebez bolestí\u201C\n'
         '  \u2022 \u201Ejinak se cítí dobře\u201C / \u201Ejiné obtíže neguje\u201C\n'
         '  \u2022 \u201Ekomplikace neguje\u201C\n'
-        "- U chronických onemocnění aktivně zaznamenávej negace komplikací "
-        "(těžké hypoglykémie, noční hypoglykémie, retinopatie, neuropatie apod.), "
-        "pokud byly výslovně popřeny.\n"
+        "- U chronických onemocnění nezapisuj negace komplikací preventivně ani "
+        "šablonově. Zapiš je pouze tehdy, pokud se lékař na danou komplikaci "
+        "výslovně zeptal a pacient ji výslovně popřel.\n"
         "- Rozlišuj \u201Epacient výslovně popřel\u201C vs \u201Enebylo zmíněno\u201C \u2014 "
         "první je negace, druhé je \u201Eneuvedeno\u201C.\n"
         "- Zachovej přesná čísla, jednotky, dávkování a frekvenci "
@@ -126,8 +127,8 @@ def _build_system_prompt(today: str) -> str:
         '- Pokud se neřešilo: \u201Eneuvedeno\u201C.\n\n'
         "AA (Alergologická anamnéza):\n"
         '- Alergie (léky, potraviny, pyl\u2026), reakce.\n'
-        '- Pokud výslovně popřeno: \u201Ealergie neguje\u201C.\n'
-        '- Pokud se neřešilo: \u201Eneuvedeno\u201C.\n\n'
+        '- Pouze pokud lékař výslovně zeptal a pacient výslovně popřel: \u201Ealergie neguje\u201C.\n'
+        '- Pokud alergie v přepisu vůbec nezazněly: \u201Eneuvedeno\u201C (nikoli negace).\n\n'
         "GA (Gynekologická/urologická anamnéza \u2013 jen pokud relevantní a zmíněno):\n"
         '- Dle přepisu (cyklus, gravidita, antikoncepce / urologické potíže atd.).\n'
         '- Pokud výslovně popřeno: uveď negaci relevantního symptomu.\n'
@@ -628,6 +629,137 @@ PROMPT_VARIANTS = {
     },
 }
 
+V5H_PROCEDURAL_SUFFIX = PROMPT_VARIANTS["v5h_procedural"]["suffix"]
+
+PROMPT_VARIANTS.update(
+    {
+        "v6a_no_inference": {
+            "name": "v6a — no diagnosis inference",
+            "description": (
+                "TASK-0036: zpřísňuje zákaz inferovat diagnózu nebo klinickou "
+                "kategorii, kterou lékař ani pacient výslovně neřekli. Cíleno na "
+                "ISSUE-01 a podobné případy klinicky plausibilního, ale "
+                "nepodloženého závěru."
+            ),
+            "suffix": (
+                V5H_PROCEDURAL_SUFFIX
+                + "\n\nVARIANTA v6a — BEZ DIAGNOSTICKÉ INFERENCE\n"
+                + "Pravidlo P4 — Diagnózu zapisuj pouze při explicitním výroku:\n"
+                + "Do sekce Hodnocení nebo závěr zapiš pouze diagnózu, podezření, "
+                + "etiologii nebo klinickou kategorii, kterou lékař v přepisu "
+                + "výslovně pojmenoval. Pokud lékař pouze popisuje nález nebo symptom, "
+                + "ponech jej jako popis nálezu a nepřeváděj jej na diagnózu.\n"
+                + "Při nejednoznačném výrazu napiš popis doslovně nebo jej označ jako "
+                + "k upřesnění; nikdy jej nenahrazuj pravděpodobnou diagnózou."
+            ),
+        },
+        "v6b_negation_strict": {
+            "name": "v6b — grounded negation only",
+            "description": (
+                "TASK-0036: zpřísňuje negace tak, aby vznikaly jen z explicitního "
+                "dotazu a explicitního popření v přepisu. Cíleno na ISSUE-02 a na "
+                "šablonové 'alergie neguje'."
+            ),
+            "suffix": (
+                V5H_PROCEDURAL_SUFFIX
+                + "\n\nVARIANTA v6b — NEGACE POUZE Z EXPLICITNÍHO Q&A\n"
+                + "Tato pravidla přepisují obecné příklady negací uvedené výše.\n"
+                + "Negaci zapiš POUZE tehdy, pokud v přepisu existuje obojí: "
+                + "(1) explicitní dotaz lékaře na dané téma a (2) explicitní "
+                + "popření pacientem.\n"
+                + "Pokud téma v přepisu vůbec nezaznělo, napiš 'neuvedeno' a nikdy "
+                + "nevytvářej defaultní negaci.\n"
+                + "Speciálně pro alergie: nikdy nepiš 'alergie neguje', pokud v "
+                + "přepisu není výslovný dotaz na alergie a výslovná záporná odpověď.\n"
+                + "Negace komplikací u chronických onemocnění také zapisuj jen při "
+                + "explicitním Q&A, nikoli preventivně nebo šablonově."
+            ),
+        },
+        "v6c_noise_strict": {
+            "name": "v6c — strict noise blocking",
+            "description": (
+                "TASK-0036: zpřísňuje filtr neklinického obsahu pevným bloklistem a "
+                "úzkou definicí povolené expozice. Cíleno na ISSUE-05 a ISSUE-07."
+            ),
+            "suffix": (
+                V5H_PROCEDURAL_SUFFIX
+                + "\n\nVARIANTA v6c — TVRDÉ BLOKOVÁNÍ NEKLINICKÉHO OBSAHU\n"
+                + "Pravidlo P4 — Do zprávy NESMÍ vstoupit tyto typy vět, ani pokud "
+                + "zazněly v přepisu: dovolená a cestování, počasí, rodinné příběhy, "
+                + "sousedé, auta a doprava, investice, obecné pracovní historky, "
+                + "vyprávění bez přímého vlivu na péči.\n"
+                + "Výjimka existuje pouze pro přímou klinickou expozici nebo jasný "
+                + "rizikový faktor, který mění diagnostiku či léčbu. V takovém případě "
+                + "přenes jen samotnou expozici nebo riziko, nikoli okolní příběh.\n"
+                + "Pokud lze větu zkrátit na samotný symptom, omezení nebo klinický "
+                + "dopad, zapiš jen tento výsledek a celou situaci vynechej."
+            ),
+        },
+        "v6d_brevity": {
+            "name": "v6d — follow-up brevity budget",
+            "description": (
+                "TASK-0036: přidává explicitní délkové a kompresní pravidlo pro "
+                "kontrolní zprávy. Cíleno na ISSUE-07 bez rozvolnění klinické "
+                "úplnosti."
+            ),
+            "suffix": (
+                V5H_PROCEDURAL_SUFFIX
+                + "\n\nVARIANTA v6d — STRUČNOST KONTROLNÍ ZPRÁVY\n"
+                + "U kontrolní návštěvy míř na stručnou zprávu v rozsahu přibližně "
+                + "150 až 300 slov. Pokud přepis obsahuje dlouhé sociální odbočky, "
+                + "zapiš jen klinický dopad na stav, adherenci nebo plán.\n"
+                + "Každá sekce má obsahovat jen nové nebo rozhodující informace pro "
+                + "péči; neopakuj samozřejmé výplně ani nerozepisuj okolnosti, které "
+                + "nevedou k jinému závěru či doporučení."
+            ),
+        },
+        "v6e_asr_safety": {
+            "name": "v6e — ASR ambiguity safety",
+            "description": (
+                "TASK-0036: nutí model označit akusticky nejasné tokeny jako "
+                "nejisté místo jejich převodu na plausibilní klinický termín. "
+                "Cíleno na ISSUE-03."
+            ),
+            "suffix": (
+                V5H_PROCEDURAL_SUFFIX
+                + "\n\nVARIANTA v6e — BEZPEČNOST PŘI ASR NEJISTOTĚ\n"
+                + "Pravidlo P4 — Pokud slovo nebo krátká fráze v přepisu působí jako "
+                + "možná chyba rozpoznávání řeči, neinterpretuj ji jako konkrétní "
+                + "lékařský termín bez explicitní opory v okolním kontextu.\n"
+                + "Není-li význam jistý, ponech výraz doslovně nebo jej označ jako "
+                + "'[k ověření]' místo toho, abys jej nahrazoval pravděpodobnou "
+                + "klinickou kategorií, diagnózou nebo alergenem.\n"
+                + "Při pochybnosti preferuj opatrný popis symptomu před odvážnou "
+                + "interpretací zdrojového slova."
+            ),
+        },
+        "v6f_combined": {
+            "name": "v6f — combined strict variant",
+            "description": (
+                "TASK-0036: kombinuje zákazy inference, grounded-only negace, tvrdý "
+                "noise filter, brevity budget a ASR safety do jedné kandidátní "
+                "varianty pro finální porovnání."
+            ),
+            "suffix": (
+                V5H_PROCEDURAL_SUFFIX
+                + "\n\nVARIANTA v6f — KOMBINOVANÁ PŘÍSNÁ VERZE\n"
+                + "Použij současně všechna tato prioritní pravidla:\n"
+                + "1. Diagnózu, podezření ani klinickou kategorii nezapisuj bez "
+                + "explicitního výroku lékaře v přepisu.\n"
+                + "2. Negaci zapisuj pouze z explicitního dotazu a explicitní "
+                + "záporné odpovědi; bez zmínky tématu vždy napiš 'neuvedeno'.\n"
+                + "3. Dovolená, cestování, rodinné historky, sousedé, auta, počasí a "
+                + "jiný neklinický narativ do zprávy nepatří, pokud nejde o přímou "
+                + "klinickou expozici nebo rizikový faktor.\n"
+                + "4. U kontrolní návštěvy zprávu komprimuj na přibližně 150 až 300 "
+                + "slov a ponech jen informace, které mění péči nebo plán.\n"
+                + "5. Při možné ASR chybě neodhaduj klinický význam; ponech doslovný "
+                + "výraz nebo jej označ jako '[k ověření]'."
+            ),
+        },
+    }
+)
+
 
 def _get_system_prompt(today: str, variant: str = "v0") -> str:
     """Build system prompt with optional variant suffix appended."""
@@ -652,6 +784,10 @@ Find EVERY negation phrase in the report. Include all occurrences of:
   "neguje", "neudává", "neuvádí", "bez [noun]", "jinak se cítí dobře",
   "komplikace neguje", "alergie neguje", "žádné alergie", "RA neg.", "OA neg.",
   "teplotu neguje", "kašel neguje", and any similar denial/absence phrase.
+
+Do NOT include "neuvedeno", "neuvedena", "neuvedeny" or similar placeholders
+in the negation inventory. These mean the topic was not discussed; they are not
+patient denials and must not count as ungrounded negations.
 
 For EACH occurrence:
   a) Copy the exact phrase from the report.
@@ -1106,7 +1242,17 @@ def evaluate_report(client: AzureOpenAI, model: str, transcript: str, report: st
     if isinstance(scores, dict):
         neg_inv = evaluation.get("negation_inventory", [])
         hall_inv = evaluation.get("hallucination_inventory", [])
-        U = sum(1 for n in neg_inv if not n.get("grounded", True))
+
+        def _is_neuvedeno_placeholder(item: dict) -> bool:
+            phrase = str(item.get("phrase", "")).lower()
+            return "neuveden" in phrase
+
+        ignored_neuvedeno_items = [n for n in neg_inv if _is_neuvedeno_placeholder(n)]
+        filtered_neg_inv = [n for n in neg_inv if not _is_neuvedeno_placeholder(n)]
+        if ignored_neuvedeno_items:
+            evaluation["_ignored_neuvedeno_negation_items"] = ignored_neuvedeno_items
+
+        U = sum(1 for n in filtered_neg_inv if not n.get("grounded", True))
         H = sum(1 for h in hall_inv if h.get("hallucinated", False))
 
         def _cap(dim: str, max_val: int) -> None:

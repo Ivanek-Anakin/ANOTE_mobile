@@ -184,9 +184,10 @@ def _build_base_rules() -> str:
         "ZÁSADY\n"
         "- Nevymýšlej ani nedoplňuj informace, které v přepisu nejsou.\n"
         '- Pokud informace chybí, napiš přesně: \u201Eneuvedeno\u201C.\n'
-        "- Pokud je něco výslovně popřeno (typicky po dotazu lékaře), zaznamenej to "
-        "jako NEGACI. Negace má přednost před \u201Eneuvedeno\u201C. Používej formulace jako:\n"
-        '  \u2022 \u201Ealergie neguje\u201C\n'
+        "- Negaci zapiš POUZE tehdy, pokud v přepisu existuje obojí: "
+        "explicitní dotaz lékaře na dané téma a explicitní popření pacientem. "
+        "Negace má přednost před \u201Eneuvedeno\u201C jen při takto doloženém Q&A. "
+        "Používej formulace jako:\n"
         '  \u2022 \u201Ezvýšenou teplotu neguje\u201C\n'
         '  \u2022 \u201Edušnost neguje\u201C\n'
         '  \u2022 \u201Etěžké hypoglykémie neměl/a\u201C\n'
@@ -194,9 +195,9 @@ def _build_base_rules() -> str:
         '  \u2022 \u201Ebez bolestí\u201C\n'
         '  \u2022 \u201Ejinak se cítí dobře\u201C / \u201Ejiné obtíže neguje\u201C\n'
         '  \u2022 \u201Ekomplikace neguje\u201C\n'
-        "- U chronických onemocnění aktivně zaznamenávej negace komplikací "
-        "(těžké hypoglykémie, noční hypoglykémie, retinopatie, neuropatie apod.), "
-        "pokud byly výslovně popřeny.\n"
+        "- U chronických onemocnění nezapisuj negace komplikací preventivně ani "
+        "šablonově. Zapiš je pouze tehdy, pokud se lékař na danou komplikaci "
+        "výslovně zeptal a pacient ji výslovně popřel.\n"
         "- Rozlišuj \u201Epacient výslovně popřel\u201C vs \u201Enebylo zmíněno\u201C \u2014 "
         "první je negace, druhé je \u201Eneuvedeno\u201C.\n"
         "- Zachovej přesná čísla, jednotky, dávkování a frekvenci "
@@ -261,8 +262,8 @@ def _build_sections_initial(today: str) -> str:
         '- Pokud se neřešilo: \u201Eneuvedeno\u201C.\n\n'
         "AA (Alergologická anamnéza):\n"
         '- Alergie (léky, potraviny, pyl\u2026), reakce.\n'
-        '- Pokud výslovně popřeno: \u201Ealergie neguje\u201C.\n'
-        '- Pokud se neřešilo: \u201Eneuvedeno\u201C.\n\n'
+        '- Pouze pokud lékař výslovně zeptal a pacient výslovně popřel: \u201Ealergie neguje\u201C.\n'
+        '- Pokud alergie v přepisu vůbec nezazněly: \u201Eneuvedeno\u201C (nikoli negace).\n\n'
         "GA (Gynekologická anamnéza \u2014 pouze u žen):\n"
         "- Menstruace (menarché, pravidelnost), gravidity, porody, potraty, "
         "menopauza, antikoncepce, gynekologické operace.\n"
