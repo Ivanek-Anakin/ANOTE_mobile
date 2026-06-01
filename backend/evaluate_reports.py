@@ -757,6 +757,89 @@ PROMPT_VARIANTS.update(
                 + "výraz nebo jej označ jako '[k ověření]'."
             ),
         },
+        "v6g_noise_concision": {
+            "name": "v6g — conservative noise concision",
+            "description": (
+                "TASK-0036: konzervativní zpřísnění filtrování sociálního šumu bez "
+                "plošného zkracování klinického obsahu. Cíleno na S01/S07 a na "
+                "zbytkové přenášení neklinického narativu."
+            ),
+            "suffix": (
+                V5H_PROCEDURAL_SUFFIX
+                + "\n\nVARIANTA v6g — KONZERVATIVNÍ FILTR ŠUMU A STRUČNOSTI\n"
+                + "Pravidlo P4 — Neklinický narativ komprimuj na klinický dopad:\n"
+                + "Do zprávy nepatří podrobnosti o dovolené, cestování, počasí, "
+                + "rodinných historkách, sousedech, dopravě, investicích ani běžné "
+                + "konverzaci. Pokud takový obsah nemá přímý dopad na symptomy, "
+                + "diagnostiku, léčbu, režim nebo plán, zcela jej vynech.\n"
+                + "Pokud sociální nebo pracovní informace klinický dopad má, zapiš "
+                + "pouze tento dopad jednou krátkou větou a vynech okolní příběh.\n"
+                + "U kontrolní návštěvy preferuj stručné formulace; neopakuj pozadí, "
+                + "které nemění aktuální hodnocení ani plán."
+            ),
+        },
+        "v6h_neuvedeno_style": {
+            "name": "v6h — section-level neuvedeno style",
+            "description": (
+                "TASK-0036: upravuje styl chybějících informací tak, aby model "
+                "nevytvářel dlouhé věty typu 'neuvedeno zvýšenou teplotu'. Cíleno "
+                "na čitelnost a stabilitu judge okolo placeholderů."
+            ),
+            "suffix": (
+                V5H_PROCEDURAL_SUFFIX
+                + "\n\nVARIANTA v6h — ČISTÝ STYL PRO 'NEUVEDENO'\n"
+                + "Pravidlo P4 — Pokud se celé téma sekce v přepisu neřešilo, napiš "
+                + "v dané sekci pouze 'neuvedeno'. Nevytvářej věty, které vypočítávají, "
+                + "které jednotlivé podotázky nebyly zmíněny.\n"
+                + "Nepoužívej formulace typu 'neuvedeno zvýšenou teplotu', 'neuvedeno "
+                + "explicitní popření' nebo 'neuvedeno, zda...'. Buď zapiš doložený "
+                + "fakt z přepisu, nebo samostatný placeholder 'neuvedeno'.\n"
+                + "Pokud je v sekci několik doložených faktů a některé jiné podtéma "
+                + "chybí, chybějící podtéma nevypisuj; ponech pouze doložené fakty."
+            ),
+        },
+        "v6i_adherence_grounding": {
+            "name": "v6i — adherence evidence only",
+            "description": (
+                "TASK-0036: zpřesňuje sekci adherence/spolupráce tak, aby "
+                "neobsahovala boilerplate 'spolupráce dobrá' bez opory v přepisu."
+            ),
+            "suffix": (
+                V5H_PROCEDURAL_SUFFIX
+                + "\n\nVARIANTA v6i — ADHERENCE POUZE S OPOROU V PŘEPISU\n"
+                + "Pravidlo P4 — Do sekce adherence/spolupráce zapisuj pouze skutečné "
+                + "chování pacienta, které bylo v přepisu výslovně diskutováno: "
+                + "dodržování léčby, vynechávání léků, režimová opatření, odmítnutí "
+                + "vyšetření, nedodané záznamy nebo konkrétní překážky.\n"
+                + "Pouhý pokyn lékaře, doporučení léčby nebo plán kontroly není důkaz "
+                + "adherence. Takový obsah patří do terapie nebo plánu, ne do adherence.\n"
+                + "Formulace 'spolupráce dobrá' nebo 'režim dodržuje' použij pouze tehdy, "
+                + "pokud to z přepisu přímo vyplývá z výroku pacienta nebo lékaře. Jinak "
+                + "napiš 'neuvedeno'."
+            ),
+        },
+        "v6j_combined_minimal": {
+            "name": "v6j — minimal combined candidate",
+            "description": (
+                "TASK-0036: kombinuje pouze nízkorizikové části v6g, v6h a v6i "
+                "nad již portovanou grounded-negation základnou. Kandidát pro další "
+                "finální porovnání po samostatném vyhodnocení dílčích variant."
+            ),
+            "suffix": (
+                V5H_PROCEDURAL_SUFFIX
+                + "\n\nVARIANTA v6j — MINIMÁLNÍ KOMBINOVANÝ KANDIDÁT\n"
+                + "Použij současně tato prioritní pravidla:\n"
+                + "1. Neklinický sociální narativ vynech; pokud má klinický dopad, "
+                + "zapiš pouze tento dopad jednou krátkou větou.\n"
+                + "2. Pokud se celé téma sekce neřešilo, napiš pouze 'neuvedeno'. "
+                + "Nevypisuj, které podotázky nebyly zmíněny, a nepoužívej věty typu "
+                + "'neuvedeno, zda...'.\n"
+                + "3. Adherenci zapisuj pouze při konkrétním výroku o chování pacienta. "
+                + "Pokyn lékaře nebo plán kontroly není adherence.\n"
+                + "4. Zachovej všechny doložené klinické fakty, čísla, dávkování a plán; "
+                + "tato varianta nemá zkracovat klinicky relevantní obsah."
+            ),
+        },
     }
 )
 

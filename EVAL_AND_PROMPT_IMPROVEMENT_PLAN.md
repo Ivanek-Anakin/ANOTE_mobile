@@ -216,7 +216,9 @@ Do this before switching models.
 
 Reason: the v6b base-port produced a large gain with a small prompt change. We still have obvious prompt-level issues, so a model switch now would mix variables and make it harder to learn what actually helped.
 
-Proposed next variants:
+Implemented evaluator variants for the next round:
+
+Status: available in `backend/evaluate_reports.py`; evaluation pending.
 
 | Variant | Target | What to change | Acceptance criterion |
 |---|---|---|---|
@@ -225,11 +227,11 @@ Proposed next variants:
 | `v6i_adherence_grounding` | adherence boilerplate | Adherence only for actual patient behavior; treatment instruction belongs in therapy/plan | No unsupported `spolupráce dobrá` in Hurvínek |
 | `v6j_combined_minimal` | candidate final prompt | Combine v6b + accepted parts of v6g/v6h/v6i | Beats current v6b base-port on both datasets |
 
-Recommended sequence:
+Recommended evaluation sequence:
 
-1. Implement `v6h_neuvedeno_style` first. It is low risk and directly reduces judge confusion and awkward text.
-2. Implement `v6i_adherence_grounding` second.
-3. Implement a conservative `v6g_noise_concision` third.
+1. Evaluate `v6h_neuvedeno_style` first. It is low risk and directly reduces judge confusion and awkward text.
+2. Evaluate `v6i_adherence_grounding` second.
+3. Evaluate conservative `v6g_noise_concision` third.
 4. Only combine accepted changes.
 
 Do not revive `v6d_brevity` as originally written. It was too blunt.
@@ -366,17 +368,17 @@ Recommended as an experiment after v6g/v6h/v6i, especially for final reports onl
 
 ### Immediate
 
-1. Review and commit v6b base-port and final eval artifacts.
+1. Review committed v6b base-port and final eval artifacts.
 2. Add a short changelog entry or release note for prompt behavior.
 3. Run wider feedback corpus regression if tooling supports it.
 
 ### Next prompt iteration
 
-1. Implement `v6h_neuvedeno_style`.
+1. Evaluate `v6h_neuvedeno_style`.
 2. Evaluate on `testing_scenarios/` and `testing_hurvinek/`.
-3. Implement `v6i_adherence_grounding`.
+3. Evaluate `v6i_adherence_grounding`.
 4. Evaluate again.
-5. Implement conservative `v6g_noise_concision`.
+5. Evaluate conservative `v6g_noise_concision`.
 6. Evaluate again.
 
 ### Model evaluation
