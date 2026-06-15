@@ -37,10 +37,81 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _reportHasEdits = false;
 
   Timer? _warningTimer;
+  late final ProviderSubscription<SessionState> _sessionSubscription;
+  late final ProviderSubscription<String?> _loadedRecordingSubscription;
 
   @override
   void initState() {
     super.initState();
+    _sessionSubscription = ref.listenManual<SessionState>(
+      sessionProvider,
+      (prev, next) {
+        if (prev != null &&
+            prev.status != RecordingStatus.recording &&
+            next.status == RecordingStatus.recording) {
+          final messenger = ScaffoldMessenger.of(context);
+          Future.delayed(const Duration(seconds: 4), () {
+            if (!mounted) return;
+            final fallback =
+                ref.read(sessionProvider.notifier).consumeOfflineFallback();
+            if (fallback != null) {
+              messenger.showSnackBar(SnackBar(
+                content: Text(
+                  'Bez internetu — přepis přepnut na ${fallback == TranscriptionModel.turbo ? "Local" : "Small"} (offline)',
+                ),
+                duration: const Duration(seconds: 4),
+                backgroundColor: Colors.orange.shade700,
+              ));
+            }
+          });
+        }
+
+        final nextIsWarning = _isWarningMessage(next.errorMessage);
+        if (nextIsWarning && next.errorMessage != prev?.errorMessage) {
+          final warningText = next.errorMessage;
+          _warningTimer?.cancel();
+          _warningTimer = Timer(const Duration(seconds: 10), () {
+            if (!mounted) return;
+            final currentMessage = ref.read(sessionProvider).errorMessage;
+            if (currentMessage == warningText) {
+              ref.read(sessionProvider.notifier).clearErrorMessage();
+            }
+          });
+        } else if (!nextIsWarning && next.errorMessage != prev?.errorMessage) {
+          _warningTimer?.cancel();
+        }
+
+        if (prev?.report != next.report && next.report.isNotEmpty && mounted) {
+          setState(() {
+            _showTranscript = false;
+          });
+        }
+
+        if (prev?.status == RecordingStatus.recording &&
+            next.status != RecordingStatus.recording) {
+          if (mounted && _showTranscript) {
+            setState(() => _showTranscript = false);
+          }
+        }
+
+        if (prev?.status != next.status && mounted) {
+          debugPrint('[HomeListen] status ${prev?.status}→${next.status} '
+              '(forcing rebuild)');
+          setState(() {});
+        }
+      },
+    );
+    _loadedRecordingSubscription = ref.listenManual<String?>(
+      loadedRecordingIdProvider,
+      (prev, next) {
+        if (next != null && next != prev && mounted) {
+          setState(() {
+            _showTranscript = false;
+            _reportHasEdits = false;
+          });
+        }
+      },
+    );
     SchedulerBinding.instance.addPostFrameCallback((_) {
       ref.read(sessionProvider.notifier).preloadModel();
     });
@@ -48,6 +119,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   void dispose() {
+    _sessionSubscription.close();
+    _loadedRecordingSubscription.close();
     _warningTimer?.cancel();
     super.dispose();
   }
@@ -187,106 +260,36 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final isWarning = _isWarningMessage(session.errorMessage);
     final loadedFromHistory = ref.watch(loadedRecordingIdProvider) != null;
 
-    // Offline fallback snackbar + warning auto-hide.
-    ref.listen<SessionState>(sessionProvider, (prev, next) {
-      if (prev != null &&
-          prev.status != RecordingStatus.recording &&
-          next.status == RecordingStatus.recording) {
-        final messenger = ScaffoldMessenger.of(context);
-        Future.delayed(const Duration(seconds: 4), () {
-          if (!mounted) return;
-          final fallback =
-              ref.read(sessionProvider.notifier).consumeOfflineFallback();
-          if (fallback != null) {
-            messenger.showSnackBar(SnackBar(
-              content: Text(
-                'Bez internetu — přepis přepnut na ${fallback == TranscriptionModel.turbo ? "Turbo" : "Small"} (offline)',
-              ),
-              duration: const Duration(seconds: 4),
-              backgroundColor: Colors.orange.shade700,
-            ));
-          }
-        });
-      }
-
-      final nextIsWarning = _isWarningMessage(next.errorMessage);
-      if (nextIsWarning && next.errorMessage != prev?.errorMessage) {
-        final warningText = next.errorMessage;
-        _warningTimer?.cancel();
-        _warningTimer = Timer(const Duration(seconds: 10), () {
-          if (!mounted) return;
-          final currentMessage = ref.read(sessionProvider).errorMessage;
-          if (currentMessage == warningText) {
-            ref.read(sessionProvider.notifier).clearErrorMessage();
-          }
-        });
-      } else if (!nextIsWarning && next.errorMessage != prev?.errorMessage) {
-        _warningTimer?.cancel();
-      }
-
-      // When a new report arrives from auto-generation, reset to report view.
-      if (prev?.report != next.report && next.report.isNotEmpty) {
-        if (mounted && _showTranscript) {
-          setState(() => _showTranscript = false);
-        }
-      }
-
-      // When recording transitions to a non-recording state, always drop
-      // back to report view so the next session starts fresh with the
-      // correct panel visible.
-      if (prev?.status == RecordingStatus.recording &&
-          next.status != RecordingStatus.recording) {
-        if (mounted && _showTranscript) {
-          setState(() => _showTranscript = false);
-        }
-      }
-
-      // Belt-and-suspenders: in Journey B (post-stop "Start" mic-tap), we
-      // observed that `ref.watch(sessionProvider)` in this widget can
-      // become stale after restartRecording() — the listen still fires
-      // but the build does not run, leaving the recording indicator and
-      // transcript view visible after status returns to idle. Forcing a
-      // setState() from the listener on any status change guarantees the
-      // UI reflects the current state regardless of subscription health.
-      if (prev?.status != next.status && mounted) {
-        // ignore: avoid_print
-        print('[HomeListen] status ${prev?.status}→${next.status} '
-            '(forcing rebuild)');
-        setState(() {});
-      }
-    });
-
-    // When a recording is loaded from history, force report view + clear edits.
-    ref.listen<String?>(loadedRecordingIdProvider, (prev, next) {
-      if (next != null && next != prev && mounted) {
-        setState(() {
-          _showTranscript = false;
-          _reportHasEdits = false;
-        });
-      }
-    });
-
     // Show the transcript automatically while recording.
     final effectiveShowTranscript = _reportHasEdits
         ? false
         : (session.status == RecordingStatus.recording || _showTranscript);
 
     // ignore: avoid_print
-    print('[HomeBuild] status=${session.status} '
+    debugPrint('[HomeBuild] status=${session.status} '
         '_showTranscript=$_showTranscript '
         'effectiveShowTranscript=$effectiveShowTranscript '
         'tLen=${session.transcript.length} rLen=${session.report.length}');
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ANOTE'),
-        actions: [
-          IconButton(
-            key: const Key('btn_history'),
-            icon: const Icon(Icons.history),
-            tooltip: 'Historie nahrávek',
-            onPressed: _openHistorySheet,
+        leading: IconButton(
+          key: const Key('btn_history'),
+          icon: const Icon(Icons.history),
+          tooltip: 'Historie nahrávek',
+          onPressed: _openHistorySheet,
+        ),
+        title: const Text(
+          'ANOTE',
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontWeight: FontWeight.w800,
+            fontSize: 20,
+            letterSpacing: 0.5,
           ),
+        ),
+        centerTitle: true,
+        actions: [
           IconButton(
             key: const Key('btn_settings'),
             icon: const Icon(Icons.settings),
@@ -468,17 +471,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             final hasReport = s.report.isNotEmpty;
             final hasTranscript = s.transcript.isNotEmpty;
             final hasAnyContent = hasReport || hasTranscript || isRec;
-            final emailMode =
-                _reportHasEdits || (loadedFromHistory && hasReport);
             final eff = _reportHasEdits ? false : (isRec || _showTranscript);
             if (!hasAnyContent) return const SizedBox.shrink();
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: _ActionRow(
-                emailMode: emailMode,
                 showingTranscript: eff,
-                hasReport: hasReport,
-                hasTranscript: hasTranscript,
                 onToggleView: () {
                   setState(() => _showTranscript = !_showTranscript);
                 },
@@ -553,8 +551,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final hasReport = session.report.isNotEmpty;
     final hasTranscript = session.transcript.isNotEmpty;
     final hasAnyContent = hasReport || hasTranscript || isRecording;
-    final emailMode = _reportHasEdits || (loadedFromHistory && hasReport);
-
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       child: Row(
@@ -578,10 +574,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 const SizedBox(height: 8),
                 if (hasAnyContent)
                   _ActionRow(
-                    emailMode: emailMode,
                     showingTranscript: showTranscript,
-                    hasReport: hasReport,
-                    hasTranscript: hasTranscript,
                     onToggleView: () {
                       setState(() => _showTranscript = !_showTranscript);
                     },
@@ -662,31 +655,28 @@ class _ContentCard extends StatelessWidget {
 
 // ───────────────────────── ActionRow ─────────────────────────
 
-class _ActionRow extends StatelessWidget {
-  final bool emailMode;
+class _ActionRow extends ConsumerWidget {
   final bool showingTranscript;
-  final bool hasReport;
-  final bool hasTranscript;
   final VoidCallback onToggleView;
   final VoidCallback onSendEmail;
   final VoidCallback onCopy;
 
   const _ActionRow({
-    required this.emailMode,
     required this.showingTranscript,
-    required this.hasReport,
-    required this.hasTranscript,
     required this.onToggleView,
     required this.onSendEmail,
     required this.onCopy,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final session = ref.watch(sessionProvider);
+    final hasReport = session.report.isNotEmpty;
+    final hasTranscript = session.transcript.isNotEmpty;
 
     Widget? leftButton;
-    if (emailMode) {
+    if (hasReport) {
       leftButton = OutlinedButton.icon(
         key: const Key('btn_send_email'),
         onPressed: onSendEmail,
@@ -698,12 +688,10 @@ class _ActionRow extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         ),
       );
-    } else if (hasReport || hasTranscript) {
-      // Toggle button. Label reflects what you would switch TO.
-      final canToggle = hasReport && hasTranscript;
+    } else if (hasTranscript) {
       leftButton = OutlinedButton(
         key: const Key('btn_toggle_view'),
-        onPressed: canToggle ? onToggleView : null,
+        onPressed: onToggleView,
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         ),

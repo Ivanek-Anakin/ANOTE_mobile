@@ -1,0 +1,3727 @@
+{
+  "metadata": {
+    "date": "2026-05-31T10:59:38.027791",
+    "model": "gpt-4-1-mini",
+    "judge_model": "gpt-4-1-mini",
+    "api_version": "2025-04-01-preview",
+    "prompt_variant": "v5h_procedural",
+    "prompt_variant_name": "v5h — v5g + procedurální pravidla",
+    "prompt_variant_description": "TASK-0036: stejné jako v5g_principles, navíc tři procedurální pravidla (sociální kontext jako expozice, numerické hodnoty s jednotkou výhradně do objektivního nálezu, povinné ověření citace před zápisem do sekce adherence). Cílem je zlepšit off-topic filtraci, placement numerik a default-fráze v adherenci bez zrcadlení testů a soudce.",
+    "num_scenarios": 7,
+    "scenarios_dir": "/Users/ivananikin/Documents/Ivanek-Anakin/ANOTE_mobile/testing_scenarios"
+  },
+  "results": [
+    {
+      "scenario": "S01_noise_followup",
+      "transcript_words": 486,
+      "report_generation": {
+        "time_s": 6.59,
+        "prompt_tokens": 4260,
+        "completion_tokens": 817,
+        "reasoning_tokens": 0
+      },
+      "report": "Lékařská zpráva\n\nIdentifikace pacienta:\n- Jméno: Král\n- Věk / r. narození: neuvedeno\n- Datum návštěvy: 31. 05. 2026\n\nNO (Nynější onemocnění):\n- Kontrola diabetes mellitus, aktuální stav po poslední kontrole.\n- HbA1c 54 mmol/mol, hodnoty přijatelné, ale ne ideální.\n- Pacient uvádí zvýšený stres v poslední době.\n- Hypoglykémie, třes, pocení, slabost, hodnoty pod 4 mmol/l neguje.\n- Terapie inzulinem: bazální Tresiba 20 jednotek večer, bolusový inzulin podle sliding scale před jídlem.\n- Pacient byl nedávno pracovně v Brně, měl prezentaci, která byla stresující, s následnou únavou.\n- Pacient nemá jiné aktuální obtíže.\n- Zvýšenou teplotu neguje.\n\nRA (Rodinná anamnéza):\n- neuvedeno\n\nOA (Osobní anamnéza):\n- Diabetes mellitus (typ neuveden).\n- Neuvedeno další chronické onemocnění, operace či hospitalizace.\n\nFA (Farmakologická anamnéza / aktuální medikace):\n- Tresiba 20 jednotek večer (bazální inzulin).\n- Bolusový inzulin podle sliding scale před jídlem.\n- Neuvedeno další medikace.\n\nAA (Alergologická anamnéza):\n- alergie neguje\n\nGA (Gynekologická/urologická anamnéza):\n- neuvedeno\n\nSA (Sociální anamnéza):\n- Kouření neuvedeno.\n- Alkohol: občasné užití, pacient plánuje na rodinné oslavě vypít 1–2 skleničky vína s jídlem, nepít nalačno.\n- Zaměstnání: kancelářská práce, sedavé zaměstnání, práce s tabulkami.\n- Pacient nedávno pořídil nové auto Škoda Octavia, spokojenost s autem.\n- Psychická zátěž: zvýšený stres z pracovních povinností a prezentace.\n- Neuvedeno další sociální faktory.\n\nAdherence a spolupráce pacienta:\n- Spolupráce dobrá.\n- Terapie inzulinem dodržuje.\n- Plánuje měřit glykémii při konzumaci alkoholu.\n- Neuvedeno odmítání vyšetření nebo nedodání dokumentace.\n\nObjektivní nález:\n- Neuvedeno.\n\nHodnocení (pracovní diagnóza / klinický závěr):\n- Diabetes mellitus s HbA1c 54 mmol/mol – stav stabilizovaný, ale není ideální.\n- Stresová zátěž s možným vlivem na kompenzaci diabetu.\n\nNávrh vyšetření:\n- Kontrola laboratorních hodnot za 3 měsíce: HbA1c, lipidy, funkce ledvin.\n\nNávrh terapie:\n- Pokračovat v dosavadní inzulinové terapii: bazální Tresiba 20 jednotek večer, bolusový inzulin podle sliding scale před jídlem.\n- Režimová opatření: při konzumaci alkoholu 1–2 skleničky vína s jídlem, nepít nalačno, kontrola glykémie po oslavě.\n\nPokyny a plán kontrol:\n- Kontrola za 3 měsíce s laboratorními odběry.\n- Pacient má kontrolovat glykémii po konzumaci alkoholu.\n- V případě opakovaných nízkých nebo vysokých hodnot glykémie má pacient kontaktovat lékaře dříve.",
+      "evaluation": {
+        "scores": {
+          "factual_accuracy": {
+            "score": 3,
+            "reasoning": "One hallucination: 'Pacient nemá jiné aktuální obtíže.' is stated in report but not supported by transcript; transcript does not explicitly say patient denies other complaints. Also two negations (fever and allergies) are ungrounded, triggering hard cap to factual_accuracy ≤ 3."
+          },
+          "completeness": {
+            "score": 4,
+            "reasoning": "Most relevant clinical content is captured including therapy, lab values, stress, alcohol advice, and social factors. Minor omission: no mention of patient's new car details in NO or OA sections, though present in SA."
+          },
+          "structure": {
+            "score": 5,
+            "reasoning": "All required sections present and correctly ordered; information placed appropriately."
+          },
+          "negation_handling": {
+            "score": 3,
+            "reasoning": "Two negations (fever and allergies) are ungrounded due to lack of explicit Q&A in transcript, indicating one conflation error."
+          },
+          "clinical_language": {
+            "score": 5,
+            "reasoning": "Report uses professional Czech medical terminology and style throughout."
+          },
+          "noise_resilience": {
+            "score": 5,
+            "reasoning": "No off-topic or non-clinical content included in report."
+          },
+          "brevity": {
+            "score": 5,
+            "reasoning": "Report is concise, no filler or boilerplate, single-fact bullets."
+          },
+          "hallucinated_negation": {
+            "score": 1,
+            "reasoning": "U=2 (two ungrounded negations), so score capped at 3. [hard-cap applied: hallucinated_negation capped at 1 due to inventory evidence]",
+            "_original_score": 3
+          }
+        },
+        "composite_score": 3.5,
+        "hallucinations": [
+          "Claim that patient has no other current complaints is not supported by transcript."
+        ],
+        "omissions": [
+          "No explicit mention of fever question and denial in transcript to support 'Zvýšenou teplotu neguje.'",
+          "No allergy question and denial in transcript to support 'alergie neguje'.",
+          "Minor omission of detailed social info about new car in NO or OA sections."
+        ],
+        "summary": "The report is generally accurate and well-structured with professional language and good completeness. However, it includes two ungrounded negations (fever and allergies) and one unsupported clinical claim about absence of other complaints, limiting factual accuracy and negation handling scores.",
+        "negation_inventory": [
+          {
+            "phrase": "Hypoglykémie, třes, pocení, slabost, hodnoty pod 4 mmol/l neguje.",
+            "transcript_support": "Měl jste od poslední kontroly nějakou hypoglykémii, třes, pocení, slabost, hodnoty pod čtyři? Ne, hypoglykémie jsem neměl, nic takového.",
+            "grounded": true
+          },
+          {
+            "phrase": "Zvýšenou teplotu neguje.",
+            "transcript_support": null,
+            "grounded": false
+          },
+          {
+            "phrase": "alergie neguje",
+            "transcript_support": null,
+            "grounded": false
+          }
+        ],
+        "hallucination_inventory": [
+          {
+            "claim": "HbA1c 54 mmol/mol, hodnoty přijatelné, ale ne ideální.",
+            "transcript_support": "Máme výsledky z poslední laboratoře, HbA1c je 54 mmol/mol, což je přijatelné, ale úplně ideální to ještě není.",
+            "hallucinated": false
+          },
+          {
+            "claim": "Terapie inzulinem: bazální Tresiba 20 jednotek večer, bolusový inzulin podle sliding scale před jídlem.",
+            "transcript_support": "Dávky inzulinu máte pořád stejné? Ano, večer Tresibu dvacet jednotek a bolus podle tabulky před jídlem.",
+            "hallucinated": false
+          },
+          {
+            "claim": "Pacient byl nedávno pracovně v Brně, měl prezentaci, která byla stresující, s následnou únavou.",
+            "transcript_support": "A v Brně jste byl pracovně? Jo měl jsem tam minulý týden prezentaci na konferenci, docela stres, asi sto lidí v sále, a já jsem den předtím skoro nespal. Nakonec to dopadlo dobře, ale v pondělí jsem byl úplně vyřízený.",
+            "hallucinated": false
+          },
+          {
+            "claim": "Alkohol: občasné užití, pacient plánuje na rodinné oslavě vypít 1–2 skleničky vína s jídlem, nepít nalačno.",
+            "transcript_support": "Můžu se ještě zeptat, máme rodinnou oslavu a bude tam víno, můžu si dát? Občas ano, jedno až dvě skleničky vína jsou v pořádku, hlavně s jídlem, nepít nalačno a po oslavě si zkontrolujte glykémii.",
+            "hallucinated": false
+          },
+          {
+            "claim": "Pacient nemá jiné aktuální obtíže.",
+            "transcript_support": "Pacient nemá jiné aktuální obtíže.",
+            "hallucinated": true
+          }
+        ],
+        "deterministic_checks": {
+          "total_checks": 21,
+          "passed": 19,
+          "failed": 2,
+          "skipped": 1,
+          "pass_rate": 0.9048,
+          "word_count": 318,
+          "checks": [
+            {
+              "id": "STRUCT-01",
+              "name": "All required sections present",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "All required sections present",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "STRUCT-02",
+              "name": "Section order correct",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Section order matches expected template",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "STRUCT-03",
+              "name": "No duplicate section headers",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No duplicate section headers found",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "LEN-01",
+              "name": "Word count in range",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Word count in range [100, 500]: 318 words",
+              "evidence": "318",
+              "skipped": false
+            },
+            {
+              "id": "LEN-02",
+              "name": "Bullet count per section",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No section has excessive bullet count",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NEG-01",
+              "name": "Temperature negation not hallucinated",
+              "passed": false,
+              "severity": "HIGH",
+              "detail": "'Zvýšenou teplotu neguje' found in report but temperature topic absent from transcript",
+              "evidence": "Zvýšenou teplotu neguje",
+              "skipped": false
+            },
+            {
+              "id": "NEG-02",
+              "name": "Allergy negation not hallucinated",
+              "passed": false,
+              "severity": "HIGH",
+              "detail": "'alergie neguje' found in report but allergy topic absent from transcript",
+              "evidence": "alergie neguje",
+              "skipped": false
+            },
+            {
+              "id": "NEG-03",
+              "name": "No neuvedeno+negation conflation",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No neuvedeno+negation conflation detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NEG-06",
+              "name": "Negation phrase density",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Skipped: transcript supplied — use NEG-01/02 instead",
+              "evidence": "",
+              "skipped": true
+            },
+            {
+              "id": "INFER-01",
+              "name": "No parenthetical inference prose",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No parenthetical reasoning detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "INFER-02",
+              "name": "GA section does not contain meta-commentary",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No GA meta-commentary detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "INFER-03",
+              "name": "No inline reasoning prose outside parentheses",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No inline reasoning detected outside parentheses",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "INFER-04",
+              "name": "No differential diagnosis inference in anamnesis sections",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No misplaced differential diagnosis language detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "PLACE-01",
+              "name": "No action items in Adherence section",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No action items detected in Adherence section",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "PLACE-02",
+              "name": "No subjective values in Objektivní nález",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No subjective wording detected in Objektivní nález",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NOISE-01",
+              "name": "Off-topic keyword detection",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No known off-topic keywords detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NOISE-02",
+              "name": "Doctor's non-clinical questions not in report",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No casual question text detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NOISE-03",
+              "name": "No post-visit events in report",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No post-visit events detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "VERBOSE-01",
+              "name": "Adherence section not template filler",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Adherence section has substantive content alongside filler phrases",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "VERBOSE-02",
+              "name": "SA section does not contain irrelevant workplace detail",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No irrelevant workplace detail detected in SA section",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "EMPTY-01",
+              "name": "Report is not a fully-empty shell",
+              "passed": true,
+              "severity": "CRITICAL",
+              "detail": "11 sections contain substantive content",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "DUP-01",
+              "name": "No duplicate consecutive bullets",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No duplicate consecutive bullets detected",
+              "evidence": "",
+              "skipped": false
+            }
+          ]
+        },
+        "deterministic_pass_rate": 0.9047619047619048
+      },
+      "deterministic_checks": {
+        "total_checks": 21,
+        "passed": 19,
+        "failed": 2,
+        "skipped": 1,
+        "pass_rate": 0.9048,
+        "word_count": 318,
+        "checks": [
+          {
+            "id": "STRUCT-01",
+            "name": "All required sections present",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "All required sections present",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "STRUCT-02",
+            "name": "Section order correct",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Section order matches expected template",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "STRUCT-03",
+            "name": "No duplicate section headers",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No duplicate section headers found",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "LEN-01",
+            "name": "Word count in range",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Word count in range [100, 500]: 318 words",
+            "evidence": "318",
+            "skipped": false
+          },
+          {
+            "id": "LEN-02",
+            "name": "Bullet count per section",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No section has excessive bullet count",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NEG-01",
+            "name": "Temperature negation not hallucinated",
+            "passed": false,
+            "severity": "HIGH",
+            "detail": "'Zvýšenou teplotu neguje' found in report but temperature topic absent from transcript",
+            "evidence": "Zvýšenou teplotu neguje",
+            "skipped": false
+          },
+          {
+            "id": "NEG-02",
+            "name": "Allergy negation not hallucinated",
+            "passed": false,
+            "severity": "HIGH",
+            "detail": "'alergie neguje' found in report but allergy topic absent from transcript",
+            "evidence": "alergie neguje",
+            "skipped": false
+          },
+          {
+            "id": "NEG-03",
+            "name": "No neuvedeno+negation conflation",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No neuvedeno+negation conflation detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NEG-06",
+            "name": "Negation phrase density",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Skipped: transcript supplied — use NEG-01/02 instead",
+            "evidence": "",
+            "skipped": true
+          },
+          {
+            "id": "INFER-01",
+            "name": "No parenthetical inference prose",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No parenthetical reasoning detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "INFER-02",
+            "name": "GA section does not contain meta-commentary",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No GA meta-commentary detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "INFER-03",
+            "name": "No inline reasoning prose outside parentheses",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No inline reasoning detected outside parentheses",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "INFER-04",
+            "name": "No differential diagnosis inference in anamnesis sections",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No misplaced differential diagnosis language detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "PLACE-01",
+            "name": "No action items in Adherence section",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No action items detected in Adherence section",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "PLACE-02",
+            "name": "No subjective values in Objektivní nález",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No subjective wording detected in Objektivní nález",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NOISE-01",
+            "name": "Off-topic keyword detection",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No known off-topic keywords detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NOISE-02",
+            "name": "Doctor's non-clinical questions not in report",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No casual question text detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NOISE-03",
+            "name": "No post-visit events in report",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No post-visit events detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "VERBOSE-01",
+            "name": "Adherence section not template filler",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Adherence section has substantive content alongside filler phrases",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "VERBOSE-02",
+            "name": "SA section does not contain irrelevant workplace detail",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No irrelevant workplace detail detected in SA section",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "EMPTY-01",
+            "name": "Report is not a fully-empty shell",
+            "passed": true,
+            "severity": "CRITICAL",
+            "detail": "11 sections contain substantive content",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "DUP-01",
+            "name": "No duplicate consecutive bullets",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No duplicate consecutive bullets detected",
+            "evidence": "",
+            "skipped": false
+          }
+        ]
+      },
+      "deterministic_pass_rate": 0.9047619047619048
+    },
+    {
+      "scenario": "S02_no_allergy_visit",
+      "transcript_words": 275,
+      "report_generation": {
+        "time_s": 4.88,
+        "prompt_tokens": 3905,
+        "completion_tokens": 652,
+        "reasoning_tokens": 0
+      },
+      "report": "Lékařská zpráva\n\nIdentifikace pacienta:\n- Jméno: paní Marková\n- Věk / r. narození: neuvedeno\n- Datum návštěvy: 31. 05. 2026\n\nNO (Nynější onemocnění):\n- Hlavní problém: bolest pravého ucha s výtokem od úterý (asi 3 dny).\n- Průběh: začátek byl svědění hluboko v uchu, postupně se zhoršila bolest, snížená slyšitelnost na pravé ucho, výtok nažloutlý.\n- Provokační faktory: čištění ucha vatičkami, což mohlo stav zhoršit.\n- Negace: nevolnost neguje, motání hlavy neguje.\n\nRA (Rodinná anamnéza):\n- neuvedeno\n\nOA (Osobní anamnéza):\n- jinak zdravá, neužívá žádné léky, bez chronických onemocnění\n\nFA (Farmakologická anamnéza / aktuální medikace):\n- bez pravidelné medikace\n\nAA (Alergologická anamnéza):\n- alergie neguje\n\nGA (Gynekologická/urologická anamnéza):\n- neuvedeno\n\nSA (Sociální anamnéza):\n- plavání v bazénu 2× týdně\n- neuvedeno další sociální údaje\n\nAdherence a spolupráce pacienta:\n- pacientka přiznala čištění ucha vatičkami, což bylo doporučeno ukončit\n- spolupráce předpokládaná, pacientka souhlasí s léčbou a režimovými opatřeními\n\nObjektivní nález:\n- pravý zvukovod zarudlý, mírně oteklý\n- malé množství serózního výtoku v pravém uchu\n- ušní bubínek čistý, intaktní, bez perforace\n\nHodnocení (pracovní diagnóza / klinický závěr):\n- otitis externa (zánět zevního zvukovodu), typický případ, bez závažných komplikací\n\nNávrh vyšetření:\n- neuvedeno\n\nNávrh terapie:\n- ušní kapky Otobacid, 3 kapky do pravého ucha 3× denně po dobu 7 dnů\n- doporučeno naklonit ucho stranou, aby kapky zůstaly uvnitř alespoň 1 minutu\n- zákaz čištění ucha vatičkami\n- zákaz koupání v bazénu během léčby, ochrana ucha při sprchování vatou namočenou ve vazelíně\n\nPokyny a plán kontrol:\n- kontrola při přetrvávání nebo zhoršení bolesti či výtoku do 4–5 dnů\n- pokud se stav zlepší, není nutná kontrola, léčbu dokončit do konce",
+      "evaluation": {
+        "scores": {
+          "factual_accuracy": {
+            "score": 4,
+            "reasoning": "All clinical facts are supported by transcript except 'alergie neguje' which lacks explicit allergy questioning and denial, causing a minor hallucination."
+          },
+          "completeness": {
+            "score": 5,
+            "reasoning": "Report captures all relevant clinical details including symptom duration, progression, patient habits, treatment, and follow-up instructions."
+          },
+          "structure": {
+            "score": 5,
+            "reasoning": "All required sections are present and correctly ordered with appropriate content placement."
+          },
+          "negation_handling": {
+            "score": 3,
+            "reasoning": "One negation phrase ('alergie neguje') is ungrounded due to missing allergy discussion in transcript."
+          },
+          "clinical_language": {
+            "score": 5,
+            "reasoning": "Report uses professional Czech medical terminology and style throughout."
+          },
+          "noise_resilience": {
+            "score": 5,
+            "reasoning": "No off-topic or non-clinical content present in report."
+          },
+          "brevity": {
+            "score": 5,
+            "reasoning": "Report is concise, focused, and free of filler or boilerplate."
+          },
+          "hallucinated_negation": {
+            "score": 3,
+            "reasoning": "One ungrounded negation phrase found (U=1), limiting score to 3."
+          }
+        },
+        "composite_score": 4.2,
+        "hallucinations": [
+          "Claim of 'alergie neguje' without any allergy question or patient denial in transcript."
+        ],
+        "omissions": [],
+        "summary": "The report is well-structured, clinically accurate, and complete except for one ungrounded negation regarding allergies. Overall, it provides a professional and concise documentation of the visit.",
+        "negation_inventory": [
+          {
+            "phrase": "nevolnost neguje",
+            "transcript_support": "Bylo vám nevolno, motala se vám hlava? Ne nic takového, jen ta bolest a výtok, takový nažloutlý.",
+            "grounded": true
+          },
+          {
+            "phrase": "motání hlavy neguje",
+            "transcript_support": "Bylo vám nevolno, motala se vám hlava? Ne nic takového, jen ta bolest a výtok, takový nažloutlý.",
+            "grounded": true
+          },
+          {
+            "phrase": "alergie neguje",
+            "transcript_support": null,
+            "grounded": false
+          }
+        ],
+        "hallucination_inventory": [
+          {
+            "claim": "ušní kapky Otobacid",
+            "transcript_support": "Předepíšu vám ušní kapky, Otobacid, tři kapky do pravého ucha třikrát denně, sedm dní",
+            "hallucinated": false
+          },
+          {
+            "claim": "otitis externa (zánět zevního zvukovodu)",
+            "transcript_support": "Takže se jedná o zánět zevního zvukovodu, otitis externa, docela typický případ",
+            "hallucinated": false
+          },
+          {
+            "claim": "pravý zvukovod zarudlý, mírně oteklý",
+            "transcript_support": "Zvukovod je zarudlý a mírně oteklý",
+            "hallucinated": false
+          },
+          {
+            "claim": "malé množství serózního výtoku v pravém uchu",
+            "transcript_support": "vidím malé množství serózního výtoku",
+            "hallucinated": false
+          },
+          {
+            "claim": "ušní bubínek čistý, intaktní, bez perforace",
+            "transcript_support": "Ušní bubínek je ale v pořádku, čistý, intaktní, bez perforace",
+            "hallucinated": false
+          }
+        ],
+        "deterministic_checks": {
+          "total_checks": 21,
+          "passed": 20,
+          "failed": 1,
+          "skipped": 1,
+          "pass_rate": 0.9524,
+          "word_count": 241,
+          "checks": [
+            {
+              "id": "STRUCT-01",
+              "name": "All required sections present",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "All required sections present",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "STRUCT-02",
+              "name": "Section order correct",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Section order matches expected template",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "STRUCT-03",
+              "name": "No duplicate section headers",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No duplicate section headers found",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "LEN-01",
+              "name": "Word count in range",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Word count in range [100, 500]: 241 words",
+              "evidence": "241",
+              "skipped": false
+            },
+            {
+              "id": "LEN-02",
+              "name": "Bullet count per section",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No section has excessive bullet count",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NEG-01",
+              "name": "Temperature negation not hallucinated",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No hallucinated temperature negation detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NEG-02",
+              "name": "Allergy negation not hallucinated",
+              "passed": false,
+              "severity": "HIGH",
+              "detail": "'alergie neguje' found in report but allergy topic absent from transcript",
+              "evidence": "alergie neguje",
+              "skipped": false
+            },
+            {
+              "id": "NEG-03",
+              "name": "No neuvedeno+negation conflation",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No neuvedeno+negation conflation detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NEG-06",
+              "name": "Negation phrase density",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Skipped: transcript supplied — use NEG-01/02 instead",
+              "evidence": "",
+              "skipped": true
+            },
+            {
+              "id": "INFER-01",
+              "name": "No parenthetical inference prose",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No parenthetical reasoning detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "INFER-02",
+              "name": "GA section does not contain meta-commentary",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No GA meta-commentary detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "INFER-03",
+              "name": "No inline reasoning prose outside parentheses",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No inline reasoning detected outside parentheses",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "INFER-04",
+              "name": "No differential diagnosis inference in anamnesis sections",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No misplaced differential diagnosis language detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "PLACE-01",
+              "name": "No action items in Adherence section",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No action items detected in Adherence section",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "PLACE-02",
+              "name": "No subjective values in Objektivní nález",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No subjective wording detected in Objektivní nález",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NOISE-01",
+              "name": "Off-topic keyword detection",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No known off-topic keywords detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NOISE-02",
+              "name": "Doctor's non-clinical questions not in report",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No casual question text detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NOISE-03",
+              "name": "No post-visit events in report",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No post-visit events detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "VERBOSE-01",
+              "name": "Adherence section not template filler",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No filler phrases detected in Adherence section",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "VERBOSE-02",
+              "name": "SA section does not contain irrelevant workplace detail",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No irrelevant workplace detail detected in SA section",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "EMPTY-01",
+              "name": "Report is not a fully-empty shell",
+              "passed": true,
+              "severity": "CRITICAL",
+              "detail": "11 sections contain substantive content",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "DUP-01",
+              "name": "No duplicate consecutive bullets",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No duplicate consecutive bullets detected",
+              "evidence": "",
+              "skipped": false
+            }
+          ]
+        },
+        "deterministic_pass_rate": 0.9523809523809523
+      },
+      "deterministic_checks": {
+        "total_checks": 21,
+        "passed": 20,
+        "failed": 1,
+        "skipped": 1,
+        "pass_rate": 0.9524,
+        "word_count": 241,
+        "checks": [
+          {
+            "id": "STRUCT-01",
+            "name": "All required sections present",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "All required sections present",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "STRUCT-02",
+            "name": "Section order correct",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Section order matches expected template",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "STRUCT-03",
+            "name": "No duplicate section headers",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No duplicate section headers found",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "LEN-01",
+            "name": "Word count in range",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Word count in range [100, 500]: 241 words",
+            "evidence": "241",
+            "skipped": false
+          },
+          {
+            "id": "LEN-02",
+            "name": "Bullet count per section",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No section has excessive bullet count",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NEG-01",
+            "name": "Temperature negation not hallucinated",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No hallucinated temperature negation detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NEG-02",
+            "name": "Allergy negation not hallucinated",
+            "passed": false,
+            "severity": "HIGH",
+            "detail": "'alergie neguje' found in report but allergy topic absent from transcript",
+            "evidence": "alergie neguje",
+            "skipped": false
+          },
+          {
+            "id": "NEG-03",
+            "name": "No neuvedeno+negation conflation",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No neuvedeno+negation conflation detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NEG-06",
+            "name": "Negation phrase density",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Skipped: transcript supplied — use NEG-01/02 instead",
+            "evidence": "",
+            "skipped": true
+          },
+          {
+            "id": "INFER-01",
+            "name": "No parenthetical inference prose",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No parenthetical reasoning detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "INFER-02",
+            "name": "GA section does not contain meta-commentary",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No GA meta-commentary detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "INFER-03",
+            "name": "No inline reasoning prose outside parentheses",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No inline reasoning detected outside parentheses",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "INFER-04",
+            "name": "No differential diagnosis inference in anamnesis sections",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No misplaced differential diagnosis language detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "PLACE-01",
+            "name": "No action items in Adherence section",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No action items detected in Adherence section",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "PLACE-02",
+            "name": "No subjective values in Objektivní nález",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No subjective wording detected in Objektivní nález",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NOISE-01",
+            "name": "Off-topic keyword detection",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No known off-topic keywords detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NOISE-02",
+            "name": "Doctor's non-clinical questions not in report",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No casual question text detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NOISE-03",
+            "name": "No post-visit events in report",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No post-visit events detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "VERBOSE-01",
+            "name": "Adherence section not template filler",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No filler phrases detected in Adherence section",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "VERBOSE-02",
+            "name": "SA section does not contain irrelevant workplace detail",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No irrelevant workplace detail detected in SA section",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "EMPTY-01",
+            "name": "Report is not a fully-empty shell",
+            "passed": true,
+            "severity": "CRITICAL",
+            "detail": "11 sections contain substantive content",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "DUP-01",
+            "name": "No duplicate consecutive bullets",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No duplicate consecutive bullets detected",
+            "evidence": "",
+            "skipped": false
+          }
+        ]
+      },
+      "deterministic_pass_rate": 0.9523809523809523
+    },
+    {
+      "scenario": "S03_tick_no_diagnosis",
+      "transcript_words": 376,
+      "report_generation": {
+        "time_s": 5.21,
+        "prompt_tokens": 4084,
+        "completion_tokens": 778,
+        "reasoning_tokens": 0
+      },
+      "report": "Lékařská zpráva\n\nIdentifikace pacienta:\n- Jméno: neuvedeno\n- Věk / r. narození: neuvedeno\n- Datum návštěvy: 31. 05. 2026\n\nNO (Nynější onemocnění):\n- Hlavní problém: červený flek na levém stehně po klíštěti, obava z normálnosti nálezu\n- Trvání: klíště odstraněno asi před pěti dny, zarudnutí se objevilo nejdříve jako malé kolem vpichu, od včerejška se rozšiřuje, kulatý tvar\n- Lokalizace: levé stehno\n- Charakteristika: červený, kruhový flek s lehce vyvýšeným okrajem a světlejším středem, svědění spíše než bolest, citlivost při tlaku\n- Provokační/úlevové faktory: svědí, bolest při zatlačení, bez jiných spouštěčů\n- Doprovodné příznaky: zvýšenou teplotu neguje (teplota kolem 36,5 °C), zimnici neguje, bolesti kloubů neguje, bolest hlavy neguje, zvýšenou únavu neguje\n- Dezinfekce místa po odstranění klíštěte provedena Betadinem\n\nRA (Rodinná anamnéza):\n- neuvedeno\n\nOA (Osobní anamnéza):\n- neuvedeno\n\nFA (Farmakologická anamnéza / aktuální medikace):\n- neuvedeno\n\nAA (Alergologická anamnéza):\n- alergie neguje\n\nGA (Gynekologická/urologická anamnéza):\n- neuvedeno\n\nSA (Sociální anamnéza):\n- neuvedeno\n\nAdherence a spolupráce pacienta:\n- pacient dezinfikoval místo po odstranění klíštěte Betadinem\n- doporučeno sledovat změny, fotit a označovat hranici zarudnutí\n- režimová opatření: šetrná dezinfekce při škrábání, vyvarovat se mačkání a škrábání\n- spolupráce neuvedena explicitně\n\nObjektivní nález:\n- na levém stehně kruhové zarudnutí kolem místa přisátí klíštěte, průměr asi 5–6 cm\n- okraj lehce vyvýšený, střed světlejší\n- kůže není horká, bez hnisání a výrazného otoku\n\nHodnocení (pracovní diagnóza / klinický závěr):\n- suspektní erythema migrans po klíštěti, bez celkových příznaků v současnosti\n\nNávrh vyšetření:\n- kontrola za týden k měření velikosti a posouzení vývoje\n\nNávrh terapie:\n- antibiotika zatím nenasazena\n- při zhoršení (zvětšování zarudnutí, horečka, bolesti kloubů, únava) doporučeno okamžité vyšetření a zahájení léčby doxycyklinem\n\nPokyny a plán kontrol:\n- kontrola za týden\n- pacient má doma sledovat a fotit změny, označit hranici zarudnutí\n- při zhoršení příznaků (zvětšení, horečka, bolesti kloubů, únava) okamžitě kontaktovat lékaře i bez objednání",
+      "evaluation": {
+        "scores": {
+          "factual_accuracy": {
+            "score": 5,
+            "reasoning": "All clinical claims in the report are supported by explicit transcript quotes; no hallucinations found."
+          },
+          "completeness": {
+            "score": 5,
+            "reasoning": "The report captures all relevant clinical details including symptom duration, characteristics, patient adherence, and follow-up plan."
+          },
+          "structure": {
+            "score": 5,
+            "reasoning": "All required sections are present and correctly ordered with information appropriately placed."
+          },
+          "negation_handling": {
+            "score": 3,
+            "reasoning": "One negation phrase 'alergie neguje' is ungrounded as allergies were not discussed in the transcript."
+          },
+          "clinical_language": {
+            "score": 5,
+            "reasoning": "The report uses professional Czech medical terminology and style throughout."
+          },
+          "noise_resilience": {
+            "score": 5,
+            "reasoning": "No off-topic or non-clinical content present in the report."
+          },
+          "brevity": {
+            "score": 5,
+            "reasoning": "The report is concise, focused, and free of filler or boilerplate text."
+          },
+          "hallucinated_negation": {
+            "score": 3,
+            "reasoning": "One ungrounded negation phrase found (U=1), applying the hard cap for hallucinated negation."
+          }
+        },
+        "composite_score": 4.4,
+        "hallucinations": [
+          "alergie neguje - no allergy discussion in transcript"
+        ],
+        "omissions": [],
+        "summary": "The report is factually accurate, complete, well-structured, and professionally written. However, it incorrectly includes a negation of allergies without any allergy-related discussion in the transcript, slightly lowering negation handling and hallucinated negation scores.",
+        "negation_inventory": [
+          {
+            "phrase": "zvýšenou teplotu neguje (teplota kolem 36,5 °C)",
+            "transcript_support": "Měl jste teplotu nebo zimnici? Ne vůbec, teplotu jsem si měřil a normálně kolem šestatřiceti a půl.",
+            "grounded": true
+          },
+          {
+            "phrase": "zimnici neguje",
+            "transcript_support": "Měl jste teplotu nebo zimnici? Ne vůbec, teplotu jsem si měřil a normálně kolem šestatřiceti a půl.",
+            "grounded": true
+          },
+          {
+            "phrase": "bolesti kloubů neguje",
+            "transcript_support": "Bolesti kloubů, kolen, ramen, něco nového? Ne klouby mě nebolí.",
+            "grounded": true
+          },
+          {
+            "phrase": "bolest hlavy neguje",
+            "transcript_support": "Hlava vás nebolí, nejste unavený víc než obvykle? Ne hlava nebolí a únava taky ne, normálně chodím do práce...",
+            "grounded": true
+          },
+          {
+            "phrase": "zvýšenou únavu neguje",
+            "transcript_support": "Hlava vás nebolí, nejste unavený víc než obvykle? Ne hlava nebolí a únava taky ne, normálně chodím do práce...",
+            "grounded": true
+          },
+          {
+            "phrase": "alergie neguje",
+            "transcript_support": null,
+            "grounded": false
+          }
+        ],
+        "hallucination_inventory": [
+          {
+            "claim": "suspektní erythema migrans po klíštěti",
+            "transcript_support": "Tak tady na levém stehně vidím kruhové zarudnutí kolem místa přisátí klíštěte, průměr tak pět až šest centimetrů, okraj je lehce vyvýšený a uprostřed se začíná dělat světlejší projasnění...",
+            "hallucinated": false
+          },
+          {
+            "claim": "dezinfekce místa po odstranění klíštěte provedena Betadinem",
+            "transcript_support": "Dezinfikoval jste to místo potom? Jo dal jsem na to nějakou dezinfekci, doma jsme měli Betadine, tak jsem to tím potřel.",
+            "hallucinated": false
+          },
+          {
+            "claim": "doporučeno sledovat změny, fotit a označovat hranici zarudnutí",
+            "transcript_support": "Doma si to můžete jednou denně vyfotit a klidně si tu hranici jemně označit tužkou, ať víme jestli se to posouvá.",
+            "hallucinated": false
+          },
+          {
+            "claim": "při zhoršení (zvětšování zarudnutí, horečka, bolesti kloubů, únava) doporučeno okamžité vyšetření a zahájení léčby doxycyklinem",
+            "transcript_support": "Kdyby se to zvětšovalo, kdyby se přidala horečka, bolesti kloubů nebo výrazná únava, přijdete okamžitě, i bez objednání, a podle vývoje bychom zahájili léčbu doxycyclinem.",
+            "hallucinated": false
+          },
+          {
+            "claim": "antibiotika zatím nenasazena",
+            "transcript_support": "Teď nemáte celkové příznaky, takže antibiotika hned nenasadíme.",
+            "hallucinated": false
+          }
+        ],
+        "deterministic_checks": {
+          "total_checks": 21,
+          "passed": 20,
+          "failed": 1,
+          "skipped": 1,
+          "pass_rate": 0.9524,
+          "word_count": 278,
+          "checks": [
+            {
+              "id": "STRUCT-01",
+              "name": "All required sections present",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "All required sections present",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "STRUCT-02",
+              "name": "Section order correct",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Section order matches expected template",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "STRUCT-03",
+              "name": "No duplicate section headers",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No duplicate section headers found",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "LEN-01",
+              "name": "Word count in range",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Word count in range [100, 500]: 278 words",
+              "evidence": "278",
+              "skipped": false
+            },
+            {
+              "id": "LEN-02",
+              "name": "Bullet count per section",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No section has excessive bullet count",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NEG-01",
+              "name": "Temperature negation not hallucinated",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No hallucinated temperature negation detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NEG-02",
+              "name": "Allergy negation not hallucinated",
+              "passed": false,
+              "severity": "HIGH",
+              "detail": "'alergie neguje' found in report but allergy topic absent from transcript",
+              "evidence": "alergie neguje",
+              "skipped": false
+            },
+            {
+              "id": "NEG-03",
+              "name": "No neuvedeno+negation conflation",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No neuvedeno+negation conflation detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NEG-06",
+              "name": "Negation phrase density",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Skipped: transcript supplied — use NEG-01/02 instead",
+              "evidence": "",
+              "skipped": true
+            },
+            {
+              "id": "INFER-01",
+              "name": "No parenthetical inference prose",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No parenthetical reasoning detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "INFER-02",
+              "name": "GA section does not contain meta-commentary",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No GA meta-commentary detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "INFER-03",
+              "name": "No inline reasoning prose outside parentheses",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No inline reasoning detected outside parentheses",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "INFER-04",
+              "name": "No differential diagnosis inference in anamnesis sections",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No misplaced differential diagnosis language detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "PLACE-01",
+              "name": "No action items in Adherence section",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No action items detected in Adherence section",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "PLACE-02",
+              "name": "No subjective values in Objektivní nález",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No subjective wording detected in Objektivní nález",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NOISE-01",
+              "name": "Off-topic keyword detection",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No known off-topic keywords detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NOISE-02",
+              "name": "Doctor's non-clinical questions not in report",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No casual question text detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NOISE-03",
+              "name": "No post-visit events in report",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No post-visit events detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "VERBOSE-01",
+              "name": "Adherence section not template filler",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No filler phrases detected in Adherence section",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "VERBOSE-02",
+              "name": "SA section does not contain irrelevant workplace detail",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No irrelevant workplace detail detected in SA section",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "EMPTY-01",
+              "name": "Report is not a fully-empty shell",
+              "passed": true,
+              "severity": "CRITICAL",
+              "detail": "9 sections contain substantive content",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "DUP-01",
+              "name": "No duplicate consecutive bullets",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No duplicate consecutive bullets detected",
+              "evidence": "",
+              "skipped": false
+            }
+          ]
+        },
+        "deterministic_pass_rate": 0.9523809523809523
+      },
+      "deterministic_checks": {
+        "total_checks": 21,
+        "passed": 20,
+        "failed": 1,
+        "skipped": 1,
+        "pass_rate": 0.9524,
+        "word_count": 278,
+        "checks": [
+          {
+            "id": "STRUCT-01",
+            "name": "All required sections present",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "All required sections present",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "STRUCT-02",
+            "name": "Section order correct",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Section order matches expected template",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "STRUCT-03",
+            "name": "No duplicate section headers",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No duplicate section headers found",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "LEN-01",
+            "name": "Word count in range",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Word count in range [100, 500]: 278 words",
+            "evidence": "278",
+            "skipped": false
+          },
+          {
+            "id": "LEN-02",
+            "name": "Bullet count per section",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No section has excessive bullet count",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NEG-01",
+            "name": "Temperature negation not hallucinated",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No hallucinated temperature negation detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NEG-02",
+            "name": "Allergy negation not hallucinated",
+            "passed": false,
+            "severity": "HIGH",
+            "detail": "'alergie neguje' found in report but allergy topic absent from transcript",
+            "evidence": "alergie neguje",
+            "skipped": false
+          },
+          {
+            "id": "NEG-03",
+            "name": "No neuvedeno+negation conflation",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No neuvedeno+negation conflation detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NEG-06",
+            "name": "Negation phrase density",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Skipped: transcript supplied — use NEG-01/02 instead",
+            "evidence": "",
+            "skipped": true
+          },
+          {
+            "id": "INFER-01",
+            "name": "No parenthetical inference prose",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No parenthetical reasoning detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "INFER-02",
+            "name": "GA section does not contain meta-commentary",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No GA meta-commentary detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "INFER-03",
+            "name": "No inline reasoning prose outside parentheses",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No inline reasoning detected outside parentheses",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "INFER-04",
+            "name": "No differential diagnosis inference in anamnesis sections",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No misplaced differential diagnosis language detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "PLACE-01",
+            "name": "No action items in Adherence section",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No action items detected in Adherence section",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "PLACE-02",
+            "name": "No subjective values in Objektivní nález",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No subjective wording detected in Objektivní nález",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NOISE-01",
+            "name": "Off-topic keyword detection",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No known off-topic keywords detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NOISE-02",
+            "name": "Doctor's non-clinical questions not in report",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No casual question text detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NOISE-03",
+            "name": "No post-visit events in report",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No post-visit events detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "VERBOSE-01",
+            "name": "Adherence section not template filler",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No filler phrases detected in Adherence section",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "VERBOSE-02",
+            "name": "SA section does not contain irrelevant workplace detail",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No irrelevant workplace detail detected in SA section",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "EMPTY-01",
+            "name": "Report is not a fully-empty shell",
+            "passed": true,
+            "severity": "CRITICAL",
+            "detail": "9 sections contain substantive content",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "DUP-01",
+            "name": "No duplicate consecutive bullets",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No duplicate consecutive bullets detected",
+            "evidence": "",
+            "skipped": false
+          }
+        ]
+      },
+      "deterministic_pass_rate": 0.9523809523809523
+    },
+    {
+      "scenario": "S04_speaker_attribution",
+      "transcript_words": 375,
+      "report_generation": {
+        "time_s": 6.73,
+        "prompt_tokens": 4093,
+        "completion_tokens": 878,
+        "reasoning_tokens": 0
+      },
+      "report": "Lékařská zpráva\n\nIdentifikace pacienta:\n- Jméno: neuvedeno\n- Věk / r. narození: neuvedeno\n- Datum návštěvy: 31. 05. 2026\n\nNO (Nynější onemocnění):\n- Hlavní problém: časté bolesti hlavy trvající asi 1 měsíc.\n- Frekvence: 2–3× týdně, někdy po práci, někdy o víkendu.\n- Trvání jednotlivých bolestí: 3–4 hodiny.\n- Lokalizace: oboustranně, kolem spánků a přes čelo.\n- Charakter bolesti: tlak, svíravý, ne pulzující, ne jednostranný.\n- Provokační faktory: dlouhé sezení u počítače.\n- Úlevové faktory: ibuprofen 400 mg občas, pomáhá.\n- Doprovodné příznaky: bez aury, bez záblesků, bez poruch vidění, bez nevolnosti, bez nočního buzení bolestí.\n- Citlivost na světlo: ne.\n- Citlivost na hluk: mírná, ale ne vyžadující ležení ve tmě.\n- Spánek: špatný, chodí spát kolem půlnoci, vstává v 6 hodin.\n- Pitný režim: nedostatečný, v práci 2 kávy a 1 sklenice vody, pak až večer.\n- Zvýšenou teplotu neguje.\n\nRA (Rodinná anamnéza):\n- neuvedeno\n\nOA (Osobní anamnéza):\n- Chronická medikace: metoprolol 25 mg ráno, nasazený kardiologem před asi 8 měsíci na bušení srdce, s dobrým efektem.\n- Neuvedeno další onemocnění, operace či hospitalizace.\n\nFA (Farmakologická anamnéza / aktuální medikace):\n- Metoprolol 25 mg 1× denně ráno.\n- Ibuprofen 400 mg občas na bolest hlavy.\n- Neuvedeno další léky, doplňky či OTC.\n\nAA (Alergologická anamnéza):\n- alergie neguje\n\nGA (Gynekologická/urologická anamnéza):\n- neuvedeno\n\nSA (Sociální anamnéza):\n- neuvedeno\n\nAdherence a spolupráce pacienta:\n- Spolupráce dobrá, pacientka je ochotná vyzkoušet doporučená režimová opatření (zvýšení pitného režimu, zlepšení spánku, přestávky od počítače).\n- Neuvedeno odmítání léčby či vyšetření.\n\nObjektivní nález:\n- Neurologicky orientačně bez ložiskového nálezu.\n- TK 118/76 mmHg.\n- Puls pravidelný.\n\nHodnocení (pracovní diagnóza / klinický závěr):\n- Pravděpodobná tenzní bolest hlavy z dehydratace a nedostatku spánku.\n- Neurologicky bez známek závažného onemocnění.\n- Nejsou varovné příznaky.\n\nNávrh vyšetření:\n- neuvedeno\n\nNávrh terapie:\n- Zvýšit pitný režim na alespoň 2 litry denně.\n- Zlepšit spánkový režim (chodit spát o hodinu dříve).\n- Pravidelné přestávky od práce u počítače.\n- Ibuprofen 400 mg nárazově dle potřeby, ne denně.\n- Žádná nová pravidelná medikace.\n\nPokyny a plán kontrol:\n- Kontrola za měsíc, pokud se bolest nelepší nebo se frekvence zvyšuje.\n- Okamžitá návštěva při náhlém zhoršení bolesti, poruchách vidění, slabosti končetin, zvracení nebo horečce.",
+      "evaluation": {
+        "scores": {
+          "factual_accuracy": {
+            "score": 3,
+            "reasoning": "Two negations (zvýšenou teplotu neguje, alergie neguje) are ungrounded, which counts as U=2, triggering a hard cap of factual_accuracy ≤ 3. All other clinical claims are supported by transcript."
+          },
+          "completeness": {
+            "score": 5,
+            "reasoning": "All relevant clinical details from the transcript are captured, including frequency, duration, character of pain, medication, adherence, and recommendations."
+          },
+          "structure": {
+            "score": 5,
+            "reasoning": "All required sections are present and correctly ordered with appropriate content placement."
+          },
+          "negation_handling": {
+            "score": 3,
+            "reasoning": "Two negations (zvýšenou teplotu neguje, alergie neguje) are stated without explicit transcript Q&A, conflating 'neuvedeno' with explicit negation."
+          },
+          "clinical_language": {
+            "score": 5,
+            "reasoning": "Report uses professional Czech medical terminology and style throughout."
+          },
+          "noise_resilience": {
+            "score": 5,
+            "reasoning": "No off-topic or non-clinical content present in the report."
+          },
+          "brevity": {
+            "score": 5,
+            "reasoning": "Report is concise, focused, and free of filler or boilerplate."
+          },
+          "hallucinated_negation": {
+            "score": 1,
+            "reasoning": "U=2 (two ungrounded negations) triggers hard cap of hallucinated_negation ≤ 1."
+          }
+        },
+        "composite_score": 3.6,
+        "hallucinations": [
+          "Zvýšenou teplotu neguje stated without transcript support.",
+          "Alergie neguje stated without transcript support."
+        ],
+        "omissions": [],
+        "summary": "The report is well-structured, complete, and clinically accurate except for two negations (fever and allergies) that lack explicit transcript confirmation, lowering factual accuracy and negation handling scores.",
+        "negation_inventory": [
+          {
+            "phrase": "bez aury",
+            "transcript_support": "Máte před tím nějakou auru, záblesky, poruchu vidění? Ne, nic takového.",
+            "grounded": true
+          },
+          {
+            "phrase": "bez záblesků",
+            "transcript_support": "Máte před tím nějakou auru, záblesky, poruchu vidění? Ne, nic takového.",
+            "grounded": true
+          },
+          {
+            "phrase": "bez poruch vidění",
+            "transcript_support": "Máte před tím nějakou auru, záblesky, poruchu vidění? Ne, nic takového.",
+            "grounded": true
+          },
+          {
+            "phrase": "bez nevolnosti",
+            "transcript_support": "Je vám u toho na zvracení? Ne, nevolnost nemám.",
+            "grounded": true
+          },
+          {
+            "phrase": "bez nočního buzení bolestí",
+            "transcript_support": "Budí vás ta bolest v noci ze spánku? Ne, v noci mě to nebudí.",
+            "grounded": true
+          },
+          {
+            "phrase": "Citlivost na světlo: ne",
+            "transcript_support": "Vadí vám světlo nebo hluk víc než normálně? Světlo ne, hluk možná trochu, ale ne že bych musela ležet ve tmě.",
+            "grounded": true
+          },
+          {
+            "phrase": "Zvýšenou teplotu neguje",
+            "transcript_support": null,
+            "grounded": false
+          },
+          {
+            "phrase": "alergie neguje",
+            "transcript_support": null,
+            "grounded": false
+          }
+        ],
+        "hallucination_inventory": [
+          {
+            "claim": "Pravděpodobná tenzní bolest hlavy z dehydratace a nedostatku spánku.",
+            "transcript_support": "Já si myslím, že to může být z napětí a pravděpodobně i z dehydratace a nedostatku spánku, zkuste víc pít, aspoň dva litry denně, a jít spát o hodinu dřív.",
+            "hallucinated": false
+          },
+          {
+            "claim": "Neurologicky orientačně bez ložiskového nálezu.",
+            "transcript_support": "neurologicky orientačně bez ložiskového nálezu",
+            "hallucinated": false
+          },
+          {
+            "claim": "TK 118/76 mmHg.",
+            "transcript_support": "tlak dnes 118 na 76",
+            "hallucinated": false
+          },
+          {
+            "claim": "Puls pravidelný.",
+            "transcript_support": "puls pravidelný",
+            "hallucinated": false
+          },
+          {
+            "claim": "Chronická medikace: metoprolol 25 mg ráno, nasazený kardiologem před asi 8 měsíci na bušení srdce, s dobrým efektem.",
+            "transcript_support": "Jen metoprolol 25 mg ráno, kardiolog mi přidal ten metoprolol před asi osmi měsíci na ty bušení srdce, od té doby je to lepší.",
+            "hallucinated": false
+          },
+          {
+            "claim": "Ibuprofen 400 mg občas na bolest hlavy.",
+            "transcript_support": "Občas ibuprofen 400, pomůže mi to, ale nechci ho brát pořád.",
+            "hallucinated": false
+          },
+          {
+            "claim": "Neurologicky bez známek závažného onemocnění.",
+            "transcript_support": "Podle popisu a vyšetření to vypadá funkčně, nevidím varovné příznaky",
+            "hallucinated": false
+          },
+          {
+            "claim": "Nejsou varovné příznaky.",
+            "transcript_support": "Podle popisu a vyšetření to vypadá funkčně, nevidím varovné příznaky",
+            "hallucinated": false
+          }
+        ],
+        "deterministic_checks": {
+          "total_checks": 21,
+          "passed": 19,
+          "failed": 2,
+          "skipped": 1,
+          "pass_rate": 0.9048,
+          "word_count": 324,
+          "checks": [
+            {
+              "id": "STRUCT-01",
+              "name": "All required sections present",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "All required sections present",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "STRUCT-02",
+              "name": "Section order correct",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Section order matches expected template",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "STRUCT-03",
+              "name": "No duplicate section headers",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No duplicate section headers found",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "LEN-01",
+              "name": "Word count in range",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Word count in range [100, 500]: 324 words",
+              "evidence": "324",
+              "skipped": false
+            },
+            {
+              "id": "LEN-02",
+              "name": "Bullet count per section",
+              "passed": false,
+              "severity": "LOW",
+              "detail": "Sections with more than 9 bullets: NO (Nynější onemocnění): 13",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NEG-01",
+              "name": "Temperature negation not hallucinated",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No hallucinated temperature negation detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NEG-02",
+              "name": "Allergy negation not hallucinated",
+              "passed": false,
+              "severity": "HIGH",
+              "detail": "'alergie neguje' found in report but allergy topic absent from transcript",
+              "evidence": "alergie neguje",
+              "skipped": false
+            },
+            {
+              "id": "NEG-03",
+              "name": "No neuvedeno+negation conflation",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No neuvedeno+negation conflation detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NEG-06",
+              "name": "Negation phrase density",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Skipped: transcript supplied — use NEG-01/02 instead",
+              "evidence": "",
+              "skipped": true
+            },
+            {
+              "id": "INFER-01",
+              "name": "No parenthetical inference prose",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No parenthetical reasoning detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "INFER-02",
+              "name": "GA section does not contain meta-commentary",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No GA meta-commentary detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "INFER-03",
+              "name": "No inline reasoning prose outside parentheses",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No inline reasoning detected outside parentheses",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "INFER-04",
+              "name": "No differential diagnosis inference in anamnesis sections",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No misplaced differential diagnosis language detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "PLACE-01",
+              "name": "No action items in Adherence section",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No action items detected in Adherence section",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "PLACE-02",
+              "name": "No subjective values in Objektivní nález",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No subjective wording detected in Objektivní nález",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NOISE-01",
+              "name": "Off-topic keyword detection",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No known off-topic keywords detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NOISE-02",
+              "name": "Doctor's non-clinical questions not in report",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No casual question text detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NOISE-03",
+              "name": "No post-visit events in report",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No post-visit events detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "VERBOSE-01",
+              "name": "Adherence section not template filler",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Adherence section has substantive content alongside filler phrases",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "VERBOSE-02",
+              "name": "SA section does not contain irrelevant workplace detail",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No irrelevant workplace detail detected in SA section",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "EMPTY-01",
+              "name": "Report is not a fully-empty shell",
+              "passed": true,
+              "severity": "CRITICAL",
+              "detail": "10 sections contain substantive content",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "DUP-01",
+              "name": "No duplicate consecutive bullets",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No duplicate consecutive bullets detected",
+              "evidence": "",
+              "skipped": false
+            }
+          ]
+        },
+        "deterministic_pass_rate": 0.9047619047619048
+      },
+      "deterministic_checks": {
+        "total_checks": 21,
+        "passed": 19,
+        "failed": 2,
+        "skipped": 1,
+        "pass_rate": 0.9048,
+        "word_count": 324,
+        "checks": [
+          {
+            "id": "STRUCT-01",
+            "name": "All required sections present",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "All required sections present",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "STRUCT-02",
+            "name": "Section order correct",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Section order matches expected template",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "STRUCT-03",
+            "name": "No duplicate section headers",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No duplicate section headers found",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "LEN-01",
+            "name": "Word count in range",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Word count in range [100, 500]: 324 words",
+            "evidence": "324",
+            "skipped": false
+          },
+          {
+            "id": "LEN-02",
+            "name": "Bullet count per section",
+            "passed": false,
+            "severity": "LOW",
+            "detail": "Sections with more than 9 bullets: NO (Nynější onemocnění): 13",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NEG-01",
+            "name": "Temperature negation not hallucinated",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No hallucinated temperature negation detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NEG-02",
+            "name": "Allergy negation not hallucinated",
+            "passed": false,
+            "severity": "HIGH",
+            "detail": "'alergie neguje' found in report but allergy topic absent from transcript",
+            "evidence": "alergie neguje",
+            "skipped": false
+          },
+          {
+            "id": "NEG-03",
+            "name": "No neuvedeno+negation conflation",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No neuvedeno+negation conflation detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NEG-06",
+            "name": "Negation phrase density",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Skipped: transcript supplied — use NEG-01/02 instead",
+            "evidence": "",
+            "skipped": true
+          },
+          {
+            "id": "INFER-01",
+            "name": "No parenthetical inference prose",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No parenthetical reasoning detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "INFER-02",
+            "name": "GA section does not contain meta-commentary",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No GA meta-commentary detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "INFER-03",
+            "name": "No inline reasoning prose outside parentheses",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No inline reasoning detected outside parentheses",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "INFER-04",
+            "name": "No differential diagnosis inference in anamnesis sections",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No misplaced differential diagnosis language detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "PLACE-01",
+            "name": "No action items in Adherence section",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No action items detected in Adherence section",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "PLACE-02",
+            "name": "No subjective values in Objektivní nález",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No subjective wording detected in Objektivní nález",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NOISE-01",
+            "name": "Off-topic keyword detection",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No known off-topic keywords detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NOISE-02",
+            "name": "Doctor's non-clinical questions not in report",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No casual question text detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NOISE-03",
+            "name": "No post-visit events in report",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No post-visit events detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "VERBOSE-01",
+            "name": "Adherence section not template filler",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Adherence section has substantive content alongside filler phrases",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "VERBOSE-02",
+            "name": "SA section does not contain irrelevant workplace detail",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No irrelevant workplace detail detected in SA section",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "EMPTY-01",
+            "name": "Report is not a fully-empty shell",
+            "passed": true,
+            "severity": "CRITICAL",
+            "detail": "10 sections contain substantive content",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "DUP-01",
+            "name": "No duplicate consecutive bullets",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No duplicate consecutive bullets detected",
+            "evidence": "",
+            "skipped": false
+          }
+        ]
+      },
+      "deterministic_pass_rate": 0.9047619047619048
+    },
+    {
+      "scenario": "S05_asr_ambiguity",
+      "transcript_words": 409,
+      "report_generation": {
+        "time_s": 6.48,
+        "prompt_tokens": 4130,
+        "completion_tokens": 750,
+        "reasoning_tokens": 0
+      },
+      "report": "Lékařská zpráva\n\nIdentifikace pacienta:\n- Jméno: Růžička\n- Věk / r. narození: neuvedeno\n- Datum návštěvy: 31. 05. 2026\n\nNO (Nynější onemocnění):\n- Hlavní problém: únava především odpoledne, zarudnutí obličeje, bolesti hlavy (2–3× týdně, tlak v čele a za očima, není nesnesitelná, ale obtěžující).\n- Doba trvání: asi několik týdnů až měsíců neuvedeno.\n- Provokační/úlevové faktory: po odběru krve dočasná úleva bolesti hlavy a zarudnutí obličeje na několik týdnů.\n- Doprovodné příznaky: výjimečné motání hlavy při rychlém vstávání, bez poruch vidění a krvácení z nosu.\n- Kožní obtíže: svědění kůže na rukou po horké sprše, na jaře (duben, květen) červenání a svědění rukou, bez užívání léků, pouze mazání obyčejným krémem.\n- Negace: dušnost neguje, bolest na hrudi neguje, otok lýtka neguje.\n\nRA (Rodinná anamnéza):\n- neuvedeno\n\nOA (Osobní anamnéza):\n- Chronické onemocnění sledované již 2 roky (neuveden název, patrně hematologické).\n- Neuvedeno další onemocnění či operace.\n\nFA (Farmakologická anamnéza / aktuální medikace):\n- Anopyrin ráno, jiná medikace neuvedena.\n\nAA (Alergologická anamnéza):\n- alergie neguje\n\nGA (Gynekologická/urologická anamnéza):\n- neuvedeno\n\nSA (Sociální anamnéza):\n- neuvedeno\n\nAdherence a spolupráce pacienta:\n- Spolupráce dobrá, léky užívá podle doporučení.\n- Dodržování režimu neuvedeno.\n\nObjektivní nález:\n- neuvedeno\n\nHodnocení (pracovní diagnóza / klinický závěr):\n- Trend mírného zvýšení laboratorní hodnoty sledované při hematologickém onemocnění, hodnota byla dříve 14 (jednotky a přesný název nutno ověřit).\n- Klinický obraz odpovídá možnému zvýšení hodnoty, která může způsobovat únavu, zarudnutí obličeje a bolesti hlavy.\n- Nutnost pečlivého sledování stavu.\n\nNávrh vyšetření:\n- Posun odběru krve z plánovaných 3 měsíců na 6 týdnů.\n- Objednání na hematologii na kontrolu příští měsíc s doplněním aktuálních laboratorních výsledků.\n\nNávrh terapie:\n- Neuvedeno změny v medikaci.\n\nPokyny a plán kontrol:\n- Kontrola odběru krve za 6 týdnů.\n- Kontrola u hematologa příští měsíc.\n- Varování k okamžitému kontaktu při výrazné bolesti hlavy, poruše vidění, bolesti na hrudi, dušnosti nebo otoku nohy.",
+      "evaluation": {
+        "scores": {
+          "factual_accuracy": {
+            "score": 3,
+            "reasoning": "One hallucination present: allergy negation stated without any allergy question or patient denial in transcript."
+          },
+          "completeness": {
+            "score": 4,
+            "reasoning": "Most relevant clinical details included; however, duration of symptoms is not specified in report despite being unclear in transcript."
+          },
+          "structure": {
+            "score": 5,
+            "reasoning": "All required sections present and correctly ordered with appropriate content."
+          },
+          "negation_handling": {
+            "score": 3,
+            "reasoning": "One negation phrase (alergie neguje) is ungrounded due to lack of allergy discussion in transcript."
+          },
+          "clinical_language": {
+            "score": 5,
+            "reasoning": "Report uses professional Czech medical terminology and style throughout."
+          },
+          "noise_resilience": {
+            "score": 5,
+            "reasoning": "No off-topic or non-clinical content present in report."
+          },
+          "brevity": {
+            "score": 5,
+            "reasoning": "Report is concise and focused without unnecessary filler."
+          },
+          "hallucinated_negation": {
+            "score": 3,
+            "reasoning": "One ungrounded negation phrase found (U=1), so score capped at 3."
+          }
+        },
+        "composite_score": 3.9,
+        "hallucinations": [
+          "Alergie neguje stated without any allergy question or patient denial in transcript."
+        ],
+        "omissions": [
+          "Duration of symptoms (únava, zarudnutí, bolesti hlavy) not specified in report despite being unclear in transcript."
+        ],
+        "summary": "The report is well-structured, clinically accurate except for an ungrounded allergy negation, and concise. It captures the main clinical points but misses specifying symptom duration and includes one unsupported negation phrase.",
+        "negation_inventory": [
+          {
+            "phrase": "dušnost neguje",
+            "transcript_support": "Dušnost, bolest na hrudi, otok lýtka? Ne, to nemám.",
+            "grounded": true
+          },
+          {
+            "phrase": "bolest na hrudi neguje",
+            "transcript_support": "Dušnost, bolest na hrudi, otok lýtka? Ne, to nemám.",
+            "grounded": true
+          },
+          {
+            "phrase": "otok lýtka neguje",
+            "transcript_support": "Dušnost, bolest na hrudi, otok lýtka? Ne, to nemám.",
+            "grounded": true
+          },
+          {
+            "phrase": "alergie neguje",
+            "transcript_support": null,
+            "grounded": false
+          }
+        ],
+        "hallucination_inventory": [
+          {
+            "claim": "Chronické onemocnění sledované již 2 roky (neuveden název, patrně hematologické).",
+            "transcript_support": "Dobře, s tou vaší policií, co sledujeme už dva roky, je důležité hlídat hodnoty v čase...",
+            "hallucinated": false
+          },
+          {
+            "claim": "Anopyrin ráno, jiná medikace neuvedena.",
+            "transcript_support": "Léky berete stejně? Ano, Anopyrin ráno a jinak nic nového.",
+            "hallucinated": false
+          },
+          {
+            "claim": "Trend mírného zvýšení laboratorní hodnoty sledované při hematologickém onemocnění, hodnota byla dříve 14 (jednotky a přesný název nutno ověřit).",
+            "transcript_support": "Proti minulé kontrole je to mírně výš, není to dramatický skok, ale trend tam je... Minule jste měl odběr kdy? Myslím že v lednu, tehdy jste říkal že ta hodnota byla čtrnáct, ale já nevím čeho.",
+            "hallucinated": false
+          },
+          {
+            "claim": "Klinický obraz odpovídá možnému zvýšení hodnoty, která může způsobovat únavu, zarudnutí obličeje a bolesti hlavy.",
+            "transcript_support": "protože když stoupají, může to dělat právě tlak v hlavě, zarudnutí a únavu.",
+            "hallucinated": false
+          },
+          {
+            "claim": "alergie neguje",
+            "transcript_support": null,
+            "hallucinated": true
+          }
+        ],
+        "deterministic_checks": {
+          "total_checks": 21,
+          "passed": 19,
+          "failed": 2,
+          "skipped": 1,
+          "pass_rate": 0.9048,
+          "word_count": 280,
+          "checks": [
+            {
+              "id": "STRUCT-01",
+              "name": "All required sections present",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "All required sections present",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "STRUCT-02",
+              "name": "Section order correct",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Section order matches expected template",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "STRUCT-03",
+              "name": "No duplicate section headers",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No duplicate section headers found",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "LEN-01",
+              "name": "Word count in range",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Word count in range [100, 500]: 280 words",
+              "evidence": "280",
+              "skipped": false
+            },
+            {
+              "id": "LEN-02",
+              "name": "Bullet count per section",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No section has excessive bullet count",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NEG-01",
+              "name": "Temperature negation not hallucinated",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No hallucinated temperature negation detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NEG-02",
+              "name": "Allergy negation not hallucinated",
+              "passed": false,
+              "severity": "HIGH",
+              "detail": "'alergie neguje' found in report but allergy topic absent from transcript",
+              "evidence": "alergie neguje",
+              "skipped": false
+            },
+            {
+              "id": "NEG-03",
+              "name": "No neuvedeno+negation conflation",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No neuvedeno+negation conflation detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NEG-06",
+              "name": "Negation phrase density",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Skipped: transcript supplied — use NEG-01/02 instead",
+              "evidence": "",
+              "skipped": true
+            },
+            {
+              "id": "INFER-01",
+              "name": "No parenthetical inference prose",
+              "passed": false,
+              "severity": "MEDIUM",
+              "detail": "Found 1 parenthetical reasoning phrase(s)",
+              "evidence": "(neuveden název, patrně hematologické)",
+              "skipped": false
+            },
+            {
+              "id": "INFER-02",
+              "name": "GA section does not contain meta-commentary",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No GA meta-commentary detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "INFER-03",
+              "name": "No inline reasoning prose outside parentheses",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No inline reasoning detected outside parentheses",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "INFER-04",
+              "name": "No differential diagnosis inference in anamnesis sections",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No misplaced differential diagnosis language detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "PLACE-01",
+              "name": "No action items in Adherence section",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No action items detected in Adherence section",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "PLACE-02",
+              "name": "No subjective values in Objektivní nález",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No subjective wording detected in Objektivní nález",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NOISE-01",
+              "name": "Off-topic keyword detection",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No known off-topic keywords detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NOISE-02",
+              "name": "Doctor's non-clinical questions not in report",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No casual question text detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NOISE-03",
+              "name": "No post-visit events in report",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No post-visit events detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "VERBOSE-01",
+              "name": "Adherence section not template filler",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Adherence section has substantive content alongside filler phrases",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "VERBOSE-02",
+              "name": "SA section does not contain irrelevant workplace detail",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No irrelevant workplace detail detected in SA section",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "EMPTY-01",
+              "name": "Report is not a fully-empty shell",
+              "passed": true,
+              "severity": "CRITICAL",
+              "detail": "10 sections contain substantive content",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "DUP-01",
+              "name": "No duplicate consecutive bullets",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No duplicate consecutive bullets detected",
+              "evidence": "",
+              "skipped": false
+            }
+          ]
+        },
+        "deterministic_pass_rate": 0.9047619047619048
+      },
+      "deterministic_checks": {
+        "total_checks": 21,
+        "passed": 19,
+        "failed": 2,
+        "skipped": 1,
+        "pass_rate": 0.9048,
+        "word_count": 280,
+        "checks": [
+          {
+            "id": "STRUCT-01",
+            "name": "All required sections present",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "All required sections present",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "STRUCT-02",
+            "name": "Section order correct",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Section order matches expected template",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "STRUCT-03",
+            "name": "No duplicate section headers",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No duplicate section headers found",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "LEN-01",
+            "name": "Word count in range",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Word count in range [100, 500]: 280 words",
+            "evidence": "280",
+            "skipped": false
+          },
+          {
+            "id": "LEN-02",
+            "name": "Bullet count per section",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No section has excessive bullet count",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NEG-01",
+            "name": "Temperature negation not hallucinated",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No hallucinated temperature negation detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NEG-02",
+            "name": "Allergy negation not hallucinated",
+            "passed": false,
+            "severity": "HIGH",
+            "detail": "'alergie neguje' found in report but allergy topic absent from transcript",
+            "evidence": "alergie neguje",
+            "skipped": false
+          },
+          {
+            "id": "NEG-03",
+            "name": "No neuvedeno+negation conflation",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No neuvedeno+negation conflation detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NEG-06",
+            "name": "Negation phrase density",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Skipped: transcript supplied — use NEG-01/02 instead",
+            "evidence": "",
+            "skipped": true
+          },
+          {
+            "id": "INFER-01",
+            "name": "No parenthetical inference prose",
+            "passed": false,
+            "severity": "MEDIUM",
+            "detail": "Found 1 parenthetical reasoning phrase(s)",
+            "evidence": "(neuveden název, patrně hematologické)",
+            "skipped": false
+          },
+          {
+            "id": "INFER-02",
+            "name": "GA section does not contain meta-commentary",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No GA meta-commentary detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "INFER-03",
+            "name": "No inline reasoning prose outside parentheses",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No inline reasoning detected outside parentheses",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "INFER-04",
+            "name": "No differential diagnosis inference in anamnesis sections",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No misplaced differential diagnosis language detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "PLACE-01",
+            "name": "No action items in Adherence section",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No action items detected in Adherence section",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "PLACE-02",
+            "name": "No subjective values in Objektivní nález",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No subjective wording detected in Objektivní nález",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NOISE-01",
+            "name": "Off-topic keyword detection",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No known off-topic keywords detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NOISE-02",
+            "name": "Doctor's non-clinical questions not in report",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No casual question text detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NOISE-03",
+            "name": "No post-visit events in report",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No post-visit events detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "VERBOSE-01",
+            "name": "Adherence section not template filler",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Adherence section has substantive content alongside filler phrases",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "VERBOSE-02",
+            "name": "SA section does not contain irrelevant workplace detail",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No irrelevant workplace detail detected in SA section",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "EMPTY-01",
+            "name": "Report is not a fully-empty shell",
+            "passed": true,
+            "severity": "CRITICAL",
+            "detail": "10 sections contain substantive content",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "DUP-01",
+            "name": "No duplicate consecutive bullets",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No duplicate consecutive bullets detected",
+            "evidence": "",
+            "skipped": false
+          }
+        ]
+      },
+      "deterministic_pass_rate": 0.9047619047619048
+    },
+    {
+      "scenario": "S06_ambient_noise",
+      "transcript_words": 34,
+      "report_generation": {
+        "time_s": 2.43,
+        "prompt_tokens": 3409,
+        "completion_tokens": 245,
+        "reasoning_tokens": 0
+      },
+      "report": "Lékařská zpráva\n\nIdentifikace pacienta:\n- Jméno: neuvedeno\n- Věk / r. narození: neuvedeno\n- Datum návštěvy: 31. 05. 2026\n\nNO (Nynější onemocnění):\n- neuvedeno\n\nRA (Rodinná anamnéza):\n- neuvedeno\n\nOA (Osobní anamnéza):\n- neuvedeno\n\nFA (Farmakologická anamnéza / aktuální medikace):\n- neuvedeno\n\nAA (Alergologická anamnéza):\n- neuvedeno\n\nGA (Gynekologická/urologická anamnéza):\n- neuvedeno\n\nSA (Sociální anamnéza):\n- neuvedeno\n\nAdherence a spolupráce pacienta:\n- neuvedeno\n\nObjektivní nález:\n- neuvedeno\n\nHodnocení (pracovní diagnóza / klinický závěr):\n- neuvedeno\n\nNávrh vyšetření:\n- neuvedeno\n\nNávrh terapie:\n- neuvedeno\n\nPokyny a plán kontrol:\n- neuvedeno",
+      "evaluation": {
+        "scores": {
+          "factual_accuracy": {
+            "score": 1,
+            "reasoning": "No clinical facts or patient data are present in the transcript to support any report content; the report is entirely 'neuvedeno' without any factual basis."
+          },
+          "completeness": {
+            "score": 1,
+            "reasoning": "The transcript contains no clinical information, but the report also contains no data or inferred content; however, it misses the opportunity to note the absence of data explicitly or any contextual remarks."
+          },
+          "structure": {
+            "score": 5,
+            "reasoning": "The report is fully structured with all required sections present and correctly ordered."
+          },
+          "negation_handling": {
+            "score": 5,
+            "reasoning": "No negations are present in the report, so no conflation or errors in negation handling."
+          },
+          "clinical_language": {
+            "score": 5,
+            "reasoning": "The report uses professional and appropriate Czech medical documentation language."
+          },
+          "noise_resilience": {
+            "score": 5,
+            "reasoning": "The report excludes all non-clinical content and does not include any background noise or off-topic content from the transcript."
+          },
+          "brevity": {
+            "score": 5,
+            "reasoning": "The report is concise and contains no filler or verbose content."
+          },
+          "hallucinated_negation": {
+            "score": 5,
+            "reasoning": "No negations are present, so no hallucinated negations; U=0."
+          }
+        },
+        "composite_score": 3.8,
+        "hallucinations": [],
+        "omissions": [
+          "No clinical content or patient data present in transcript to document.",
+          "No mention of any clinical questions or answers, so report is empty."
+        ],
+        "summary": "The report is structurally perfect and professionally written but contains no clinical content or factual data due to the transcript's lack of medical dialogue, resulting in very low factual accuracy and completeness.",
+        "negation_inventory": [],
+        "hallucination_inventory": [],
+        "deterministic_checks": {
+          "total_checks": 21,
+          "passed": 19,
+          "failed": 2,
+          "skipped": 1,
+          "pass_rate": 0.9048,
+          "word_count": 71,
+          "checks": [
+            {
+              "id": "STRUCT-01",
+              "name": "All required sections present",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "All required sections present",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "STRUCT-02",
+              "name": "Section order correct",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Section order matches expected template",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "STRUCT-03",
+              "name": "No duplicate section headers",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No duplicate section headers found",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "LEN-01",
+              "name": "Word count in range",
+              "passed": false,
+              "severity": "MEDIUM",
+              "detail": "Word count outside range [100, 500]: 71 words",
+              "evidence": "71",
+              "skipped": false
+            },
+            {
+              "id": "LEN-02",
+              "name": "Bullet count per section",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No section has excessive bullet count",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NEG-01",
+              "name": "Temperature negation not hallucinated",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No hallucinated temperature negation detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NEG-02",
+              "name": "Allergy negation not hallucinated",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No hallucinated allergy negation detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NEG-03",
+              "name": "No neuvedeno+negation conflation",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No neuvedeno+negation conflation detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NEG-06",
+              "name": "Negation phrase density",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Skipped: transcript supplied — use NEG-01/02 instead",
+              "evidence": "",
+              "skipped": true
+            },
+            {
+              "id": "INFER-01",
+              "name": "No parenthetical inference prose",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No parenthetical reasoning detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "INFER-02",
+              "name": "GA section does not contain meta-commentary",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No GA meta-commentary detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "INFER-03",
+              "name": "No inline reasoning prose outside parentheses",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No inline reasoning detected outside parentheses",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "INFER-04",
+              "name": "No differential diagnosis inference in anamnesis sections",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No misplaced differential diagnosis language detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "PLACE-01",
+              "name": "No action items in Adherence section",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No action items detected in Adherence section",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "PLACE-02",
+              "name": "No subjective values in Objektivní nález",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No subjective wording detected in Objektivní nález",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NOISE-01",
+              "name": "Off-topic keyword detection",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No known off-topic keywords detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NOISE-02",
+              "name": "Doctor's non-clinical questions not in report",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No casual question text detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NOISE-03",
+              "name": "No post-visit events in report",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No post-visit events detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "VERBOSE-01",
+              "name": "Adherence section not template filler",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No filler phrases detected in Adherence section",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "VERBOSE-02",
+              "name": "SA section does not contain irrelevant workplace detail",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No irrelevant workplace detail detected in SA section",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "EMPTY-01",
+              "name": "Report is not a fully-empty shell",
+              "passed": false,
+              "severity": "CRITICAL",
+              "detail": "Only 1 section(s) contain substantive content beyond neuvedeno",
+              "evidence": "Identifikace pacienta",
+              "skipped": false
+            },
+            {
+              "id": "DUP-01",
+              "name": "No duplicate consecutive bullets",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No duplicate consecutive bullets detected",
+              "evidence": "",
+              "skipped": false
+            }
+          ]
+        },
+        "deterministic_pass_rate": 0.9047619047619048
+      },
+      "deterministic_checks": {
+        "total_checks": 21,
+        "passed": 19,
+        "failed": 2,
+        "skipped": 1,
+        "pass_rate": 0.9048,
+        "word_count": 71,
+        "checks": [
+          {
+            "id": "STRUCT-01",
+            "name": "All required sections present",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "All required sections present",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "STRUCT-02",
+            "name": "Section order correct",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Section order matches expected template",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "STRUCT-03",
+            "name": "No duplicate section headers",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No duplicate section headers found",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "LEN-01",
+            "name": "Word count in range",
+            "passed": false,
+            "severity": "MEDIUM",
+            "detail": "Word count outside range [100, 500]: 71 words",
+            "evidence": "71",
+            "skipped": false
+          },
+          {
+            "id": "LEN-02",
+            "name": "Bullet count per section",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No section has excessive bullet count",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NEG-01",
+            "name": "Temperature negation not hallucinated",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No hallucinated temperature negation detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NEG-02",
+            "name": "Allergy negation not hallucinated",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No hallucinated allergy negation detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NEG-03",
+            "name": "No neuvedeno+negation conflation",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No neuvedeno+negation conflation detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NEG-06",
+            "name": "Negation phrase density",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Skipped: transcript supplied — use NEG-01/02 instead",
+            "evidence": "",
+            "skipped": true
+          },
+          {
+            "id": "INFER-01",
+            "name": "No parenthetical inference prose",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No parenthetical reasoning detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "INFER-02",
+            "name": "GA section does not contain meta-commentary",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No GA meta-commentary detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "INFER-03",
+            "name": "No inline reasoning prose outside parentheses",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No inline reasoning detected outside parentheses",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "INFER-04",
+            "name": "No differential diagnosis inference in anamnesis sections",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No misplaced differential diagnosis language detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "PLACE-01",
+            "name": "No action items in Adherence section",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No action items detected in Adherence section",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "PLACE-02",
+            "name": "No subjective values in Objektivní nález",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No subjective wording detected in Objektivní nález",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NOISE-01",
+            "name": "Off-topic keyword detection",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No known off-topic keywords detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NOISE-02",
+            "name": "Doctor's non-clinical questions not in report",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No casual question text detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NOISE-03",
+            "name": "No post-visit events in report",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No post-visit events detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "VERBOSE-01",
+            "name": "Adherence section not template filler",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No filler phrases detected in Adherence section",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "VERBOSE-02",
+            "name": "SA section does not contain irrelevant workplace detail",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No irrelevant workplace detail detected in SA section",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "EMPTY-01",
+            "name": "Report is not a fully-empty shell",
+            "passed": false,
+            "severity": "CRITICAL",
+            "detail": "Only 1 section(s) contain substantive content beyond neuvedeno",
+            "evidence": "Identifikace pacienta",
+            "skipped": false
+          },
+          {
+            "id": "DUP-01",
+            "name": "No duplicate consecutive bullets",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No duplicate consecutive bullets detected",
+            "evidence": "",
+            "skipped": false
+          }
+        ]
+      },
+      "deterministic_pass_rate": 0.9047619047619048
+    },
+    {
+      "scenario": "S07_long_social_diabeto",
+      "transcript_words": 615,
+      "report_generation": {
+        "time_s": 6.13,
+        "prompt_tokens": 4524,
+        "completion_tokens": 866,
+        "reasoning_tokens": 0
+      },
+      "report": "Lékařská zpráva\n\nIdentifikace pacienta:\n- Jméno: paní Hálová\n- Věk / r. narození: neuvedeno\n- Datum návštěvy: 31. 05. 2026\n\nNO (Nynější onemocnění):\n- Hlavní problém: únava po cestování, noční hypoglykémie (2× za poslední měsíc)\n- Průběh aktuálních potíží: únava po dvoutýdenní dovolené v Chorvatsku, na Brači, s dcerou a rodinou; noční hypoglykémie probuzení kolem druhé ráno, pocení a třes, glykémie cca 3,1–3,2 mmol/l, řešeno vypitím džusu, stav se upravil; ranní glykémie nalačno většinou mezi 5,4 a 7,8 mmol/l podle večeře; zvýšená únava, celodenní hlídání dětí náročné; doprovodné příznaky neuvedeny; zvýšenou teplotu neguje; jiné obtíže neguje.\n\nRA (Rodinná anamnéza):\n- neuvedeno\n\nOA (Osobní anamnéza):\n- diabetes mellitus (typ neuveden)\n- noční hypoglykémie 2× za poslední měsíc\n- jiná chronická onemocnění neuvedena\n\nFA (Farmakologická anamnéza / aktuální medikace):\n- Tresiba 18 jednotek večer (bazální inzulin)\n- bolusy inzulinu dle dosavadního režimu (neuvedeno přesné dávkování)\n- medikace jiná neuvedena\n\nAA (Alergologická anamnéza):\n- alergie neguje\n\nGA (Gynekologická/urologická anamnéza):\n- neuvedeno\n\nSA (Sociální anamnéza):\n- pacientka byla na dovolené dva týdny u moře v Chorvatsku, na Brači\n- péče o děti a vnoučata (věk 5 a 9 let)\n- zmíněna únava z hlídání dětí a náročnost dovolené\n- pacientka pomáhá sousedce po operaci kyčle\n- jiné sociální údaje neuvedeny\n\nAdherence a spolupráce pacienta:\n- pacientka si měří glykémii doma, ranní hodnoty uvádí\n- zápisník jídel nevede pravidelně, zapomíná si zapisovat jídla\n- slibuje zlepšení ve vedení záznamů o stravě\n- režim inzulinové terapie dodržuje, bolusy dle dosavadního režimu\n- spolupráce částečná, zápisník stravy nedodržuje pravidelně\n\nObjektivní nález:\n- neuvedeno\n\nHodnocení (pracovní diagnóza / klinický závěr):\n- noční hypoglykémie při léčbě inzulinem Tresiba\n- únava po cestování\n\nNávrh vyšetření:\n- kontrolní HbA1c za šest týdnů (žádanka na odběr vydána)\n\nNávrh terapie:\n- snížení bazálního inzulinu Tresiba z 18 na 16 jednotek večer\n- bolusy inzulinu ponechat beze změny\n- měření glykémie před spaním, pokud méně než 6 mmol/l, doporučena malá svačina (kousek pečiva nebo jogurt, ne sladkosti)\n\nPokyny a plán kontrol:\n- kontrola HbA1c za šest týdnů\n- pacientka má hlásit opakované noční hypoglykémie dříve než při kontrole\n- doporučení vést zjednodušený zápisník stravy (hlavní jídla a přibližný čas)",
+      "evaluation": {
+        "scores": {
+          "factual_accuracy": {
+            "score": 3,
+            "reasoning": "Report includes a diagnosis of diabetes mellitus without explicit transcript confirmation of diagnosis or type, and allergy negation is stated without any allergy discussion in transcript, constituting hallucinations. Other clinical facts are well supported."
+          },
+          "completeness": {
+            "score": 4,
+            "reasoning": "Most relevant clinical and social information from transcript is captured, including insulin dosing, hypoglycemia episodes, social context, and adherence issues. Minor omission: no mention of patient's car trouble or travel fatigue details beyond 'únava po cestování'."
+          },
+          "structure": {
+            "score": 5,
+            "reasoning": "All required sections are present and correctly ordered with appropriate content placement."
+          },
+          "negation_handling": {
+            "score": 1,
+            "reasoning": "Three negations (zvýšenou teplotu neguje, jiné obtíže neguje, alergie neguje) are ungrounded as transcript lacks explicit questions and denials, indicating systematic conflation of 'neuvedeno' with negation."
+          },
+          "clinical_language": {
+            "score": 5,
+            "reasoning": "Report uses professional Czech medical terminology and style throughout."
+          },
+          "noise_resilience": {
+            "score": 5,
+            "reasoning": "Report excludes all non-clinical content and attributes statements correctly."
+          },
+          "brevity": {
+            "score": 5,
+            "reasoning": "Report is concise, focused, and free of filler or parenthetical reasoning."
+          },
+          "hallucinated_negation": {
+            "score": 1,
+            "reasoning": "U=3 (three ungrounded negations) triggers lowest score per hard cap rules."
+          }
+        },
+        "composite_score": 3.3,
+        "hallucinations": [
+          "Diagnosis of diabetes mellitus without explicit transcript confirmation",
+          "Negation of allergies without any allergy discussion in transcript",
+          "Negation of increased temperature and other complaints without explicit denial in transcript"
+        ],
+        "omissions": [
+          "No mention of patient's car trouble and anxiety about breakdown on highway",
+          "No detailed mention of travel fatigue beyond 'únava po cestování'"
+        ],
+        "summary": "The report is generally well structured and clinically detailed but includes ungrounded negations and an unsupported diabetes diagnosis. It omits some relevant social and symptomatic details from the transcript.",
+        "negation_inventory": [
+          {
+            "phrase": "zvýšenou teplotu neguje",
+            "transcript_support": null,
+            "grounded": false
+          },
+          {
+            "phrase": "jiné obtíže neguje",
+            "transcript_support": null,
+            "grounded": false
+          },
+          {
+            "phrase": "alergie neguje",
+            "transcript_support": null,
+            "grounded": false
+          }
+        ],
+        "hallucination_inventory": [
+          {
+            "claim": "únava po cestování",
+            "transcript_support": "no já se mám vlastně dobře, jen jsem trochu unavená po cestování"
+          },
+          {
+            "claim": "noční hypoglykémie (2× za poslední měsíc)",
+            "transcript_support": "Měla jste v poslední době nějaké nízké cukry? Ano, dvakrát v noci za poslední měsíc, probudila jsem se kolem druhé ráno, byla jsem zpocená a taková roztřesená, změřila jsem se a měla jsem asi 3,2, jednou 3,1 myslím."
+          },
+          {
+            "claim": "ranní glykémie nalačno většinou mezi 5,4 a 7,8 mmol/l podle večeře",
+            "transcript_support": "Jaké máte teď ranní hodnoty nalačno? Většinou tak mezi pěti a osmi, doma si měřím, někdy 5,4, někdy 7,8, podle večeře."
+          },
+          {
+            "claim": "diabetes mellitus (typ neuveden)",
+            "transcript_support": null
+          },
+          {
+            "claim": "Tresiba 18 jednotek večer (bazální inzulin)",
+            "transcript_support": "Kolik teď dáváte Tresiby večer? Osmnáct jednotek, pořád stejně."
+          },
+          {
+            "claim": "bolusy inzulinu dle dosavadního režimu (neuvedeno přesné dávkování)",
+            "transcript_support": "A bolusy necháme zatím podle dosavadního režimu"
+          },
+          {
+            "claim": "alergie neguje",
+            "transcript_support": null
+          },
+          {
+            "claim": "pacientka byla na dovolené dva týdny u moře v Chorvatsku, na Brači",
+            "transcript_support": "byli jsme teď dva týdny v Chorvatsku, na Brači, s dcerou a její rodinou"
+          },
+          {
+            "claim": "péče o děti a vnoučata (věk 5 a 9 let)",
+            "transcript_support": "Malé je pět a starší vnuk už devět"
+          },
+          {
+            "claim": "zmíněna únava z hlídání dětí a náročnost dovolené",
+            "transcript_support": "jen já už nemám takovou energii jako dřív, víte, celý den hlídat děti"
+          },
+          {
+            "claim": "pacientka pomáhá sousedce po operaci kyčle",
+            "transcript_support": "paní Novotná ze čtvrtého patra byla na operaci kyčle ... tak jí občas nesu nákup"
+          },
+          {
+            "claim": "pacientka si měří glykémii doma, ranní hodnoty uvádí",
+            "transcript_support": "doma si měřím, někdy 5,4, někdy 7,8"
+          },
+          {
+            "claim": "zápisník jídel nevede pravidelně, zapomíná si zapisovat jídla",
+            "transcript_support": "já ten zápisník prostě nedělám, zapomínám a pak už si večer nevzpomenu co přesně jsem jedla"
+          },
+          {
+            "claim": "slibuje zlepšení ve vedení záznamů o stravě",
+            "transcript_support": "Já se polepším, snad."
+          },
+          {
+            "claim": "režim inzulinové terapie dodržuje, bolusy dle dosavadního režimu",
+            "transcript_support": "bolusy necháme zatím podle dosavadního režimu"
+          },
+          {
+            "claim": "noční hypoglykémie při léčbě inzulinem Tresiba",
+            "transcript_support": "Vzhledem k těm dvěma nočním hypoglykémiím snížíme bazální inzulin Tresiba z osmnácti na šestnáct jednotek večer."
+          },
+          {
+            "claim": "únava po cestování",
+            "transcript_support": "jen jsem trochu unavená po cestování"
+          },
+          {
+            "claim": "kontrolní HbA1c za šest týdnů (žádanka na odběr vydána)",
+            "transcript_support": "HbA1c uděláme za šest týdnů, ať vidíme efekt úpravy, vezmete si žádanku na odběr."
+          },
+          {
+            "claim": "snížení bazálního inzulinu Tresiba z 18 na 16 jednotek večer",
+            "transcript_support": "snížíme bazální inzulin Tresiba z osmnácti na šestnáct jednotek večer"
+          },
+          {
+            "claim": "měření glykémie před spaním, pokud méně než 6 mmol/l, doporučena malá svačina (kousek pečiva nebo jogurt, ne sladkosti)",
+            "transcript_support": "chci, abyste si měřila glykémii před spaním. Pokud bude před spaním méně než 6 mmol/l, dejte si malou svačinu, třeba kousek pečiva nebo jogurt, ne sladkosti"
+          },
+          {
+            "claim": "doporučení vést zjednodušený zápisník stravy (hlavní jídla a přibližný čas)",
+            "transcript_support": "ten zápisník stravy zkuste aspoň zjednodušeně, nemusí to být román, jen hlavní jídla a přibližně kdy"
+          }
+        ],
+        "deterministic_checks": {
+          "total_checks": 21,
+          "passed": 20,
+          "failed": 1,
+          "skipped": 1,
+          "pass_rate": 0.9524,
+          "word_count": 327,
+          "checks": [
+            {
+              "id": "STRUCT-01",
+              "name": "All required sections present",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "All required sections present",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "STRUCT-02",
+              "name": "Section order correct",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Section order matches expected template",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "STRUCT-03",
+              "name": "No duplicate section headers",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No duplicate section headers found",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "LEN-01",
+              "name": "Word count in range",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Word count in range [100, 500]: 327 words",
+              "evidence": "327",
+              "skipped": false
+            },
+            {
+              "id": "LEN-02",
+              "name": "Bullet count per section",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No section has excessive bullet count",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NEG-01",
+              "name": "Temperature negation not hallucinated",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No hallucinated temperature negation detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NEG-02",
+              "name": "Allergy negation not hallucinated",
+              "passed": false,
+              "severity": "HIGH",
+              "detail": "'alergie neguje' found in report but allergy topic absent from transcript",
+              "evidence": "alergie neguje",
+              "skipped": false
+            },
+            {
+              "id": "NEG-03",
+              "name": "No neuvedeno+negation conflation",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No neuvedeno+negation conflation detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NEG-06",
+              "name": "Negation phrase density",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "Skipped: transcript supplied — use NEG-01/02 instead",
+              "evidence": "",
+              "skipped": true
+            },
+            {
+              "id": "INFER-01",
+              "name": "No parenthetical inference prose",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No parenthetical reasoning detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "INFER-02",
+              "name": "GA section does not contain meta-commentary",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No GA meta-commentary detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "INFER-03",
+              "name": "No inline reasoning prose outside parentheses",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No inline reasoning detected outside parentheses",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "INFER-04",
+              "name": "No differential diagnosis inference in anamnesis sections",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No misplaced differential diagnosis language detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "PLACE-01",
+              "name": "No action items in Adherence section",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No action items detected in Adherence section",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "PLACE-02",
+              "name": "No subjective values in Objektivní nález",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No subjective wording detected in Objektivní nález",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NOISE-01",
+              "name": "Off-topic keyword detection",
+              "passed": true,
+              "severity": "HIGH",
+              "detail": "No known off-topic keywords detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NOISE-02",
+              "name": "Doctor's non-clinical questions not in report",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No casual question text detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "NOISE-03",
+              "name": "No post-visit events in report",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No post-visit events detected",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "VERBOSE-01",
+              "name": "Adherence section not template filler",
+              "passed": true,
+              "severity": "MEDIUM",
+              "detail": "No filler phrases detected in Adherence section",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "VERBOSE-02",
+              "name": "SA section does not contain irrelevant workplace detail",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No irrelevant workplace detail detected in SA section",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "EMPTY-01",
+              "name": "Report is not a fully-empty shell",
+              "passed": true,
+              "severity": "CRITICAL",
+              "detail": "11 sections contain substantive content",
+              "evidence": "",
+              "skipped": false
+            },
+            {
+              "id": "DUP-01",
+              "name": "No duplicate consecutive bullets",
+              "passed": true,
+              "severity": "LOW",
+              "detail": "No duplicate consecutive bullets detected",
+              "evidence": "",
+              "skipped": false
+            }
+          ]
+        },
+        "deterministic_pass_rate": 0.9523809523809523
+      },
+      "deterministic_checks": {
+        "total_checks": 21,
+        "passed": 20,
+        "failed": 1,
+        "skipped": 1,
+        "pass_rate": 0.9524,
+        "word_count": 327,
+        "checks": [
+          {
+            "id": "STRUCT-01",
+            "name": "All required sections present",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "All required sections present",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "STRUCT-02",
+            "name": "Section order correct",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Section order matches expected template",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "STRUCT-03",
+            "name": "No duplicate section headers",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No duplicate section headers found",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "LEN-01",
+            "name": "Word count in range",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Word count in range [100, 500]: 327 words",
+            "evidence": "327",
+            "skipped": false
+          },
+          {
+            "id": "LEN-02",
+            "name": "Bullet count per section",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No section has excessive bullet count",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NEG-01",
+            "name": "Temperature negation not hallucinated",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No hallucinated temperature negation detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NEG-02",
+            "name": "Allergy negation not hallucinated",
+            "passed": false,
+            "severity": "HIGH",
+            "detail": "'alergie neguje' found in report but allergy topic absent from transcript",
+            "evidence": "alergie neguje",
+            "skipped": false
+          },
+          {
+            "id": "NEG-03",
+            "name": "No neuvedeno+negation conflation",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No neuvedeno+negation conflation detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NEG-06",
+            "name": "Negation phrase density",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "Skipped: transcript supplied — use NEG-01/02 instead",
+            "evidence": "",
+            "skipped": true
+          },
+          {
+            "id": "INFER-01",
+            "name": "No parenthetical inference prose",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No parenthetical reasoning detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "INFER-02",
+            "name": "GA section does not contain meta-commentary",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No GA meta-commentary detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "INFER-03",
+            "name": "No inline reasoning prose outside parentheses",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No inline reasoning detected outside parentheses",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "INFER-04",
+            "name": "No differential diagnosis inference in anamnesis sections",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No misplaced differential diagnosis language detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "PLACE-01",
+            "name": "No action items in Adherence section",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No action items detected in Adherence section",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "PLACE-02",
+            "name": "No subjective values in Objektivní nález",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No subjective wording detected in Objektivní nález",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NOISE-01",
+            "name": "Off-topic keyword detection",
+            "passed": true,
+            "severity": "HIGH",
+            "detail": "No known off-topic keywords detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NOISE-02",
+            "name": "Doctor's non-clinical questions not in report",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No casual question text detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "NOISE-03",
+            "name": "No post-visit events in report",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No post-visit events detected",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "VERBOSE-01",
+            "name": "Adherence section not template filler",
+            "passed": true,
+            "severity": "MEDIUM",
+            "detail": "No filler phrases detected in Adherence section",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "VERBOSE-02",
+            "name": "SA section does not contain irrelevant workplace detail",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No irrelevant workplace detail detected in SA section",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "EMPTY-01",
+            "name": "Report is not a fully-empty shell",
+            "passed": true,
+            "severity": "CRITICAL",
+            "detail": "11 sections contain substantive content",
+            "evidence": "",
+            "skipped": false
+          },
+          {
+            "id": "DUP-01",
+            "name": "No duplicate consecutive bullets",
+            "passed": true,
+            "severity": "LOW",
+            "detail": "No duplicate consecutive bullets detected",
+            "evidence": "",
+            "skipped": false
+          }
+        ]
+      },
+      "deterministic_pass_rate": 0.9523809523809523
+    }
+  ],
+  "aggregate": {
+    "mean_composite": 3.81,
+    "min_composite": 3.3,
+    "max_composite": 4.4,
+    "per_dimension_means": {
+      "factual_accuracy": 3.14,
+      "completeness": 4.0,
+      "structure": 5.0,
+      "negation_handling": 3.0,
+      "clinical_language": 5.0,
+      "noise_resilience": 5.0,
+      "brevity": 5.0,
+      "hallucinated_negation": 2.43
+    },
+    "deterministic_pass_rate": 0.9252
+  }
+}

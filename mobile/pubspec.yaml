@@ -34,3 +34,8 @@ flutter:
     - assets/demo_scenarios/
     - assets/models/
     - assets/hotwords_cs_medical.txt
+  fonts:
+    - family: PlusJakartaSans
+      fonts:
+        - asset: assets/fonts/PlusJakartaSans-ExtraBold.ttf
+          weight: 800

@@ -1367,11 +1367,25 @@ class SessionNotifier extends StateNotifier<SessionState> {
   /// Fire-and-forget — errors are logged, never shown to user.
   Future<void> _sendEmailIfEnabled(String report) async {
     try {
-      final enabled = _ref.read(emailReportEnabledProvider);
-      if (!enabled) return;
+      final prefs = await SharedPreferences.getInstance();
+      final enabled = _ref.read(emailReportEnabledProvider) ||
+          (prefs.getBool(AppConstants.emailReportEnabledPrefKey) ?? false);
+      if (!enabled) {
+        WhisperService.debugLog(
+            '[SessionNotifier] Email send skipped: auto-send disabled');
+        return;
+      }
 
-      final email = _ref.read(emailReportAddressProvider);
-      if (email.isEmpty) return;
+      final providerEmail = _ref.read(emailReportAddressProvider).trim();
+      final storedEmail =
+          (prefs.getString(AppConstants.emailReportAddressPrefKey) ?? '')
+              .trim();
+      final email = providerEmail.isNotEmpty ? providerEmail : storedEmail;
+      if (email.isEmpty) {
+        WhisperService.debugLog(
+            '[SessionNotifier] Email send skipped: no email configured');
+        return;
+      }
 
       final vt = await _getVisitTypeApi();
       await _reportService.sendReportEmail(

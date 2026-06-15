@@ -34,9 +34,9 @@ extension TranscriptionModelApi on TranscriptionModel {
       case TranscriptionModel.small:
         return 'Small';
       case TranscriptionModel.turbo:
-        return 'Turbo';
+        return 'Local';
       case TranscriptionModel.cloud:
-        return 'Cloud (výchozí)';
+        return 'Cloud';
       case TranscriptionModel.hybrid:
         return 'Hybrid';
     }

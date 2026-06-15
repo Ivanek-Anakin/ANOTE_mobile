@@ -302,10 +302,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     SegmentedButton<TranscriptionModel>(
                       segments: [
                         ButtonSegment(
-                          value: TranscriptionModel.small,
-                          label: Text(TranscriptionModel.small.label),
-                        ),
-                        ButtonSegment(
                           value: TranscriptionModel.turbo,
                           label: Text(TranscriptionModel.turbo.label),
                           enabled: !turboBlocked,
@@ -342,7 +338,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         currentModel != TranscriptionModel.turbo) ...[
                       const SizedBox(height: 4),
                       Text(
-                        'Turbo bylo po předchozím selhání na tomto zařízení vypnuto.',
+                        'Local bylo po předchozím selhání na tomto zařízení vypnuto.',
                         style: theme.textTheme.bodySmall
                             ?.copyWith(color: theme.colorScheme.error),
                       ),
@@ -351,7 +347,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         currentModel == TranscriptionModel.turbo) ...[
                       const SizedBox(height: 4),
                       Text(
-                        'Turbo na tomto zařízení nebylo ověřeno — experimentální.',
+                        'Local na tomto zařízení nebylo ověřeno — experimentální.',
                         style: theme.textTheme.bodySmall
                             ?.copyWith(color: theme.colorScheme.tertiary),
                       ),

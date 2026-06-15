@@ -104,7 +104,7 @@ ThemeData _buildLightTheme() {
   const card = Color(0xFFFFFFFF);
   const border = Color(0xFFCBD5E1);
   const text = Color(0xFF1E293B);
-  const accent = Color(0xFF0891B2);
+  const accent = Color(0xFF419288);
   const danger = Color(0xFFDC2626);
   const success = Color(0xFF059669);
 
@@ -150,7 +150,7 @@ ThemeData _buildDarkTheme() {
   const cardDark = Color(0xFF1E293B);
   const borderDark = Color(0xFF334155);
   const textDark = Color(0xFFF1F5F9);
-  const accentDark = Color(0xFF06B6D4);
+  const accentDark = Color(0xFF419288);
   const dangerDark = Color(0xFFEF4444);
   const successDark = Color(0xFF10B981);
 
